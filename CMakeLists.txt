@@ -16,5 +16,5 @@ add_executable(usbtest
 
 target_include_directories(usbtest PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
-target_link_libraries(usbtest PRIVATE pico_stdlib tinyusb_device tinyusb_board)
+target_link_libraries(usbtest PRIVATE pico_stdlib tinyusb_device tinyusb_board hardware_adc hardware_dma)
 pico_add_extra_outputs(usbtest)

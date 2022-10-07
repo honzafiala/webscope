@@ -3,25 +3,41 @@
 #include "tusb_option.h"
 
 #include "device/usbd_pvt.h"
+#include "pico/stdlib.h"
 
-#define USBTEST_LOG1    //printf
-#define USBTEST_LOG2    //printf
+
+
+
+#define USBTEST_LOG1    printf
+#define USBTEST_LOG2    printf
 
 void board_led_activity(void);
 
-static uint8_t _ctrl_req_buf[256];
+uint8_t _ctrl_req_buf[256];
 
-#define BULK_BUFLEN    (32 * 1024)
+//#define BULK_BUFLEN    (32 * 1024)
+#define BULK_BUFLEN    (64)
 
 static uint8_t _bulk_in;
 static uint8_t _bulk_out;
-static uint8_t _bulk_in_buf[BULK_BUFLEN];
+uint8_t _bulk_in_buf[BULK_BUFLEN];
 static uint8_t _bulk_out_buf[BULK_BUFLEN];
+
+extern volatile int buf_ready;
+
+#define CAPTURE_DEPTH 32768
+
+extern uint8_t capture_buf[CAPTURE_DEPTH];
+extern uint8_t capture_buf2[CAPTURE_DEPTH];
+
+extern uint usb_pin;
 
 
 static void usbtest_init(void)
 {
     USBTEST_LOG1("%s:\n", __func__);
+
+
 }
 
 static void usbtest_reset(uint8_t rhport)
@@ -100,19 +116,39 @@ static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_
 
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
 {
-    USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
+   // USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
 
     board_led_activity();
 
     TU_VERIFY(result == XFER_RESULT_SUCCESS);
 
     if (!xferred_bytes)
-        USBTEST_LOG2("                 ZLP\n");
+    //    USBTEST_LOG2("                 ZLP\n");
 
     if (ep_addr == _bulk_out)
         TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
-    else if (ep_addr == _bulk_in)
-        TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, sizeof(_bulk_in_buf)) );
+    else if (ep_addr == _bulk_in) { 
+        if (buf_ready == -1) {
+            TU_ASSERT (
+                 usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0) 
+             );
+        }
+        else if (buf_ready == 0) {
+            TU_ASSERT (
+                usbd_edpt_xfer(rhport, _bulk_in, capture_buf, CAPTURE_DEPTH) 
+            );
+            gpio_put(usb_pin, 1);
+            gpio_put(usb_pin, 0);
+        }
+        else if (buf_ready == 1) {
+            TU_ASSERT (
+                usbd_edpt_xfer(rhport, _bulk_in, capture_buf2, CAPTURE_DEPTH) 
+            );
+            gpio_put(usb_pin, 1);
+            gpio_put(usb_pin, 0);
+        }
+        buf_ready = -1;
+    }
     else
         return false;
 

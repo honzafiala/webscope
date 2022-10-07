@@ -21,7 +21,7 @@ tusb_desc_device_t const device_descriptor = {
     .bDeviceProtocol 	= 0,
     .bMaxPacketSize0 	= 64,
 
-    .idVendor        	= 0x0525, // NetChip
+    .idVendor        	= 0x0, // NetChip
     .idProduct       	= 0xa4a0, // Linux-USB "Gadget Zero"
     .bcdDevice       	= 0,
 
