@@ -1,1 +1,1 @@
-[{"node":"ADC","expanded":true,"format":0,"pinned":false},{"node":"ADC.DIV","expanded":true,"format":0},{"node":"DMA","expanded":true,"format":0,"pinned":false}]
+[{"node":"ADC","expanded":false,"format":0,"pinned":true},{"node":"ADC.DIV","expanded":true,"format":0},{"node":"DMA","expanded":false,"format":0,"pinned":true},{"node":"IO_BANK0","expanded":true,"format":0,"pinned":false},{"node":"IO_BANK0.GPIO16_CTRL","expanded":true,"format":0},{"node":"IO_BANK0.GPIO17_CTRL","expanded":true,"format":0}]

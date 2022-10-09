@@ -11,7 +11,6 @@
 #define USBTEST_LOG1    printf
 #define USBTEST_LOG2    printf
 
-void board_led_activity(void);
 
 uint8_t _ctrl_req_buf[256];
 
@@ -20,8 +19,13 @@ uint8_t _ctrl_req_buf[256];
 
 static uint8_t _bulk_in;
 static uint8_t _bulk_out;
+
+static uint8_t _bulk_in2;
+static uint8_t _bulk_out2;
+
+
 uint8_t _bulk_in_buf[BULK_BUFLEN];
-static uint8_t _bulk_out_buf[BULK_BUFLEN];
+uint8_t _bulk_out_buf[BULK_BUFLEN];
 
 extern volatile int buf_ready;
 
@@ -31,6 +35,8 @@ extern uint8_t capture_buf[CAPTURE_DEPTH];
 extern uint8_t capture_buf2[CAPTURE_DEPTH];
 
 extern uint usb_pin;
+
+volatile uint data_ready = 0;
 
 
 static void usbtest_init(void)
@@ -67,16 +73,21 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
     usbtest_disable_endpoint(rhport, &_bulk_in);
     usbtest_disable_endpoint(rhport, &_bulk_out);
 
+
+
+
     uint8_t const * p_desc = tu_desc_next(itf_desc);
+
     TU_ASSERT( usbd_open_edpt_pair(rhport, p_desc, 2, TUSB_XFER_BULK, &_bulk_out, &_bulk_in) );
 
     TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
     TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, sizeof(_bulk_in_buf)) );
 
-    USBTEST_LOG2("\n\n\n\n");
 
     return len;
 }
+
+extern void handle_usb_in(uint32_t xferred_bytes, uint8_t * buf);
 
 static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * req)
 {
@@ -116,17 +127,18 @@ static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_
 
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
 {
-   // USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
+    USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
 
-    board_led_activity();
 
     TU_VERIFY(result == XFER_RESULT_SUCCESS);
 
-    if (!xferred_bytes)
-    //    USBTEST_LOG2("                 ZLP\n");
+    // if (!xferred_bytes) USBTEST_LOG2("                 ZLP\n");
 
-    if (ep_addr == _bulk_out)
+    if (ep_addr == _bulk_out) {
+       //handle_usb_in(xferred_bytes, _bulk_out_buf);
+       data_ready = xferred_bytes;
         TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
+    }
     else if (ep_addr == _bulk_in) { 
         if (buf_ready == -1) {
             TU_ASSERT (

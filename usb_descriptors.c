@@ -55,6 +55,8 @@ typedef struct TU_ATTR_PACKED {
     tusb_desc_interface_t interface;
     tusb_desc_endpoint_t bulk_in;
     tusb_desc_endpoint_t bulk_out;
+    tusb_desc_endpoint_t bulk_in2;
+    tusb_desc_endpoint_t bulk_out2;
 } usbtest_source_sink_config_descriptor_t;
 
 usbtest_source_sink_config_descriptor_t source_sink_config_descriptor = {
@@ -74,7 +76,7 @@ usbtest_source_sink_config_descriptor_t source_sink_config_descriptor = {
         .bDescriptorType = TUSB_DESC_INTERFACE,
         .bInterfaceNumber = 0,
         .bAlternateSetting = 0,
-        .bNumEndpoints = 2,
+        .bNumEndpoints = 4,
         .bInterfaceClass = TUSB_CLASS_VENDOR_SPECIFIC,
         .bInterfaceSubClass = 0x00,
         .bInterfaceProtocol = 0x00,
@@ -83,6 +85,8 @@ usbtest_source_sink_config_descriptor_t source_sink_config_descriptor = {
 
     .bulk_in = USBTEST_BULK_DESCRIPTOR(0x81),
     .bulk_out = USBTEST_BULK_DESCRIPTOR(0x01),
+    .bulk_in2 = USBTEST_BULK_DESCRIPTOR(0x82),
+    .bulk_out2 = USBTEST_BULK_DESCRIPTOR(0x02)
 };
 
 uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
@@ -114,7 +118,7 @@ static const char *strings[] = {
 uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 {
     (void) langid;
-
+    
     if (index >= TU_ARRAY_SIZE(strings))
         return NULL;
 

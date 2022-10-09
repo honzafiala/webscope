@@ -8,35 +8,25 @@
 #include "hardware/adc.h"
 #include "hardware/dma.h"
 
-static uint32_t led_on_ms, led_off_ms;
+#include "pico/multicore.h"
 
-static void board_led_blink_on(uint32_t off_ms)
-{
-    board_led_on();
-    led_on_ms = 0;
-    led_off_ms = off_ms;
-}
+extern void usb_thread();
 
-static void board_led_blink_off(uint32_t on_ms)
-{
-    board_led_off();
-    led_on_ms = on_ms;
-    led_off_ms = 0;
-}
+#include "jsmn.h"
 
-void board_led_activity(void)
-{
-    board_led_blink_on(board_millis() + 10); // blink on 10ms
-}
-
-static void board_led_task(void)
-{
-    uint32_t now_ms = board_millis();
-
-    if (led_off_ms && now_ms >= led_off_ms)
-        board_led_blink_off(now_ms + 5000); // schedule new idle blink in 5 seconds
-    else if (led_on_ms && now_ms >= led_on_ms)
-        board_led_blink_on(now_ms + 1000); // idle blink on for one second
+void handle_usb_in(uint32_t len, uint8_t * buf) {
+    printf("%.*s\n", len, buf);
+    jsmn_parser p;
+    jsmntok_t t[16];
+    jsmn_init(&p);
+    int ret = jsmn_parse(&p, buf, len, t, 16);
+    for (int i = 1; i < ret; i+=2) {
+        jsmntok_t token = t[i];
+        jsmntok_t token2 = t[i + 1];
+        if (token.type == 0) continue;
+        printf("%d %d, %d %d| ", token.start, token.end - token.start, token2.start, token2.end - token2.start);
+        printf("%.*s: %.*s\n", token.end - token.start, &buf[token.start], token2.end - token2.start, &buf[token2.start]);
+    }
 }
 
 #define BULK_BUFLEN    (32 * 1024)
@@ -54,15 +44,17 @@ uint dma_chan2;
 dma_channel_config cfg, cfg2;
 
 uint dma_pin = 16;
-uint usb_pin = 17;
+uint dma_pin2 = 17;
+uint usb_pin = 18;
 
 volatile int buf_ready = -1;
 
 void dma1_irq() {
+    static bool s1 = false;
+    s1 = !s1;
     dma_hw->ints1 = (1u << dma_chan);
-    gpio_put(dma_pin, 1);
-    printf("1\n");
-    gpio_put(dma_pin, 0);
+    gpio_put(dma_pin, s1);
+
     buf_ready = 0;
     // reconfigure DMA 2
  dma_channel_configure(dma_chan2, &cfg2,
@@ -76,10 +68,11 @@ void dma1_irq() {
 }
 
 void dma2_irq() {
+    static bool s1 = false;
+    s1 = !s1;
     dma_hw->ints1 = (1u << dma_chan2);
-    gpio_put(dma_pin, 1);
-    printf("2\n");
-    gpio_put(dma_pin, 0);
+    gpio_put(dma_pin2, s1);
+
     buf_ready = 1;
     // reconfigure DMA 1
     dma_channel_configure(dma_chan, &cfg,
@@ -94,13 +87,99 @@ void dma2_irq() {
 }
 
 
+extern volatile uint data_ready;
+extern uint8_t _bulk_out_buf[BULK_BUFLEN];
+
+uint usb_receive(uint8_t * buf) {
+    while (data_ready == 0);
+    memcpy(buf, _bulk_out_buf, data_ready);
+    uint ret = data_ready;
+    data_ready = 0;
+    return ret;
+}
+
+uint usb_receive_nb(uint8_t * buf) {
+    if (data_ready == 0) return 0;
+    memcpy(buf, _bulk_out_buf, data_ready);
+    uint ret = data_ready;
+    data_ready = 0;
+    return ret;
+}
+
+typedef struct {
+    uint32_t clk_div;
+} capture_config_t;
+
+capture_config_t parse_config(uint len, uint8_t * buf) {
+    capture_config_t config;
+
+    printf("%.*s\n", len, buf);
+    jsmn_parser p;
+    jsmntok_t t[16];
+    jsmn_init(&p);
+    int ret = jsmn_parse(&p, buf, len, t, 16);
+    for (int i = 1; i < ret; i+=2) {
+        jsmntok_t token = t[i];
+        jsmntok_t token2 = t[i + 1];
+        if (token.type == 0) continue;
+        printf("%.*s: %.*s\n", token.end - token.start, &buf[token.start], token2.end - token2.start, &buf[token2.start]);
+        if (!strncmp("clk_div", &buf[token.start], token.end - token.start)) {
+            config.clk_div = atoi(&buf[token2.start]);
+        }
+    }   
+    return config;
+}
 
 int main(void)
 {
     board_init();
 
+    multicore_launch_core1(usb_thread);
+
+
+    /*
+    bool capture_aborted = false;
+    bool capture_configured = false;
+    enum capture_state_t {STOP, ABORTED, UNCONFIGURED, SINGLE, CONTINUOUS};
+    enum capture_state_t capture_state = UNCONFIGURED;
+
+    capture_config_t capture_config;
+    while (1) {
+        // Read and parse capture configuration
+        uint8_t config_buf[256];
+        if (capture_state == UNCONFIGURED || usb_data_ready()) {
+                uint len = usb_receive(config_buf);
+                capture_config = parse_config(len, config_buf);   
+                capture_state = 
+        }
+
+        // Configure and start the ADC
+        configure_capture(config);
+        start_capture();
+        // Wait until capture is done
+
+        while (!capture_finished())
+            if (usb_data_ready()) {
+                abort_capture();
+                capture_aborted = true;
+            }
+        
+        // Send captured data
+        if (!capture_aborted) {
+
+        }
+    }
+    */
+
+
+
+    
+
     gpio_init(dma_pin);
     gpio_set_dir(dma_pin, GPIO_OUT);
+    gpio_init(dma_pin2);
+    gpio_set_dir(dma_pin2, GPIO_OUT);
+
     gpio_init(usb_pin);
     gpio_set_dir(usb_pin, GPIO_OUT);
 
@@ -145,7 +224,7 @@ int main(void)
         CAPTURE_DEPTH,  // transfer count
         false            // start immediately
     );
-    adc_set_clkdiv(960/4);
+    adc_set_clkdiv(0);
 
 
     // Configure DMA 2
@@ -188,21 +267,20 @@ int main(void)
     // adc_fifo_drain();
 
 
-    tusb_init();
+
+    while (1) {
+        uint8_t * buf[256];
+        uint len = usb_receive_nb(buf);
+        if (len == 0) continue;
+        capture_config_t cfg = parse_config(len, buf);
+
+        adc_run(false);
+        adc_set_clkdiv(cfg.clk_div);
+        adc_run(true);
+    };
 
 
-    printf("usbtest\n");
 
-    board_led_blink_on(board_millis() + 100);
-
-
-
-    while (1)
-    {
-        tud_task();
-        board_led_task();
-        //sleep_ms(10);
-    }
 
     return 0;
 }
