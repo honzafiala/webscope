@@ -29,7 +29,7 @@ uint8_t _bulk_out_buf[BULK_BUFLEN];
 
 extern volatile int buf_ready;
 
-#define CAPTURE_DEPTH 32768
+#define CAPTURE_DEPTH (96*1024)
 
 extern uint8_t capture_buf[CAPTURE_DEPTH];
 extern uint8_t capture_buf2[CAPTURE_DEPTH];
@@ -37,6 +37,11 @@ extern uint8_t capture_buf2[CAPTURE_DEPTH];
 extern uint usb_pin;
 
 volatile uint data_ready = 0;
+
+extern volatile uint trig_index;
+static uint xfer_count = 0;
+
+extern volatile bool xfer_started;
 
 
 static void usbtest_init(void)
@@ -81,13 +86,29 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
     TU_ASSERT( usbd_open_edpt_pair(rhport, p_desc, 2, TUSB_XFER_BULK, &_bulk_out, &_bulk_in) );
 
     TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
-    TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, sizeof(_bulk_in_buf)) );
+    TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0));
 
 
     return len;
 }
 
 extern void handle_usb_in(uint32_t xferred_bytes, uint8_t * buf);
+
+volatile bool xfer_complete = false;
+
+volatile bool data_sent = false;
+uint8_t volatile * buf_in;
+volatile uint buf_in_size;
+
+void usb_send(uint8_t * buf, uint size) {
+    printf("usb_send %d\n", buf_in_size);
+    data_sent = false;
+    buf_in = buf;
+    buf_in_size = size;
+    while (!data_sent);
+    buf_in_size = 0;
+}
+
 
 static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * req)
 {
@@ -132,6 +153,7 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
 
     TU_VERIFY(result == XFER_RESULT_SUCCESS);
 
+    static uint xfer_index; 
     // if (!xferred_bytes) USBTEST_LOG2("                 ZLP\n");
 
     if (ep_addr == _bulk_out) {
@@ -139,27 +161,11 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
        data_ready = xferred_bytes;
         TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
     }
-    else if (ep_addr == _bulk_in) { 
-        if (buf_ready == -1) {
-            TU_ASSERT (
-                 usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0) 
-             );
-        }
-        else if (buf_ready == 0) {
-            TU_ASSERT (
-                usbd_edpt_xfer(rhport, _bulk_in, capture_buf, CAPTURE_DEPTH) 
-            );
-            gpio_put(usb_pin, 1);
-            gpio_put(usb_pin, 0);
-        }
-        else if (buf_ready == 1) {
-            TU_ASSERT (
-                usbd_edpt_xfer(rhport, _bulk_in, capture_buf2, CAPTURE_DEPTH) 
-            );
-            gpio_put(usb_pin, 1);
-            gpio_put(usb_pin, 0);
-        }
-        buf_ready = -1;
+
+    else if (ep_addr == _bulk_in) {
+        usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_size);
+        printf("sending %d bytes\n", buf_in_size);
+        data_sent = true;     
     }
     else
         return false;

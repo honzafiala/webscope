@@ -10,184 +10,102 @@
 
 #include "pico/multicore.h"
 
-extern void usb_thread();
+extern void core1_task();
 
-#include "jsmn.h"
+volatile bool xfer_started = false;
 
-void handle_usb_in(uint32_t len, uint8_t * buf) {
-    printf("%.*s\n", len, buf);
-    jsmn_parser p;
-    jsmntok_t t[16];
-    jsmn_init(&p);
-    int ret = jsmn_parse(&p, buf, len, t, 16);
-    for (int i = 1; i < ret; i+=2) {
-        jsmntok_t token = t[i];
-        jsmntok_t token2 = t[i + 1];
-        if (token.type == 0) continue;
-        printf("%d %d, %d %d| ", token.start, token.end - token.start, token2.start, token2.end - token2.start);
-        printf("%.*s: %.*s\n", token.end - token.start, &buf[token.start], token2.end - token2.start, &buf[token2.start]);
-    }
-}
-
-#define BULK_BUFLEN    (32 * 1024)
-extern uint8_t * _bulk_in_buf;
+extern volatile bool xfer_complete;
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH 32768
+#define CAPTURE_DEPTH (96*1024)     
 
-uint8_t capture_buf[CAPTURE_DEPTH];
-uint8_t capture_buf2[CAPTURE_DEPTH];
+uint8_t capture_buf[CAPTURE_DEPTH] = {128};
+uint8_t capture_buf2[CAPTURE_DEPTH] = {128};
+uint8_t lol[1024];
 
-uint dma_chan;
-uint dma_chan2;
+uint dma_chan, dma_chan2;
 
-dma_channel_config cfg, cfg2;
+volatile dma_channel_config cfg, cfg2;
 
 uint dma_pin = 16;
 uint dma_pin2 = 17;
 uint usb_pin = 18;
 
 volatile int buf_ready = -1;
+extern volatile int dma_finished;
 
-void dma1_irq() {
-    static bool s1 = false;
-    s1 = !s1;
-    dma_hw->ints1 = (1u << dma_chan);
-    gpio_put(dma_pin, s1);
+uint trig = -1;
+volatile uint trig_index;
 
-    buf_ready = 0;
-    // reconfigure DMA 2
- dma_channel_configure(dma_chan2, &cfg2,
-        capture_buf2,    // dst
-        &adc_hw->fifo,  // src
-        CAPTURE_DEPTH,  // transfer count
-        false            // start immediately
-    );
-   //printf("irq1\n");
-    // Clear interrupt for trigger DMA channel.
-}
+extern void usb_send(uint8_t * buf, uint size);
 
-void dma2_irq() {
-    static bool s1 = false;
-    s1 = !s1;
-    dma_hw->ints1 = (1u << dma_chan2);
-    gpio_put(dma_pin2, s1);
+void dma_irq(int dma_num) {
+    gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
 
-    buf_ready = 1;
-    // reconfigure DMA 1
-    dma_channel_configure(dma_chan, &cfg,
-        capture_buf,    // dst
-        &adc_hw->fifo,  // src
-        CAPTURE_DEPTH,  // transfer count
-        false            // start immediately
-    );
+    // Reset IRQ flag
+    int cur_dma_chan = dma_num ? dma_chan2 : dma_chan;
+    dma_hw->ints1 = (1u << cur_dma_chan);
 
-    //printf("irq2\n");
-    // Clear interrupt for trigger DMA channel.
-}
+    // Set buffer ready flag so the data from this DMA transfer can be sent over USB
+    buf_ready = dma_num;
 
-
-extern volatile uint data_ready;
-extern uint8_t _bulk_out_buf[BULK_BUFLEN];
-
-uint usb_receive(uint8_t * buf) {
-    while (data_ready == 0);
-    memcpy(buf, _bulk_out_buf, data_ready);
-    uint ret = data_ready;
-    data_ready = 0;
-    return ret;
-}
-
-uint usb_receive_nb(uint8_t * buf) {
-    if (data_ready == 0) return 0;
-    memcpy(buf, _bulk_out_buf, data_ready);
-    uint ret = data_ready;
-    data_ready = 0;
-    return ret;
-}
-
-typedef struct {
-    uint32_t clk_div;
-} capture_config_t;
-
-capture_config_t parse_config(uint len, uint8_t * buf) {
-    capture_config_t config;
-
-    printf("%.*s\n", len, buf);
-    jsmn_parser p;
-    jsmntok_t t[16];
-    jsmn_init(&p);
-    int ret = jsmn_parse(&p, buf, len, t, 16);
-    for (int i = 1; i < ret; i+=2) {
-        jsmntok_t token = t[i];
-        jsmntok_t token2 = t[i + 1];
-        if (token.type == 0) continue;
-        printf("%.*s: %.*s\n", token.end - token.start, &buf[token.start], token2.end - token2.start, &buf[token2.start]);
-        if (!strncmp("clk_div", &buf[token.start], token.end - token.start)) {
-            config.clk_div = atoi(&buf[token2.start]);
+    // Check the buffer for trigger condition
+    if (trig == -1) {
+        uint8_t * finished_buf = dma_num ? capture_buf2 : capture_buf;
+        for (int i = 0; i < CAPTURE_DEPTH; i++) {
+            if (finished_buf[i] > 200) {
+                trig = dma_num;
+                trig_index = i;
+                break;
+            } 
         }
-    }   
-    return config;
+    }
+
+    uint capture_depth;
+    if (trig == dma_num) {
+        capture_depth = trig_index;
+        channel_config_set_chain_to(dma_num ? &cfg2 : &cfg, dma_num);
+    }
+    else capture_depth = CAPTURE_DEPTH;
+
+    // Reconfigure the DMA channel
+    uint8_t * buf = dma_num ? capture_buf2 : capture_buf;
+    dma_channel_configure(dma_num ? dma_chan2 : dma_chan, dma_num ? &cfg2 : &cfg,
+        buf,    // dst
+        &adc_hw->fifo,  // src
+        capture_depth,  // transfer count
+        false            // start immediately
+    );
+    gpio_put(dma_num ? dma_pin2 : dma_pin, 0);
+
+}
+
+void dma1_irq() {dma_irq(0);}
+void dma2_irq() {dma_irq(1);}
+
+void dma_channels_init_config() {
+
 }
 
 int main(void)
 {
     board_init();
 
-    multicore_launch_core1(usb_thread);
-
-
-    /*
-    bool capture_aborted = false;
-    bool capture_configured = false;
-    enum capture_state_t {STOP, ABORTED, UNCONFIGURED, SINGLE, CONTINUOUS};
-    enum capture_state_t capture_state = UNCONFIGURED;
-
-    capture_config_t capture_config;
-    while (1) {
-        // Read and parse capture configuration
-        uint8_t config_buf[256];
-        if (capture_state == UNCONFIGURED || usb_data_ready()) {
-                uint len = usb_receive(config_buf);
-                capture_config = parse_config(len, config_buf);   
-                capture_state = 
-        }
-
-        // Configure and start the ADC
-        configure_capture(config);
-        start_capture();
-        // Wait until capture is done
-
-        while (!capture_finished())
-            if (usb_data_ready()) {
-                abort_capture();
-                capture_aborted = true;
-            }
-        
-        // Send captured data
-        if (!capture_aborted) {
-
-        }
-    }
-    */
-
-
-
-    
+    multicore_launch_core1(core1_task);
 
     gpio_init(dma_pin);
     gpio_set_dir(dma_pin, GPIO_OUT);
     gpio_init(dma_pin2);
     gpio_set_dir(dma_pin2, GPIO_OUT);
-
     gpio_init(usb_pin);
     gpio_set_dir(usb_pin, GPIO_OUT);
 
-
     // Configure ADC
     adc_gpio_init(26 + CAPTURE_CHANNEL);
-    adc_init();
+    adc_gpio_init(26 + CAPTURE_CHANNEL + 1);
     adc_select_input(CAPTURE_CHANNEL);
+    adc_init();
+    //  adc_set_round_robin(0x3);
     adc_fifo_setup(
         true,    // Write each completed conversion to the sample FIFO
         true,    // Enable DMA data request (DREQ)
@@ -195,15 +113,15 @@ int main(void)
         false,   // We won't see the ERR bit because of 8 bit reads; disable.
         true     // Shift each sample to 8 bits when pushing to FIFO
     );
+    adc_set_clkdiv(0);
 
     printf("\n\nArming DMA\n");
-
     // Claim two DMA channels
     dma_chan = dma_claim_unused_channel(true);
     dma_chan2 = dma_claim_unused_channel(true);
     printf("DMA channels %d %d\n", dma_chan, dma_chan2);
 
-    // Configure DMA 1
+            // Configure DMA 1
     cfg = dma_channel_get_default_config(dma_chan);
     channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);
     channel_config_set_read_increment(&cfg, false);
@@ -212,11 +130,8 @@ int main(void)
     dma_channel_set_irq0_enabled(dma_chan, true);
     irq_set_exclusive_handler(DMA_IRQ_0, dma1_irq);
     irq_set_enabled(DMA_IRQ_0, true);
-
     // Chain DMA2 to DMA1
     channel_config_set_chain_to(&cfg, dma_chan2);
-    printf("%d chained to %d\n", dma_chan, dma_chan2);
-
     channel_config_set_dreq(&cfg, DREQ_ADC);
     dma_channel_configure(dma_chan, &cfg,
         capture_buf,    // dst
@@ -224,7 +139,6 @@ int main(void)
         CAPTURE_DEPTH,  // transfer count
         false            // start immediately
     );
-    adc_set_clkdiv(0);
 
 
     // Configure DMA 2
@@ -232,17 +146,12 @@ int main(void)
     channel_config_set_transfer_data_size(&cfg2, DMA_SIZE_8);
     channel_config_set_read_increment(&cfg2, false);
     channel_config_set_write_increment(&cfg2, true);
-
     // Enable IRQ 1 for DMA 2
     dma_channel_set_irq1_enabled(dma_chan2, true);
     irq_set_exclusive_handler(DMA_IRQ_1, dma2_irq);
     irq_set_enabled(DMA_IRQ_1, true);
-
     // Chain DMA1 to DMA2
     channel_config_set_chain_to(&cfg2, dma_chan);
-    printf("%d chained to %d\n", dma_chan2, dma_chan);
-
-
     channel_config_set_dreq(&cfg2, DREQ_ADC);
     dma_channel_configure(dma_chan2, &cfg2,
         capture_buf2,    // dst
@@ -251,36 +160,32 @@ int main(void)
         false            // start immediately
     );
 
+
+    gpio_put(dma_pin, 1);
+    gpio_put(dma_pin2, 1);
+    dma_start_channel_mask(1u << dma_chan);
+    gpio_put(dma_pin, 0);
+    gpio_put(dma_pin2, 0);
+
+    sleep_ms(500);
+
     printf("Starting capture\n");
-    adc_run(true);
-
-     dma_start_channel_mask(1u << dma_chan);
-
-
-
-    // Once DMA finishes, stop any new conversions from starting, and clean up
-    // the FIFO in case the ADC was still mid-conversion.
-    // dma_channel_wait_for_finish_blocking(dma_chan);
-    // dma_channel_wait_for_finish_blocking(dma_chan2);
-    // printf("Capture finished\n");
-    // adc_run(false);
-    // adc_fifo_drain();
+     adc_run(true);
 
 
 
     while (1) {
-        uint8_t * buf[256];
-        uint len = usb_receive_nb(buf);
-        if (len == 0) continue;
-        capture_config_t cfg = parse_config(len, buf);
+        while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2));
+        printf("DMA finished\n");
+        uint32_t trig_msg = trig_index;
+        usb_send((uint8_t * ) &trig_msg, 4);
+        printf("trigger sent\n");
+        usb_send(capture_buf, 32768);
 
-        adc_run(false);
-        adc_set_clkdiv(cfg.clk_div);
-        adc_run(true);
-    };
+        while (1);
+    }
 
-
-
+    while (1);
 
     return 0;
 }

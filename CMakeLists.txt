@@ -12,7 +12,7 @@ add_executable(usbtest
 	main.c
 	usb_descriptors.c
 	driver.c
-	usb_thread.c
+	core1_task.c
 )
 
 target_include_directories(usbtest PRIVATE ${CMAKE_CURRENT_LIST_DIR})

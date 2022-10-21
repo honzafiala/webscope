@@ -25,6 +25,7 @@
         "board.h": "c",
         "tusb.h": "c",
         "stdlib.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "adc.h": "c"
     }
 }
