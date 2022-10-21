@@ -9,10 +9,7 @@ project(usbtest_project)
 pico_sdk_init()
 
 add_executable(usbtest
-	main.c
-	usb_descriptors.c
-	driver.c
-	core1_task.c
+	dev_lowlevel.c
 )
 
 target_include_directories(usbtest PRIVATE ${CMAKE_CURRENT_LIST_DIR})
