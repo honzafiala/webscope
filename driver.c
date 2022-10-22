@@ -76,17 +76,20 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
 
 
 void usb_send(uint8_t * buf, uint size) {
-    while (usbd_edpt_busy(0, _bulk_in));
-    printf("Setting up xfer\n");
-    while(!usbd_edpt_xfer(0, _bulk_in, buf, size));
-    printf("Sending complete\n");
+    uint offset = 0;
+    do {
+        uint packet_size = size > 32768 ? 32768 : size;
+        size -= packet_size;
+        while (usbd_edpt_busy(0, _bulk_in));
+        while(!usbd_edpt_xfer(0, _bulk_in, buf + offset, packet_size));
+        offset += packet_size;
+    } while (size);
 }
 
 static volatile uint usb_rec_bytes = 0;
 uint usb_rec(uint8_t * buf, uint max_len) {
     while (usbd_edpt_busy(0, _bulk_out));
     while(!usbd_edpt_xfer(0, _bulk_out, buf, max_len));
-    printf("Receiving complete\n");
     return usb_rec_bytes;
 }
 
