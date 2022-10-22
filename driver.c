@@ -100,14 +100,29 @@ volatile bool data_sent = false;
 uint8_t volatile * buf_in;
 volatile uint buf_in_size;
 
+volatile bool usb_send_busy = false;
 void usb_send(uint8_t * buf, uint size) {
-    printf("usb_send %d\n", buf_in_size);
-    data_sent = false;
-    buf_in = buf;
-    buf_in_size = size;
-    while (!data_sent);
-    buf_in_size = 0;
+    while (usb_send_busy);
+    usb_send_busy = true;
+
+    printf("Setting up xfer\n");
+    while (!usbd_edpt_xfer(0, _bulk_in, buf, size));
+    while (usb_send_busy);
+    printf("Sending complete\n");
 }
+
+volatile bool usb_rec_busy = false;
+volatile uint usb_rec_bytes = 0;
+uint usb_rec(uint8_t * buf, uint max_len) {
+    while (usb_rec_busy);
+    usb_rec_busy = true;
+    while(!usbd_edpt_xfer(0, _bulk_out, buf, max_len));
+    printf("Receiving complete\n");
+    while (usb_rec_busy);
+    return usb_rec_bytes;
+}
+
+
 
 
 static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * req)
@@ -150,7 +165,6 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
 {
     USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
 
-
     TU_VERIFY(result == XFER_RESULT_SUCCESS);
 
     static uint xfer_index; 
@@ -158,14 +172,15 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
 
     if (ep_addr == _bulk_out) {
        //handle_usb_in(xferred_bytes, _bulk_out_buf);
-       data_ready = xferred_bytes;
-        TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
+        usb_rec_bytes = xferred_bytes;
+        usb_rec_busy = false;
     }
 
     else if (ep_addr == _bulk_in) {
-        usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_size);
-        printf("sending %d bytes\n", buf_in_size);
+     //   usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_size);
+     //   printf("sending %d bytes\n", buf_in_size);
         data_sent = true;     
+        usb_send_busy = false;
     }
     else
         return false;

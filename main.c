@@ -38,6 +38,8 @@ uint trig = -1;
 volatile uint trig_index;
 
 extern void usb_send(uint8_t * buf, uint size);
+extern uint usb_rec(uint8_t * buf, uint size);
+
 
 void dma_irq(int dma_num) {
     gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
@@ -177,10 +179,20 @@ int main(void)
     while (1) {
         while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2));
         printf("DMA finished\n");
-        uint32_t trig_msg = trig_index;
+        uint32_t trig_msg = 123;
+
         usb_send((uint8_t * ) &trig_msg, 4);
         printf("trigger sent\n");
-        usb_send(capture_buf, 32768);
+
+        trig_msg = 456;
+         usb_send((uint8_t * ) &trig_msg, 4);
+        printf("trigger sent\n");
+
+        uint8_t * rec_buf[64];
+        uint ret = usb_rec(rec_buf, 64);
+        printf("Rec %d bytes: %.*s\n", ret, ret, rec_buf);
+
+        //usb_send(capture_buf, 32768);
 
         while (1);
     }
