@@ -20,28 +20,8 @@ uint8_t _ctrl_req_buf[256];
 static uint8_t _bulk_in;
 static uint8_t _bulk_out;
 
-static uint8_t _bulk_in2;
-static uint8_t _bulk_out2;
-
-
 uint8_t _bulk_in_buf[BULK_BUFLEN];
 uint8_t _bulk_out_buf[BULK_BUFLEN];
-
-extern volatile int buf_ready;
-
-#define CAPTURE_DEPTH (96*1024)
-
-extern uint8_t capture_buf[CAPTURE_DEPTH];
-extern uint8_t capture_buf2[CAPTURE_DEPTH];
-
-extern uint usb_pin;
-
-volatile uint data_ready = 0;
-
-extern volatile uint trig_index;
-static uint xfer_count = 0;
-
-extern volatile bool xfer_started;
 
 
 static void usbtest_init(void)
@@ -92,33 +72,21 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
     return len;
 }
 
-extern void handle_usb_in(uint32_t xferred_bytes, uint8_t * buf);
 
-volatile bool xfer_complete = false;
 
-volatile bool data_sent = false;
-uint8_t volatile * buf_in;
-volatile uint buf_in_size;
 
-volatile bool usb_send_busy = false;
 void usb_send(uint8_t * buf, uint size) {
-    while (usb_send_busy);
-    usb_send_busy = true;
-
+    while (usbd_edpt_busy(0, _bulk_in));
     printf("Setting up xfer\n");
-    while (!usbd_edpt_xfer(0, _bulk_in, buf, size));
-    while (usb_send_busy);
+    while(!usbd_edpt_xfer(0, _bulk_in, buf, size));
     printf("Sending complete\n");
 }
 
-volatile bool usb_rec_busy = false;
-volatile uint usb_rec_bytes = 0;
+static volatile uint usb_rec_bytes = 0;
 uint usb_rec(uint8_t * buf, uint max_len) {
-    while (usb_rec_busy);
-    usb_rec_busy = true;
+    while (usbd_edpt_busy(0, _bulk_out));
     while(!usbd_edpt_xfer(0, _bulk_out, buf, max_len));
     printf("Receiving complete\n");
-    while (usb_rec_busy);
     return usb_rec_bytes;
 }
 
@@ -173,14 +141,11 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
     if (ep_addr == _bulk_out) {
        //handle_usb_in(xferred_bytes, _bulk_out_buf);
         usb_rec_bytes = xferred_bytes;
-        usb_rec_busy = false;
     }
 
     else if (ep_addr == _bulk_in) {
      //   usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_size);
      //   printf("sending %d bytes\n", buf_in_size);
-        data_sent = true;     
-        usb_send_busy = false;
     }
     else
         return false;

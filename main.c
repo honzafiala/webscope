@@ -192,7 +192,8 @@ int main(void)
         uint ret = usb_rec(rec_buf, 64);
         printf("Rec %d bytes: %.*s\n", ret, ret, rec_buf);
 
-        //usb_send(capture_buf, 32768);
+        for (int i = 0; i < 6; i++)
+            usb_send(capture_buf + i * 32768, 32768);
 
         while (1);
     }
