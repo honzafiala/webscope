@@ -103,8 +103,8 @@ volatile uint buf_in_size;
 void usb_send(uint8_t * buf, uint size) {
     printf("usb_send %d\n", buf_in_size);
     data_sent = false;
-  //  usbd_edpt_xfer(rhport, buf, _bulk_in, buf, size);
-
+    buf_in = buf;
+    buf_in_size = size;
     while (!data_sent);
     buf_in_size = 0;
 }
@@ -148,7 +148,6 @@ static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_
 
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
 {
-    printf("RHPORT: %d\n", rhport);
     USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
 
 
@@ -164,7 +163,8 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
     }
 
     else if (ep_addr == _bulk_in) {
-        usbd_edpt_xfer(rhport, _bulk_in, capture_buf, 32768);
+        usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_size);
+        printf("sending %d bytes\n", buf_in_size);
         data_sent = true;     
     }
     else

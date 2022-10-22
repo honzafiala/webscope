@@ -174,21 +174,6 @@ int main(void)
 
 
 
-    /*
-    uint32_t msg;
-
-    msg = 0xFF;
-    usb_send((uint8_t * ) &msg, 4);
-    printf("MSG 1 sent\n");
-
-    msg = 0xF0F;
-    usb_send((uint8_t * ) &msg, 4);
-    printf("MSG 1 sent\n");
-    */
-
-
-
-
     while (1) {
         while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2));
         printf("DMA finished\n");
