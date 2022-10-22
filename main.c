@@ -19,6 +19,9 @@ extern volatile bool xfer_complete;
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (96*1024)     
 
+volatile uint trig = -1;
+
+
 uint8_t capture_buf[CAPTURE_DEPTH] = {128};
 uint8_t capture_buf2[CAPTURE_DEPTH] = {128};
 uint8_t lol[1024];
@@ -34,7 +37,6 @@ uint usb_pin = 18;
 volatile int buf_ready = -1;
 extern volatile int dma_finished;
 
-volatile uint trig = -1;
 volatile uint trig_index;
 
 extern void usb_send(uint8_t * buf, uint size);
@@ -48,26 +50,27 @@ void dma_irq(int dma_num) {
     int cur_dma_chan = dma_num ? dma_chan2 : dma_chan;
     dma_hw->ints1 = (1u << cur_dma_chan);
 
+    
     // Check the buffer for trigger condition
     if (trig == -1) {
         uint8_t * finished_buf = dma_num ? capture_buf2 : capture_buf;
         for (int i = 0; i < CAPTURE_DEPTH; i++) {
             if (finished_buf[i] > 200) {
+                printf(".");
                 trig = dma_num;
-                trig_index = i;
-                printf("%d %d\n", i, finished_buf[i]);
+               // trig_index = i;
+         //       printf("%d %d\n", i, finished_buf[i]);
                 break;
             } 
         }
     }
-
+    
     uint capture_depth;
     if (trig == dma_num) {
         capture_depth = trig_index;
         channel_config_set_chain_to(dma_num ? &cfg2 : &cfg, dma_num);
     }
     else capture_depth = CAPTURE_DEPTH;
-
     // Reconfigure the DMA channel
     uint8_t * buf = dma_num ? capture_buf2 : capture_buf;
     dma_channel_configure(dma_num ? dma_chan2 : dma_chan, dma_num ? &cfg2 : &cfg,
@@ -91,7 +94,7 @@ int main(void)
 {
     board_init();
 
-    multicore_launch_core1(core1_task);
+   // multicore_launch_core1(core1_task);
 
     gpio_init(dma_pin);
     gpio_set_dir(dma_pin, GPIO_OUT);
@@ -172,26 +175,19 @@ int main(void)
     printf("Starting capture\n");
      adc_run(true);
 
+
     while (1);
 
     while (1) {
+        printf("trig: %d\n", trig);
         while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2) || trig == -1);
+        printf("trig: %d\n", trig);
         printf("DMA finished\n");
-        uint32_t trig_msg = 123;
+        uint32_t trig_msg = trig_index;
+
 
         usb_send((uint8_t * ) &trig_msg, 4);
         printf("trigger sent\n");
-
-        trig_msg = 456;
-         usb_send((uint8_t * ) &trig_msg, 4);
-        printf("trigger sent\n");
-
-        uint8_t * rec_buf[64];
-        uint ret = usb_rec(rec_buf, 64);
-        printf("Rec %d bytes: %.*s\n", ret, ret, rec_buf);
-
-
-        for (uint i = 0; i < 32768 * 6; i++) capture_buf[i] = i / 768;
 
         usb_send(capture_buf, 32768 * 6);
 
