@@ -15,10 +15,5 @@ void core1_task() {
     while (1) {
         // Handle USB
         tud_task();
-
-        if (!log && trig != -1) {
-            log = true;
-            printf("Trigger at DMA %d, index %d\n", trig, trig_index);
-        }
     }
 }
