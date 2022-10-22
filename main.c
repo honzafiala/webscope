@@ -19,8 +19,8 @@ extern volatile bool xfer_complete;
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (96*1024)     
 
-uint8_t capture_buf[CAPTURE_DEPTH] = {0};
-uint8_t capture_buf2[CAPTURE_DEPTH] = {0};
+uint8_t capture_buf[CAPTURE_DEPTH] = {128};
+uint8_t capture_buf2[CAPTURE_DEPTH] = {128};
 uint8_t lol[1024];
 
 uint dma_chan, dma_chan2;
@@ -177,14 +177,23 @@ int main(void)
 
 
     while (1) {
-        //while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2));
-        while (trig == -1);
-        
+        while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2));
         printf("DMA finished\n");
-        uint32_t trig_msg = trig_index;
+        uint32_t trig_msg = 123;
 
         usb_send((uint8_t * ) &trig_msg, 4);
         printf("trigger sent\n");
+
+        trig_msg = 456;
+         usb_send((uint8_t * ) &trig_msg, 4);
+        printf("trigger sent\n");
+
+        uint8_t * rec_buf[64];
+        uint ret = usb_rec(rec_buf, 64);
+        printf("Rec %d bytes: %.*s\n", ret, ret, rec_buf);
+
+
+        for (uint i = 0; i < 32768 * 6; i++) capture_buf[i] = i / 768;
 
         usb_send(capture_buf, 32768 * 6);
 

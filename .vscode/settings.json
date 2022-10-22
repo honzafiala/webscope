@@ -27,6 +27,5 @@
         "stdlib.h": "c",
         "stdio.h": "c",
         "adc.h": "c"
-    },
-    "cortex-debug.variableUseNaturalFormat": false
+    }
 }
