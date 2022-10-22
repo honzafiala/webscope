@@ -34,7 +34,7 @@ uint usb_pin = 18;
 volatile int buf_ready = -1;
 extern volatile int dma_finished;
 
-volatile uint trig = -1;
+uint trig = -1;
 volatile uint trig_index;
 
 extern void usb_send(uint8_t * buf, uint size);
@@ -48,6 +48,9 @@ void dma_irq(int dma_num) {
     int cur_dma_chan = dma_num ? dma_chan2 : dma_chan;
     dma_hw->ints1 = (1u << cur_dma_chan);
 
+    // Set buffer ready flag so the data from this DMA transfer can be sent over USB
+    buf_ready = dma_num;
+
     // Check the buffer for trigger condition
     if (trig == -1) {
         uint8_t * finished_buf = dma_num ? capture_buf2 : capture_buf;
@@ -55,7 +58,6 @@ void dma_irq(int dma_num) {
             if (finished_buf[i] > 200) {
                 trig = dma_num;
                 trig_index = i;
-                printf("%d %d\n", i, finished_buf[i]);
                 break;
             } 
         }
@@ -172,10 +174,10 @@ int main(void)
     printf("Starting capture\n");
      adc_run(true);
 
-    while (1);
+
 
     while (1) {
-        while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2) || trig == -1);
+        while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2));
         printf("DMA finished\n");
         uint32_t trig_msg = 123;
 
