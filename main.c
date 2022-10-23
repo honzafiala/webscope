@@ -17,13 +17,12 @@ volatile bool xfer_started = false;
 extern volatile bool xfer_complete;
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (96*1024)     
-
-volatile uint trig = -1;
+#define CAPTURE_DEPTH (1024)     
 
 
-uint8_t capture_buf[CAPTURE_DEPTH] = {128};
-uint8_t capture_buf2[CAPTURE_DEPTH] = {128};
+
+volatile uint8_t capture_buf[CAPTURE_DEPTH] = {128};
+volatile uint8_t capture_buf2[CAPTURE_DEPTH] = {128};
 uint8_t lol[1024];
 
 uint dma_chan, dma_chan2;
@@ -34,43 +33,47 @@ uint dma_pin = 16;
 uint dma_pin2 = 17;
 uint usb_pin = 18;
 
-volatile int buf_ready = -1;
-extern volatile int dma_finished;
-
 volatile uint trig_index;
 
 extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
 
-
+volatile uint trig = -1;
+volatile int complete_dma = -1;
 void dma_irq(int dma_num) {
-    gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
 
     // Reset IRQ flag
     int cur_dma_chan = dma_num ? dma_chan2 : dma_chan;
     dma_hw->ints1 = (1u << cur_dma_chan);
 
+    // Other core checks this variable to know when one channel's DMA transfer is complete 
+    complete_dma = dma_num;
     
+    gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
     // Check the buffer for trigger condition
     if (trig == -1) {
         uint8_t * finished_buf = dma_num ? capture_buf2 : capture_buf;
         for (int i = 0; i < CAPTURE_DEPTH; i++) {
             if (finished_buf[i] > 200) {
-                printf(".");
-                trig = dma_num;
-               // trig_index = i;
+         //       trig = dma_num;
+                trig_index = i;
          //       printf("%d %d\n", i, finished_buf[i]);
                 break;
             } 
         }
     }
-    
+    gpio_put(dma_num ? dma_pin2 : dma_pin, 0);
+
+
+    // If trigger condition was found, trim the transfer count of the dma channel
+    // according to the trigger index and disable channel chaining
     uint capture_depth;
     if (trig == dma_num) {
         capture_depth = trig_index;
         channel_config_set_chain_to(dma_num ? &cfg2 : &cfg, dma_num);
     }
     else capture_depth = CAPTURE_DEPTH;
+
     // Reconfigure the DMA channel
     uint8_t * buf = dma_num ? capture_buf2 : capture_buf;
     dma_channel_configure(dma_num ? dma_chan2 : dma_chan, dma_num ? &cfg2 : &cfg,
@@ -79,22 +82,19 @@ void dma_irq(int dma_num) {
         capture_depth,  // transfer count
         false            // start immediately
     );
-    gpio_put(dma_num ? dma_pin2 : dma_pin, 0);
 
 }
 
 void dma1_irq() {dma_irq(0);}
 void dma2_irq() {dma_irq(1);}
 
-void dma_channels_init_config() {
-
-}
 
 int main(void)
 {
     board_init();
 
-   // multicore_launch_core1(core1_task);
+
+    multicore_launch_core1(core1_task);
 
     gpio_init(dma_pin);
     gpio_set_dir(dma_pin, GPIO_OUT);
@@ -116,7 +116,9 @@ int main(void)
         false,   // We won't see the ERR bit because of 8 bit reads; disable.
         true     // Shift each sample to 8 bits when pushing to FIFO
     );
-    adc_set_clkdiv(0);
+
+    // Set the ADC sampling
+    adc_set_clkdiv(96*4);
 
     printf("\n\nArming DMA\n");
     // Claim two DMA channels
