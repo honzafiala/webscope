@@ -52,15 +52,19 @@ void dma_irq(int dma_num) {
     gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
     // Check the buffer for trigger condition
     if (trig == -1) {
+        trig = dma_num;
+        trig_index = 0;
+        /*
         uint8_t * finished_buf = dma_num ? capture_buf2 : capture_buf;
         for (int i = 0; i < CAPTURE_DEPTH; i++) {
             if (finished_buf[i] > 200) {
-         //       trig = dma_num;
+                trig = dma_num;
                 trig_index = i;
-         //       printf("%d %d\n", i, finished_buf[i]);
+                printf("%d %d\n", i, finished_buf[i]);
                 break;
             } 
         }
+        */
     }
     gpio_put(dma_num ? dma_pin2 : dma_pin, 0);
 
@@ -178,7 +182,6 @@ int main(void)
      adc_run(true);
 
 
-    while (1);
 
     while (1) {
         printf("trig: %d\n", trig);
