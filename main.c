@@ -182,10 +182,8 @@ int main(void)
 
 
     while (1) {
-        printf("trig: %d\n", trig);
         while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2) || trig == -1);
-        printf("trig: %d\n", trig);
-        printf("DMA finished\n");
+        printf("Trigger index: %d\n", trig_index);
         uint32_t trig_msg = trig_index;
 
 
