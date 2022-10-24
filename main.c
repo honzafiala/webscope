@@ -21,9 +21,7 @@ extern volatile bool xfer_complete;
 
 
 volatile uint8_t capture_buf[2][CAPTURE_DEPTH] = {0};
-
 uint dma_chan[2];
-
 volatile dma_channel_config cfg[2];
 
 uint dma_pin = 16;
@@ -37,16 +35,17 @@ extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
 
 volatile uint trig = -1;
-volatile int complete_dma = -1;
-void dma_irq(int dma_num) {
+void dma_irq() {
+    // Determine which DMA channel triggered the IRQ
+    int dma_num = dma_channel_is_busy(dma_chan[0]) ? 1 : 0; 
 
     // Reset IRQ flag
     int cur_dma_chan = dma_num ? dma_chan[1] : dma_chan[0];
     dma_hw->ints1 = (1u << cur_dma_chan);
 
+
     gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
 
-    
     // Check the buffer for trigger condition
     if (trig == -1) {
         uint8_t * finished_buf = dma_num ? capture_buf[1] : capture_buf[0];
@@ -80,8 +79,8 @@ void dma_irq(int dma_num) {
 
 }
 
-void dma1_irq() {dma_irq(0);}
-void dma2_irq() {dma_irq(1);}
+//void dma1_irq() {dma_irq(0);}
+//void dma2_irq() {dma_irq(1);}
 
 
 int main(void)
@@ -116,20 +115,23 @@ int main(void)
     adc_set_clkdiv(96);
 
     printf("\n\nArming DMA\n");
+
+    
+
     // Claim cfg[1] DMA channels
     dma_chan[0] = dma_claim_unused_channel(true);
     dma_chan[1] = dma_claim_unused_channel(true);
     printf("DMA channels %d %d\n", dma_chan[0], dma_chan[1]);
 
-            // Configure DMA 1
+    // Configure DMA 1
     cfg[0] = dma_channel_get_default_config(dma_chan[0]);
     channel_config_set_transfer_data_size(&cfg[0], DMA_SIZE_8);
     channel_config_set_read_increment(&cfg[0], false);
     channel_config_set_write_increment(&cfg[0], true);
     // Enable IRQ 0 for DMA 1
-    dma_channel_set_irq0_enabled(dma_chan[0], true);
-    irq_set_exclusive_handler(DMA_IRQ_0, dma1_irq);
-    irq_set_enabled(DMA_IRQ_0, true);
+    //dma_channel_set_irq0_enabled(dma_chan[0], true);
+    //irq_set_exclusive_handler(DMA_IRQ_0, dma1_irq);
+    //irq_set_enabled(DMA_IRQ_0, true);
     // Chain DMA2 to DMA1
     channel_config_set_chain_to(&cfg[0], dma_chan[1]);
     channel_config_set_dreq(&cfg[0], DREQ_ADC);
@@ -147,9 +149,9 @@ int main(void)
     channel_config_set_read_increment(&cfg[1], false);
     channel_config_set_write_increment(&cfg[1], true);
     // Enable IRQ 1 for DMA 2
-    dma_channel_set_irq1_enabled(dma_chan[1], true);
-    irq_set_exclusive_handler(DMA_IRQ_1, dma2_irq);
-    irq_set_enabled(DMA_IRQ_1, true);
+    //dma_channel_set_irq1_enabled(dma_chan[1], true);
+    //irq_set_exclusive_handler(DMA_IRQ_1, dma2_irq);
+    //irq_set_enabled(DMA_IRQ_1, true);
     // Chain DMA1 to DMA2
     channel_config_set_chain_to(&cfg[1], dma_chan[0]);
     channel_config_set_dreq(&cfg[1], DREQ_ADC);
@@ -159,6 +161,13 @@ int main(void)
         CAPTURE_DEPTH,  // transfer count
         false            // start immediately
     );
+
+    // Configure IRQ 0 to fire when either DMA1 or DMA2 occurs
+    dma_channel_set_irq0_enabled(dma_chan[0], true);
+    dma_channel_set_irq0_enabled(dma_chan[1], true);
+
+    irq_set_exclusive_handler(DMA_IRQ_0, dma_irq);
+    irq_set_enabled(DMA_IRQ_0, true);
 
 
     gpio_put(dma_pin, 1);
