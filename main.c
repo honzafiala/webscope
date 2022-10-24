@@ -20,11 +20,9 @@ extern volatile bool xfer_complete;
 #define CAPTURE_DEPTH (1024*96)     
 
 
-
 volatile uint8_t capture_buf[2][CAPTURE_DEPTH] = {0};
-uint8_t lol[1024];
 
-uint dma_chan, dma_chan2;
+uint dma_chan[2];
 
 volatile dma_channel_config cfg[2];
 
@@ -43,7 +41,7 @@ volatile int complete_dma = -1;
 void dma_irq(int dma_num) {
 
     // Reset IRQ flag
-    int cur_dma_chan = dma_num ? dma_chan2 : dma_chan;
+    int cur_dma_chan = dma_num ? dma_chan[1] : dma_chan[0];
     dma_hw->ints1 = (1u << cur_dma_chan);
 
     gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
@@ -72,7 +70,7 @@ void dma_irq(int dma_num) {
 
     // Reconfigure the DMA channel
     uint8_t * buf = dma_num ? capture_buf[1] : capture_buf[0];
-    dma_channel_configure(dma_num ? dma_chan2 : dma_chan, dma_num ? &cfg[1] : &cfg[0],
+    dma_channel_configure(dma_num ? dma_chan[1] : dma_chan[0], dma_num ? &cfg[1] : &cfg[0],
         buf,    // dst
         &adc_hw->fifo,  // src
         capture_depth,  // transfer count
@@ -119,23 +117,23 @@ int main(void)
 
     printf("\n\nArming DMA\n");
     // Claim cfg[1] DMA channels
-    dma_chan = dma_claim_unused_channel(true);
-    dma_chan2 = dma_claim_unused_channel(true);
-    printf("DMA channels %d %d\n", dma_chan, dma_chan2);
+    dma_chan[0] = dma_claim_unused_channel(true);
+    dma_chan[1] = dma_claim_unused_channel(true);
+    printf("DMA channels %d %d\n", dma_chan[0], dma_chan[1]);
 
             // Configure DMA 1
-    cfg[0] = dma_channel_get_default_config(dma_chan);
+    cfg[0] = dma_channel_get_default_config(dma_chan[0]);
     channel_config_set_transfer_data_size(&cfg[0], DMA_SIZE_8);
     channel_config_set_read_increment(&cfg[0], false);
     channel_config_set_write_increment(&cfg[0], true);
     // Enable IRQ 0 for DMA 1
-    dma_channel_set_irq0_enabled(dma_chan, true);
+    dma_channel_set_irq0_enabled(dma_chan[0], true);
     irq_set_exclusive_handler(DMA_IRQ_0, dma1_irq);
     irq_set_enabled(DMA_IRQ_0, true);
     // Chain DMA2 to DMA1
-    channel_config_set_chain_to(&cfg[0], dma_chan2);
+    channel_config_set_chain_to(&cfg[0], dma_chan[1]);
     channel_config_set_dreq(&cfg[0], DREQ_ADC);
-    dma_channel_configure(dma_chan, &cfg[0],
+    dma_channel_configure(dma_chan[0], &cfg[0],
         capture_buf[0],    // dst
         &adc_hw->fifo,  // src
         CAPTURE_DEPTH,  // transfer count
@@ -144,18 +142,18 @@ int main(void)
 
 
     // Configure DMA 2
-    cfg[1] = dma_channel_get_default_config(dma_chan2);
+    cfg[1] = dma_channel_get_default_config(dma_chan[1]);
     channel_config_set_transfer_data_size(&cfg[1], DMA_SIZE_8);
     channel_config_set_read_increment(&cfg[1], false);
     channel_config_set_write_increment(&cfg[1], true);
     // Enable IRQ 1 for DMA 2
-    dma_channel_set_irq1_enabled(dma_chan2, true);
+    dma_channel_set_irq1_enabled(dma_chan[1], true);
     irq_set_exclusive_handler(DMA_IRQ_1, dma2_irq);
     irq_set_enabled(DMA_IRQ_1, true);
     // Chain DMA1 to DMA2
-    channel_config_set_chain_to(&cfg[1], dma_chan);
+    channel_config_set_chain_to(&cfg[1], dma_chan[0]);
     channel_config_set_dreq(&cfg[1], DREQ_ADC);
-    dma_channel_configure(dma_chan2, &cfg[1],
+    dma_channel_configure(dma_chan[1], &cfg[1],
         capture_buf[1],    // dst
         &adc_hw->fifo,  // src
         CAPTURE_DEPTH,  // transfer count
@@ -165,7 +163,7 @@ int main(void)
 
     gpio_put(dma_pin, 1);
     gpio_put(dma_pin2, 1);
-    dma_start_channel_mask(1u << dma_chan);
+    dma_start_channel_mask(1u << dma_chan[0]);
     gpio_put(dma_pin, 0);
     gpio_put(dma_pin2, 0);
 
@@ -177,9 +175,9 @@ int main(void)
 
 
     while (1) {
-        while (dma_channel_is_busy(dma_chan) || dma_channel_is_busy(dma_chan2) || trig == -1);
+        while (dma_channel_is_busy(dma_chan[0]) || dma_channel_is_busy(dma_chan[1]) || trig == -1);
         printf("Trigger index: %d\n", trig_index);
-        uint32_t trig_msg = trig_index;
+        uint32_t trig_msg = trig_index + trig * CAPTURE_DEPTH;
 
 
         usb_send((uint8_t * ) &trig_msg, 4);
