@@ -40,9 +40,7 @@ void dma_irq() {
     int dma_num = dma_channel_is_busy(dma_chan[0]) ? 1 : 0; 
 
     // Reset IRQ flag
-    int cur_dma_chan = dma_num ? dma_chan[1] : dma_chan[0];
-    dma_hw->ints1 = (1u << cur_dma_chan);
-
+    dma_hw->ints1 = (1u << dma_chan[dma_num]);
 
     gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
 
@@ -176,7 +174,7 @@ int main(void)
     gpio_put(dma_pin, 0);
     gpio_put(dma_pin2, 0);
 
-    sleep_ms(500);
+    sleep_ms(600);
 
     printf("Starting capture\n");
      adc_run(true);
