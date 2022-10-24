@@ -17,12 +17,12 @@ volatile bool xfer_started = false;
 extern volatile bool xfer_complete;
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (1024)     
+#define CAPTURE_DEPTH (1024*96)     
 
 
 
-volatile uint8_t capture_buf[CAPTURE_DEPTH] = {128};
-volatile uint8_t capture_buf2[CAPTURE_DEPTH] = {128};
+volatile uint8_t capture_buf[CAPTURE_DEPTH] = {0};
+volatile uint8_t capture_buf2[CAPTURE_DEPTH] = {0};
 uint8_t lol[1024];
 
 uint dma_chan, dma_chan2;
@@ -52,19 +52,17 @@ void dma_irq(int dma_num) {
     gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
     // Check the buffer for trigger condition
     if (trig == -1) {
-        trig = dma_num;
-        trig_index = 0;
-        /*
+      //  trig = dma_num;
+      //  trig_index = 0;
         uint8_t * finished_buf = dma_num ? capture_buf2 : capture_buf;
         for (int i = 0; i < CAPTURE_DEPTH; i++) {
             if (finished_buf[i] > 200) {
                 trig = dma_num;
                 trig_index = i;
-                printf("%d %d\n", i, finished_buf[i]);
-                break;
+           //     printf("%d %d\n", i, finished_buf[i]);
+                 break;
             } 
         }
-        */
     }
     gpio_put(dma_num ? dma_pin2 : dma_pin, 0);
 
@@ -122,7 +120,7 @@ int main(void)
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96*4);
+    adc_set_clkdiv(96);
 
     printf("\n\nArming DMA\n");
     // Claim two DMA channels
@@ -193,6 +191,8 @@ int main(void)
 
         usb_send((uint8_t * ) &trig_msg, 4);
         printf("trigger sent\n");
+
+        //for (int i = 0; i < BUF_LEN; i++) capture_buf[]
 
         usb_send(capture_buf, 32768 * 6);
 
