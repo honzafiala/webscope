@@ -17,8 +17,8 @@ uint8_t _ctrl_req_buf[256];
 //#define BULK_BUFLEN    (32 * 1024)
 #define BULK_BUFLEN    (64)
 
-static uint8_t _bulk_in;
-static uint8_t _bulk_out;
+ uint8_t _bulk_in;
+ uint8_t _bulk_out;
 
 uint8_t _bulk_in_buf[BULK_BUFLEN];
 uint8_t _bulk_out_buf[BULK_BUFLEN];
@@ -75,24 +75,6 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
 
 
 
-void usb_send(uint8_t * buf, uint size) {
-    uint offset = 0;
-    do {
-        uint packet_size = size > 32768 ? 32768 : size;
-        size -= packet_size;
-        while (usbd_edpt_busy(0, _bulk_in));
-        while(!usbd_edpt_xfer(0, _bulk_in, buf + offset, packet_size));
-        offset += packet_size;
-    } while (size);
-}
-
-static volatile uint usb_rec_bytes = 0;
-uint usb_rec(uint8_t * buf, uint max_len) {
-    while (usbd_edpt_busy(0, _bulk_out));
-    while(!usbd_edpt_xfer(0, _bulk_out, buf, max_len));
-    return usb_rec_bytes;
-}
-
 
 
 
@@ -143,7 +125,7 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
 
     if (ep_addr == _bulk_out) {
        //handle_usb_in(xferred_bytes, _bulk_out_buf);
-        usb_rec_bytes = xferred_bytes;
+        //usb_rec_bytes = xferred_bytes;
     }
 
     else if (ep_addr == _bulk_in) {

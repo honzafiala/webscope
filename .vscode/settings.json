@@ -26,7 +26,8 @@
         "tusb.h": "c",
         "stdlib.h": "c",
         "stdio.h": "c",
-        "adc.h": "c"
+        "adc.h": "c",
+        "dma.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

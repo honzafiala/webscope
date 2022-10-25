@@ -12,9 +12,7 @@
 
 extern void core1_task();
 
-volatile bool xfer_started = false;
-
-extern volatile bool xfer_complete;
+extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
 
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (1024*96)     
@@ -25,7 +23,7 @@ uint dma_chan[2];
 volatile dma_channel_config cfg[2];
 
 uint dma_pin = 16;
-uint dma_pin2 = 17;
+uint debug_pin = 17;
 uint usb_pin = 18;
 
 volatile uint trig_index;
@@ -35,6 +33,11 @@ extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
 
 volatile uint trig = -1;
+
+volatile int dma_active = -1;
+
+volatile bool capture_complete = true;
+
 void dma_irq() {
     // Determine which DMA channel triggered the IRQ
     int dma_num = dma_channel_is_busy(dma_chan[0]) ? 1 : 0; 
@@ -42,8 +45,10 @@ void dma_irq() {
     // Reset IRQ flag
     dma_hw->ints1 = (1u << dma_chan[dma_num]);
 
-    gpio_put(dma_num ? dma_pin2 : dma_pin, 1);
+    gpio_put(dma_pin, 1);
 
+    dma_active = dma_num ? 0 : 1;
+    /*
     // Check the buffer for trigger condition
     if (trig == -1) {
         uint8_t * finished_buf = dma_num ? capture_buf[1] : capture_buf[0];
@@ -55,6 +60,7 @@ void dma_irq() {
             } 
         }
     }
+    */
 
     // If trigger condition was found, trim the transfer count of the dma channel
     // according to the trigger index and disable channel chaining
@@ -73,12 +79,9 @@ void dma_irq() {
         capture_depth,  // transfer count
         false            // start immediately
     );
-    gpio_put(dma_num ? dma_pin2 : dma_pin, 0);
 
+    gpio_put(dma_pin, 0);
 }
-
-//void dma1_irq() {dma_irq(0);}
-//void dma2_irq() {dma_irq(1);}
 
 
 int main(void)
@@ -90,8 +93,8 @@ int main(void)
 
     gpio_init(dma_pin);
     gpio_set_dir(dma_pin, GPIO_OUT);
-    gpio_init(dma_pin2);
-    gpio_set_dir(dma_pin2, GPIO_OUT);
+    gpio_init(debug_pin);
+    gpio_set_dir(debug_pin, GPIO_OUT);
     gpio_init(usb_pin);
     gpio_set_dir(usb_pin, GPIO_OUT);
 
@@ -110,11 +113,11 @@ int main(void)
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96);
+    adc_set_clkdiv(96*8);
 
     printf("\n\nArming DMA\n");
 
-    
+    capture_complete = true;
 
     // Claim cfg[1] DMA channels
     dma_chan[0] = dma_claim_unused_channel(true);
@@ -126,11 +129,6 @@ int main(void)
     channel_config_set_transfer_data_size(&cfg[0], DMA_SIZE_8);
     channel_config_set_read_increment(&cfg[0], false);
     channel_config_set_write_increment(&cfg[0], true);
-    // Enable IRQ 0 for DMA 1
-    //dma_channel_set_irq0_enabled(dma_chan[0], true);
-    //irq_set_exclusive_handler(DMA_IRQ_0, dma1_irq);
-    //irq_set_enabled(DMA_IRQ_0, true);
-    // Chain DMA2 to DMA1
     channel_config_set_chain_to(&cfg[0], dma_chan[1]);
     channel_config_set_dreq(&cfg[0], DREQ_ADC);
     dma_channel_configure(dma_chan[0], &cfg[0],
@@ -146,11 +144,6 @@ int main(void)
     channel_config_set_transfer_data_size(&cfg[1], DMA_SIZE_8);
     channel_config_set_read_increment(&cfg[1], false);
     channel_config_set_write_increment(&cfg[1], true);
-    // Enable IRQ 1 for DMA 2
-    //dma_channel_set_irq1_enabled(dma_chan[1], true);
-    //irq_set_exclusive_handler(DMA_IRQ_1, dma2_irq);
-    //irq_set_enabled(DMA_IRQ_1, true);
-    // Chain DMA1 to DMA2
     channel_config_set_chain_to(&cfg[1], dma_chan[0]);
     channel_config_set_dreq(&cfg[1], DREQ_ADC);
     dma_channel_configure(dma_chan[1], &cfg[1],
@@ -169,22 +162,63 @@ int main(void)
 
 
     gpio_put(dma_pin, 1);
-    gpio_put(dma_pin2, 1);
+    gpio_put(debug_pin, 1);
     dma_start_channel_mask(1u << dma_chan[0]);
     gpio_put(dma_pin, 0);
-    gpio_put(dma_pin2, 0);
+    gpio_put(debug_pin, 0);
 
     sleep_ms(600);
 
     printf("Starting capture\n");
      adc_run(true);
+    dma_active = 0;
+
+    bool trig_found = false;
+    trig_index = -1;
+    uint trig_dma = -1;
+    uint prev_xfer = 0;
+    bool stop = false;
+    while (1) {
+        uint xfer_complete = CAPTURE_DEPTH - dma_channel_hw_addr(dma_active)->transfer_count;
+            if (trig_dma != dma_active && trig_dma != -1) stop = true;
+
+            if (trig_dma == dma_active && stop) {
+                if (xfer_complete >= trig_index) {
+                    gpio_put(debug_pin, 1);
+                    sleep_us(100);
+                    gpio_put(debug_pin, 0);
+                    irq_set_enabled(DMA_IRQ_0, false);
+                    dma_channel_abort(dma_active);
+                    gpio_put(debug_pin, 1);
+                    sleep_ms(10);
+                    gpio_put(debug_pin, 0);
+                    printf("stopping DMA %d at %d\n", dma_active, xfer_complete);
+                    break;
+                }
+            }
+
+            for (int i = prev_xfer; i < xfer_complete && trig_index == -1; i++) {
+                if (capture_buf[dma_active][i] > 200) {
+                    gpio_put(debug_pin, 1);
+                    sleep_us(100);
+                    gpio_put(debug_pin, 0);
+                    printf("trig %d, %d\n", dma_active, i);
+                    trig_index = i;
+                    trig_dma = dma_active;
+                    break;
+                }
+            }
+        prev_xfer = xfer_complete;
+    }
+    uint xfer_complete = CAPTURE_DEPTH - dma_channel_hw_addr(dma_active)->transfer_count;
+    printf("DMA %d aborted at %d\n", dma_active, xfer_complete);
 
 
 
     while (1) {
-        while (dma_channel_is_busy(dma_chan[0]) || dma_channel_is_busy(dma_chan[1]) || trig == -1);
+      //  while (dma_channel_is_busy(dma_chan[0]) || dma_channel_is_busy(dma_chan[1]) || trig == -1);
         printf("Trigger index: %d\n", trig_index);
-        uint32_t trig_msg = trig_index + trig * CAPTURE_DEPTH;
+        uint32_t trig_msg = trig_index + trig_dma * CAPTURE_DEPTH;
 
 
         usb_send((uint8_t * ) &trig_msg, 4);
@@ -192,7 +226,7 @@ int main(void)
 
         //for (int i = 0; i < BUF_LEN; i++) capture_buf[0][]
 
-        usb_send(capture_buf[0], 32768 * 6);
+        //usb_send(capture_buf, 32768 * 6);
 
         while (1);
     }
