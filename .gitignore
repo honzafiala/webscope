@@ -1,1 +1,3 @@
-build/
+firmware/build/
+gui/build/
+gui/node-modules/.cache
