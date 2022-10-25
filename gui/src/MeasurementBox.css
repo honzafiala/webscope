@@ -1,0 +1,32 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,400italic,500,500italic,700,700italic,900,900italic,300italic,300,100italic,100);
+
+.MeasurementBox {
+margin: 3px;
+background-color: black;
+color: gray;
+border: 1px solid gray;
+border-radius: 3px;
+}
+
+.MeasurementBox .Name, 
+.MeasurementBox .ChannelNumber,
+.MeasurementBox button {
+  font-size: 150%;
+  border-bottom: 1px solid gray;
+}
+
+.MeasurementBox .ChannelNumber {
+  padding-right: 3px;
+}
+
+.MeasurementBox button {
+  border: 1px solid gray;
+  background-color: black;
+  color: red;
+  padding: 0px;
+  padding-left: 3px;
+}
+
+.MeasurementBox > .Value {
+  font-size: 200%;
+}

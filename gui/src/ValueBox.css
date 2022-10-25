@@ -1,0 +1,60 @@
+.ValueBox {
+margin: 3px;
+}
+
+.ValueBox > .name {
+  background-color: white;
+  border-radius: 5px 5px 0px 0px;
+  text-align: center;
+  border-top: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+font-size: 120%;
+
+}
+
+
+
+.data {
+  text-align: center;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  monospace;
+  background-color: darkgray;
+
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+font-size: 150%;
+
+}
+
+.buttons {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.buttons button {
+  flex-grow: 1;
+  border: 0px;
+
+  border-bottom: 1px solid black;
+
+}
+
+button.buttonLeft {
+  border-radius: 0px 0px 0px 5px;
+  border-left: 1px solid black;
+
+}
+
+button.buttonMiddle {
+  border-radius: 0px 0px 0px 0px;
+  border-right: 1px solid gray;
+  border-left: 1px solid gray;
+
+}
+
+button.buttonRight {
+  border-radius: 0px 0px 5px 0px;
+  border-right: 1px solid black;
+}

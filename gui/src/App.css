@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.root {
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-flow: column;
+  overflow: hidden;
+}
+
+.topbar {
+  flex: 0 1 auto;
+  margin: 0;
+  padding: 1px;
+  background-color: lightgray;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.plot {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.webgl {
+  flex: 1 1 auto;
+  background-color: black;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  border: 1px solid black;
+
+  position: relative;
+  z-index: 0;
+}
+
+
+.side {
+  flex: 0 1 auto;
+  margin: 0;
+  padding: 1px;
+  background-color: gray;
+}
+
+.webglDiv {
+  position: relative;
+}
+
+.HoverBox {
+  z-index: 10; 
+  position: absolute; 
+  top: 0px; 
+  right: 0px;
+  margin: 5px;
+};
