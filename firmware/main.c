@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: CC0-1.0
 
+#include "bsp/board.h"
+#include "tusb.h"
 #include <stdio.h>
 #include "pico/stdlib.h"
-
+// For ADC input:
 #include "hardware/adc.h"
 #include "hardware/dma.h"
 
@@ -84,8 +86,8 @@ void dma_irq() {
 
 int main(void)
 {
-    stdio_usb_init();
-    printf("Start\n");
+    board_init();
+
 
     multicore_launch_core1(core1_task);
 
@@ -178,38 +180,56 @@ int main(void)
     bool stop = false;
     while (1) {
         uint xfer_complete = CAPTURE_DEPTH - dma_channel_hw_addr(dma_active)->transfer_count;
-        if (trig_dma != dma_active && trig_dma != -1) stop = true;
+            if (trig_dma != dma_active && trig_dma != -1) stop = true;
 
-        if (trig_dma == dma_active && stop) {
-            if (xfer_complete >= trig_index) {
-                gpio_put(debug_pin, 1);
-                sleep_us(100);
-                gpio_put(debug_pin, 0);
-                irq_set_enabled(DMA_IRQ_0, false);
-                dma_channel_abort(dma_active);
-                gpio_put(debug_pin, 1);
-                sleep_ms(10);
-                gpio_put(debug_pin, 0);
-                printf("stopping DMA %d at %d\n", dma_active, xfer_complete);
-                break;
+            if (trig_dma == dma_active && stop) {
+                if (xfer_complete >= trig_index) {
+                    gpio_put(debug_pin, 1);
+                    sleep_us(100);
+                    gpio_put(debug_pin, 0);
+                    irq_set_enabled(DMA_IRQ_0, false);
+                    dma_channel_abort(dma_active);
+                    gpio_put(debug_pin, 1);
+                    sleep_ms(10);
+                    gpio_put(debug_pin, 0);
+                    printf("stopping DMA %d at %d\n", dma_active, xfer_complete);
+                    break;
+                }
             }
-        }
 
-        for (int i = prev_xfer; i < xfer_complete && trig_index == -1; i++) {
-            if (capture_buf[dma_active][i] > 200) {
-                gpio_put(debug_pin, 1);
-                sleep_us(100);
-                gpio_put(debug_pin, 0);
-                printf("trig %d, %d\n", dma_active, i);
-                trig_index = i;
-                trig_dma = dma_active;
-                break;
+            for (int i = prev_xfer; i < xfer_complete && trig_index == -1; i++) {
+                if (capture_buf[dma_active][i] > 200) {
+                    gpio_put(debug_pin, 1);
+                    sleep_us(100);
+                    gpio_put(debug_pin, 0);
+                    printf("trig %d, %d\n", dma_active, i);
+                    trig_index = i;
+                    trig_dma = dma_active;
+                    break;
+                }
             }
-        }
         prev_xfer = xfer_complete;
     }
     uint xfer_complete = CAPTURE_DEPTH - dma_channel_hw_addr(dma_active)->transfer_count;
     printf("DMA %d aborted at %d\n", dma_active, xfer_complete);
+
+
+
+    while (1) {
+      //  while (dma_channel_is_busy(dma_chan[0]) || dma_channel_is_busy(dma_chan[1]) || trig == -1);
+        printf("Trigger index: %d\n", trig_index);
+        uint32_t trig_msg = trig_index + trig_dma * CAPTURE_DEPTH;
+
+
+        usb_send((uint8_t * ) &trig_msg, 4);
+        printf("trigger sent\n");
+
+        //for (int i = 0; i < BUF_LEN; i++) capture_buf[0][]
+
+        //usb_send(capture_buf, 32768 * 6);
+
+        while (1);
+    }
 
     while (1);
 
