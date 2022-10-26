@@ -15,10 +15,10 @@ extern void core1_task();
 extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (1024*96)     
+#define CAPTURE_DEPTH (1024*96*2)     
 
 
-volatile uint8_t capture_buf[2][CAPTURE_DEPTH] = {0};
+volatile uint8_t capture_buf[CAPTURE_DEPTH] = {0};
 uint dma_chan[2];
 volatile dma_channel_config cfg[2];
 
@@ -114,57 +114,47 @@ int main(void)
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96*8);
-
-    //printf("\n\nArming DMA\n");
-
-    capture_complete = true;
-
-    // Claim cfg[1] DMA channels
-    dma_chan[0] = dma_claim_unused_channel(true);
-    dma_chan[1] = dma_claim_unused_channel(true);
-    //printf("DMA channels %d %d\n", dma_chan[0], dma_chan[1]);
-
-    // Configure DMA 1
-    cfg[0] = dma_channel_get_default_config(dma_chan[0]);
-    channel_config_set_transfer_data_size(&cfg[0], DMA_SIZE_8);
-    channel_config_set_read_increment(&cfg[0], false);
-    channel_config_set_write_increment(&cfg[0], true);
-    channel_config_set_chain_to(&cfg[0], dma_chan[1]);
-    channel_config_set_dreq(&cfg[0], DREQ_ADC);
-    dma_channel_configure(dma_chan[0], &cfg[0],
-        capture_buf[0],    // dst
-        &adc_hw->fifo,  // src
-        CAPTURE_DEPTH,  // transfer count
-        false            // start immediately
-    );
+    adc_set_clkdiv(96*10);
 
 
-    // Configure DMA 2
-    cfg[1] = dma_channel_get_default_config(dma_chan[1]);
-    channel_config_set_transfer_data_size(&cfg[1], DMA_SIZE_8);
-    channel_config_set_read_increment(&cfg[1], false);
-    channel_config_set_write_increment(&cfg[1], true);
-    channel_config_set_chain_to(&cfg[1], dma_chan[0]);
-    channel_config_set_dreq(&cfg[1], DREQ_ADC);
-    dma_channel_configure(dma_chan[1], &cfg[1],
-        capture_buf[1],    // dst
-        &adc_hw->fifo,  // src
-        CAPTURE_DEPTH,  // transfer count
-        false            // start immediately
-    );
+    //==================
+    const uint main_chan = dma_claim_unused_channel(true);
+    const uint ctrl_chan = dma_claim_unused_channel(true);
 
-    // Configure IRQ 0 to fire when either DMA1 or DMA2 occurs
-    dma_channel_set_irq0_enabled(dma_chan[0], true);
-    dma_channel_set_irq0_enabled(dma_chan[1], true);
+    /* Nastaveni hlavniho DMA kanalu */
+    dma_channel_config chan_cfg = dma_channel_get_default_config(main_chan);
+    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_8);
+    channel_config_set_chain_to(&chan_cfg, ctrl_chan);
+    channel_config_set_write_increment(&chan_cfg, true);
+    channel_config_set_read_increment(&chan_cfg, false);
 
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_irq);
-    irq_set_enabled(DMA_IRQ_0, true);
+    channel_config_set_dreq(&chan_cfg, DREQ_ADC);
+
+    dma_channel_configure(main_chan,
+    &chan_cfg,
+    capture_buf,
+    &adc_hw->fifo,
+    CAPTURE_DEPTH,
+    false);
+
+    void * array_addr = capture_buf;
+    /* Nastaveni kanalu pro restart hlavniho */
+    chan_cfg = dma_channel_get_default_config(ctrl_chan);
+    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_32);
+    channel_config_set_read_increment(&chan_cfg, false);
+    channel_config_set_write_increment(&chan_cfg, false);
+    dma_channel_configure(ctrl_chan,
+    &chan_cfg,
+    &dma_channel_hw_addr(main_chan)->al2_write_addr_trig,
+    &array_addr,
+    1,
+    false);
+    //--------------------
 
 
     gpio_put(dma_pin, 1);
     gpio_put(debug_pin, 1);
-    dma_start_channel_mask(1u << dma_chan[0]);
+    dma_start_channel_mask(1u << main_chan);
     gpio_put(dma_pin, 0);
     gpio_put(debug_pin, 0);
 
@@ -175,13 +165,13 @@ int main(void)
     dma_active = 0;
 
 
-
     uint32_t trig_msg = 0;
     while (1) {
-        for (int i = 0; i < 6; i++) usb_send(&capture_buf[0][i * 32768], 32768);
+        for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
         trig_msg++;
     }
 
+    /*
     bool trig_found = false;
     trig_index = -1;
     uint trig_dma = -1;
@@ -240,6 +230,6 @@ int main(void)
     }
 
     while (1);
-
+    */
     return 0;
 }
