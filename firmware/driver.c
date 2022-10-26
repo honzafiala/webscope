@@ -66,7 +66,7 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
     TU_ASSERT( usbd_open_edpt_pair(rhport, p_desc, 2, TUSB_XFER_BULK, &_bulk_out, &_bulk_in) );
 
     //TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
-    //TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0));
+    TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0));
 
 
     return len;
@@ -114,6 +114,22 @@ static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_
     return tud_control_xfer(rhport, req, _ctrl_req_buf, wLength);
 }
 
+volatile bool sent = false;
+
+volatile uint8_t * buf_in = _bulk_in_buf;
+volatile uint buf_len = 0;
+
+void usb_send(uint8_t * buf, uint len) {
+    sent = false;
+    buf_in = buf;
+    buf_len = len;
+    while (!sent) {
+        gpio_put(PICO_DEFAULT_LED_PIN, 1);
+        gpio_put(PICO_DEFAULT_LED_PIN, 0);
+    }
+}
+
+
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
 {
     USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
@@ -129,8 +145,9 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
     }
 
     else if (ep_addr == _bulk_in) {
-     //   usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_size);
-     //   printf("sending %d bytes\n", buf_in_size);
+        usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_len);
+        printf("sent %d bytes\n", buf_len);
+        sent = true;
     }
     else
         return false;

@@ -213,16 +213,14 @@ int main(void)
     uint xfer_complete = CAPTURE_DEPTH - dma_channel_hw_addr(dma_active)->transfer_count;
     printf("DMA %d aborted at %d\n", dma_active, xfer_complete);
 
+    uint32_t trig_msg = trig_index + trig_dma * CAPTURE_DEPTH;
 
 
     while (1) {
       //  while (dma_channel_is_busy(dma_chan[0]) || dma_channel_is_busy(dma_chan[1]) || trig == -1);
-        printf("Trigger index: %d\n", trig_index);
-        uint32_t trig_msg = trig_index + trig_dma * CAPTURE_DEPTH;
-
-
+        printf("Trigger index: %d\n", trig_msg);
         usb_send((uint8_t * ) &trig_msg, 4);
-        printf("trigger sent\n");
+        trig_msg++;
 
         //for (int i = 0; i < BUF_LEN; i++) capture_buf[0][]
 
