@@ -131,31 +131,22 @@ export default function App() {
     let result;
 
     // Read trigger index and parse
-    result = await USBDevice.transferIn(1, 4);
+    result = await USBDevice.transferIn(1, 32768 * 6);
     console.log('result', result);
     if (result.byteLength < 4) return;
     let trigIndex = result.data.getUint32(0, true);
-    console.log('value', trigIndex);
+    //console.log('value', trigIndex);
     
-    return;
-
-    let start = performance.now();
-    USBDevice.transferIn(1, 32768 * 6).then((result) => {
-      console.log(result);
-
+  
       let parsedData = [];
       for (let i = 0; i < result.data.byteLength; i++) {
         let val = result.data.getUint8(i);
         parsedData.push(val);
       }
 
-      
-
-
-      let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
-      data = shiftedData;
-      setData(shiftedData);
-      });
+     // let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
+      data = parsedData;
+      setData(parsedData);
   }
 
   let [showPlot, setShowPlot] = useState(true);

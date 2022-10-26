@@ -119,7 +119,7 @@ volatile bool sent = false;
 volatile uint8_t * buf_in = _bulk_in_buf;
 volatile uint buf_len = 0;
 
-void usb_send(uint8_t * buf, uint len) {
+void usb_send(volatile uint8_t * buf, uint len) {
     sent = false;
     buf_in = buf;
     buf_len = len;

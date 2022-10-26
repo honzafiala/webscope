@@ -174,9 +174,11 @@ int main(void)
      adc_run(true);
     dma_active = 0;
 
+
+
     uint32_t trig_msg = 0;
     while (1) {
-        usb_send((uint8_t * ) &trig_msg, 4);
+        for (int i = 0; i < 6; i++) usb_send(&capture_buf[0][i * 32768], 32768);
         trig_msg++;
     }
 
