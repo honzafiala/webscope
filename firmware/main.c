@@ -91,6 +91,7 @@ int main(void)
 
     multicore_launch_core1(core1_task);
 
+
     gpio_init(dma_pin);
     gpio_set_dir(dma_pin, GPIO_OUT);
     gpio_init(debug_pin);
@@ -115,14 +116,14 @@ int main(void)
     // Set the ADC sampling
     adc_set_clkdiv(96*8);
 
-    printf("\n\nArming DMA\n");
+    //printf("\n\nArming DMA\n");
 
     capture_complete = true;
 
     // Claim cfg[1] DMA channels
     dma_chan[0] = dma_claim_unused_channel(true);
     dma_chan[1] = dma_claim_unused_channel(true);
-    printf("DMA channels %d %d\n", dma_chan[0], dma_chan[1]);
+    //printf("DMA channels %d %d\n", dma_chan[0], dma_chan[1]);
 
     // Configure DMA 1
     cfg[0] = dma_channel_get_default_config(dma_chan[0]);
@@ -169,9 +170,15 @@ int main(void)
 
     sleep_ms(600);
 
-    printf("Starting capture\n");
+    //printf("Starting capture\n");
      adc_run(true);
     dma_active = 0;
+
+    uint32_t trig_msg = 0;
+    while (1) {
+        usb_send((uint8_t * ) &trig_msg, 4);
+        trig_msg++;
+    }
 
     bool trig_found = false;
     trig_index = -1;
@@ -192,7 +199,7 @@ int main(void)
                     gpio_put(debug_pin, 1);
                     sleep_ms(10);
                     gpio_put(debug_pin, 0);
-                    printf("stopping DMA %d at %d\n", dma_active, xfer_complete);
+                    //printf("stopping DMA %d at %d\n", dma_active, xfer_complete);
                     break;
                 }
             }
@@ -202,7 +209,7 @@ int main(void)
                     gpio_put(debug_pin, 1);
                     sleep_us(100);
                     gpio_put(debug_pin, 0);
-                    printf("trig %d, %d\n", dma_active, i);
+                    //printf("trig %d, %d\n", dma_active, i);
                     trig_index = i;
                     trig_dma = dma_active;
                     break;
@@ -211,14 +218,16 @@ int main(void)
         prev_xfer = xfer_complete;
     }
     uint xfer_complete = CAPTURE_DEPTH - dma_channel_hw_addr(dma_active)->transfer_count;
-    printf("DMA %d aborted at %d\n", dma_active, xfer_complete);
+    //printf("DMA %d aborted at %d\n", dma_active, xfer_complete);
 
-    uint32_t trig_msg = trig_index + trig_dma * CAPTURE_DEPTH;
+    trig_msg = trig_index + trig_dma * CAPTURE_DEPTH;
+
+
 
 
     while (1) {
       //  while (dma_channel_is_busy(dma_chan[0]) || dma_channel_is_busy(dma_chan[1]) || trig == -1);
-        printf("Trigger index: %d\n", trig_msg);
+        //printf("Trigger index: %d\n", trig_msg);
         usb_send((uint8_t * ) &trig_msg, 4);
         trig_msg++;
 
@@ -226,7 +235,6 @@ int main(void)
 
         //usb_send(capture_buf, 32768 * 6);
 
-        while (1);
     }
 
     while (1);
