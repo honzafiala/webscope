@@ -1,7 +1,0 @@
-{
-    "entryPoints": [
-        "src/webglplot.ts"
-    ],
-    "out": "docs",
-    "excludePrivate": true
-}
