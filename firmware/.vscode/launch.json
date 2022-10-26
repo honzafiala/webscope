@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceRoot}",
+            "executable": "${command:cmake.launchTargetPath}",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "Pico2040",
+            "runToMain": true,
+            "configFiles": ["interface/picoprobe.cfg", "target/rp2040.cfg"],
+            "searchDir": ["/home/honza/pico/openocd/tcl"],
+            "svdFile": "${env:PICO_SDK_PATH}/src/rp2040/hardware_regs/rp2040.svd",
+        }
+    ]
+}
