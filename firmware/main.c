@@ -96,12 +96,8 @@ int main(void)
     const uint ctrl_chan = dma_claim_unused_channel(true);
     analog_dma_configure(main_chan, ctrl_chan);
 
+    dma_channel_start(main_chan);
 
-    gpio_put(DEBUG_PIN0, 1);
-    gpio_put(DEBUG_PIN1, 1);
-    dma_start_channel_mask(1u << main_chan);
-    gpio_put(DEBUG_PIN0, 0);
-    gpio_put(DEBUG_PIN1, 0);
 
     sleep_ms(600);
 
