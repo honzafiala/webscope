@@ -127,6 +127,7 @@ void usb_send(volatile uint8_t * buf, uint len) {
         gpio_put(PICO_DEFAULT_LED_PIN, 1);
         gpio_put(PICO_DEFAULT_LED_PIN, 0);
     }
+    buf_len = 0;
 }
 
 
