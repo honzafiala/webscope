@@ -35,9 +35,14 @@ export default function App() {
     let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0 }] });
     await device.open();
     await device.claimInterface(0);
+
     setUSBDevice(device);
 
-    console.log(device);
+    // "Dummy" IN and OUT transfers
+    let result = await device.transferIn(1, 4);
+    let buf = new Uint8Array([0]);
+    device.transferOut(1, buf);
+
   }
 
 
@@ -109,27 +114,16 @@ export default function App() {
   }
 
 
-  function stop() {
-    running = false;
-    setRunning(false);
-
-    clearInterval(interval);
-    console.log('stopped', interval);
-    console.log(data.length);
-  }
+  
 
 
 
   async function readSingle() {
-
-
-
     let result;
 
     // Read trigger index and parse
     result = await USBDevice.transferIn(1, 4);
     console.log('result', result);
-    if (result.byteLength < 4) return;
     let trigIndex = result.data.getUint32(0, true);
     console.log('trigger:', trigIndex);
     
@@ -146,11 +140,10 @@ export default function App() {
         parsedData.push(val);
       }
 
-      parsedData[trigIndex] = 255;
 
     let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
    // let shiftedData = parsedData;
-    data = shiftedData;
+  
       setData(shiftedData);
   }
 
@@ -164,7 +157,6 @@ export default function App() {
         <button onClick={startCapture} disabled={USBDevice == null}>read data</button>
         <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
 
-        <button onClick={stop}>stop</button>
         <button onClick={sendConfig}>send config</button>
         <input type="text" value={clk} size="5" onChange={clkChange}/>
 
@@ -174,14 +166,11 @@ export default function App() {
         </div>
       <div className="main">
         <div className='plot'>
-          {test}
         <WebglAppSin data={data} test={test}/>
 
         </div>
         <div className='side'>
           <ChannelControl number="1" color="#ffff0078" active="true"/>
-          <ChannelControl number="2" color="#00800069" active="false"/>
-          <ChannelControl number="3" color="#0000ff73" style={{opacity: 1}}/>
          <HorizontalControl/>
 
         </div>

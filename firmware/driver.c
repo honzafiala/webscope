@@ -65,7 +65,7 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
 
     TU_ASSERT( usbd_open_edpt_pair(rhport, p_desc, 2, TUSB_XFER_BULK, &_bulk_out, &_bulk_in) );
 
-    //TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
+    TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
     TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0));
 
 

@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { WebglPlot, WebglLine, ColorRGBA } from "webgl-plot";
 
 let webglp;
-let line;
+let line, horizontal;
 
 
 
@@ -29,6 +29,12 @@ export default function WebglAppSin({data, test}) {
       webglp.addLine(line);
 
       line.arrangeX();
+
+
+      horizontal = new WebglLine(new ColorRGBA(0, 0, 0, 1), numX);
+      webglp.addLine(horizontal);
+
+      horizontal.arrangeX();
     }
   }, []);
 
@@ -61,7 +67,8 @@ export default function WebglAppSin({data, test}) {
 
   const canvasStyle = {
     width: "100%",
-    height: "70vh"
+    height: "100%",
+    border: "1px solid red"
   };
 
   return (

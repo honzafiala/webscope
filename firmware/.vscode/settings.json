@@ -30,7 +30,8 @@
         "dma.h": "c",
         "multicore.h": "c",
         "platform.h": "c",
-        "stdio_usb.h": "c"
+        "stdio_usb.h": "c",
+        "usbd_pvt.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

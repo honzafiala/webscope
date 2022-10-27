@@ -19,15 +19,12 @@ extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
 
 
 volatile uint8_t capture_buf[CAPTURE_DEPTH] = {0};
-uint dma_chan[2];
-volatile dma_channel_config cfg[2];
 
 uint dma_pin = 16;
 uint debug_pin = 17;
 uint usb_pin = 18;
 
 volatile int trig_index = -1;
-uint pretrigger = 96*1024; // 50%
 
 extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
@@ -119,31 +116,38 @@ int main(void)
     //printf("Starting capture\n");
      adc_run(true);
 
-    int pretrigger = -CAPTURE_DEPTH / 4;
+    int pretrigger = CAPTURE_DEPTH / 2;
+
+    uint capture_start_index;
+
+    bool triggered = false;
+    uint xfer_count_since_trigger = 0;
     uint prev_xfer_count = 0;
-    bool stop = false;
     while (1) {
         uint xfer_count = CAPTURE_DEPTH - dma_channel_hw_addr(main_chan)->transfer_count;
-        if (stop && xfer_count > trig_index) {
-            adc_run(false);
-           // dma_channel_abort(main_chan);
-           printf("Found trigger at %d\n", trig_index);
-           printf("Stopping at %d\n", xfer_count);
-           break;
-        }
-        for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
-            if (capture_buf[i] > 50 && trig_index == -1) {
-                trig_index = (i + pretrigger) % CAPTURE_DEPTH;
+        if (triggered) {
+            if (xfer_count > prev_xfer_count) xfer_count_since_trigger += xfer_count - prev_xfer_count;
+            else if (xfer_count < prev_xfer_count) xfer_count_since_trigger += CAPTURE_DEPTH - prev_xfer_count + xfer_count;
+
+            if (xfer_count_since_trigger >= CAPTURE_DEPTH  - pretrigger) {
+                adc_run(false);
+                printf("Stopping adc at idx %d after %d xfers\n", xfer_count, xfer_count_since_trigger);
                 break;
             }
-        }
-        if (trig_index > -1 && xfer_count < trig_index && !stop) {
-            stop = true;
+        } else {
+            for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
+                if (capture_buf[i] > 140 && trig_index == -1) {
+                    triggered = true;
+                    capture_start_index = (i - pretrigger + CAPTURE_DEPTH) % CAPTURE_DEPTH;
+                    printf("Trigger found at %d\n", i);
+                    break;
+                }
+            }
         }
         prev_xfer_count = xfer_count;
     }
 
-    uint32_t trig_msg = trig_index;
+    uint32_t trig_msg = capture_start_index;
     while (1) {
         usb_send(&trig_msg, 4);
         for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
