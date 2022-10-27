@@ -20,9 +20,18 @@ extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
 
 volatile uint8_t capture_buf[CAPTURE_DEPTH] = {0};
 
-uint dma_pin = 16;
-uint debug_pin = 17;
-uint usb_pin = 18;
+#define DEBUG_PIN0 16
+#define DEBUG_PIN1 17
+#define DEBUG_PIN2 18
+
+void debug_gpio_init() {
+    gpio_init(DEBUG_PIN0);
+    gpio_set_dir(DEBUG_PIN0, GPIO_OUT);
+    gpio_init(DEBUG_PIN1);
+    gpio_set_dir(DEBUG_PIN1, GPIO_OUT);
+    gpio_init(DEBUG_PIN2);
+    gpio_set_dir(DEBUG_PIN2, GPIO_OUT);
+}
 
 volatile int trig_index = -1;
 
@@ -70,12 +79,7 @@ int main(void)
     multicore_launch_core1(core1_task);
 
 
-    gpio_init(dma_pin);
-    gpio_set_dir(dma_pin, GPIO_OUT);
-    gpio_init(debug_pin);
-    gpio_set_dir(debug_pin, GPIO_OUT);
-    gpio_init(usb_pin);
-    gpio_set_dir(usb_pin, GPIO_OUT);
+
 
     // Configure ADC
     adc_gpio_init(26 + CAPTURE_CHANNEL);
@@ -102,11 +106,11 @@ int main(void)
     analog_dma_configure(main_chan, ctrl_chan);
 
 
-    gpio_put(dma_pin, 1);
-    gpio_put(debug_pin, 1);
+    gpio_put(DEBUG_PIN0, 1);
+    gpio_put(DEBUG_PIN1, 1);
     dma_start_channel_mask(1u << main_chan);
-    gpio_put(dma_pin, 0);
-    gpio_put(debug_pin, 0);
+    gpio_put(DEBUG_PIN0, 0);
+    gpio_put(DEBUG_PIN1, 0);
 
     sleep_ms(600);
 
