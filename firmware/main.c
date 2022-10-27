@@ -14,9 +14,11 @@ extern void core1_task();
 
 extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
 
+extern void usb_send(uint8_t * buf, uint size);
+extern uint usb_rec(uint8_t * buf, uint size);
+
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (1024*96*2)     
-
 
 volatile uint8_t capture_buf[CAPTURE_DEPTH] = {0};
 
@@ -32,12 +34,6 @@ void debug_gpio_init() {
     gpio_init(DEBUG_PIN2);
     gpio_set_dir(DEBUG_PIN2, GPIO_OUT);
 }
-
-volatile int trig_index = -1;
-
-extern void usb_send(uint8_t * buf, uint size);
-extern uint usb_rec(uint8_t * buf, uint size);
-
 
 void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
      /* Nastaveni hlavniho DMA kanalu */
@@ -73,13 +69,7 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
 
 int main(void)
 {
-    board_init();
-
-
     multicore_launch_core1(core1_task);
-
-
-
 
     // Configure ADC
     adc_gpio_init(26 + CAPTURE_CHANNEL);
@@ -102,7 +92,6 @@ int main(void)
     //==================
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
-
     analog_dma_configure(main_chan, ctrl_chan);
 
 
@@ -137,7 +126,7 @@ int main(void)
             }
         } else {
             for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
-                if (capture_buf[i] > 140 && trig_index == -1) {
+                if (capture_buf[i] > 140) {
                     triggered = true;
                     capture_start_index = (i - pretrigger + CAPTURE_DEPTH) % CAPTURE_DEPTH;
                     printf("Trigger found at %d\n", i);
