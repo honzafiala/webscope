@@ -123,10 +123,9 @@ void usb_send(volatile uint8_t * buf, uint len) {
     sent = false;
     buf_in = buf;
     buf_len = len;
-    while (!sent) {
-        gpio_put(PICO_DEFAULT_LED_PIN, 1);
-        gpio_put(PICO_DEFAULT_LED_PIN, 0);
-    }
+    gpio_put(PICO_DEFAULT_LED_PIN, 1);
+    while (!sent);
+    gpio_put(PICO_DEFAULT_LED_PIN, 0);
 }
 
 
@@ -140,7 +139,8 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
     // if (!xferred_bytes) USBTEST_LOG2("                 ZLP\n");
 
     if (ep_addr == _bulk_out) {
-       //handle_usb_in(xferred_bytes, _bulk_out_buf);
+        usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf));
+
         //usb_rec_bytes = xferred_bytes;
     }
 
