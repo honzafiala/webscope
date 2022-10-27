@@ -122,20 +122,22 @@ export default function App() {
 
   async function readSingle() {
 
-    /*
-    let dummy = await USBDevice.transferIn(1, 64);
-    let dummybuf = str2ab("dummy");
-    let result = await USBDevice.transferOut(1, dummybuf);
-    console.log('dummy', dummy);
-    */
+
+
     let result;
 
     // Read trigger index and parse
-    result = await USBDevice.transferIn(1, 32768 * 6);
+    result = await USBDevice.transferIn(1, 4);
     console.log('result', result);
     if (result.byteLength < 4) return;
     let trigIndex = result.data.getUint32(0, true);
-    //console.log('value', trigIndex);
+    console.log('trigger:', trigIndex);
+    
+
+
+
+    result = await USBDevice.transferIn(1, 32768 * 6);
+    console.log('result', result);
     
   
       let parsedData = [];
@@ -144,9 +146,12 @@ export default function App() {
         parsedData.push(val);
       }
 
-     // let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
-      data = parsedData;
-      setData(parsedData);
+      parsedData[trigIndex] = 255;
+
+    let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
+   // let shiftedData = parsedData;
+    data = shiftedData;
+      setData(shiftedData);
   }
 
   let [showPlot, setShowPlot] = useState(true);

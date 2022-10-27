@@ -26,7 +26,7 @@ uint dma_pin = 16;
 uint debug_pin = 17;
 uint usb_pin = 18;
 
-volatile uint trig_index;
+volatile int trig_index = -1;
 uint pretrigger = 96*1024; // 50%
 
 extern void usb_send(uint8_t * buf, uint size);
@@ -114,7 +114,7 @@ int main(void)
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96*10);
+    adc_set_clkdiv(96);
 
 
     //==================
@@ -162,13 +162,38 @@ int main(void)
 
     //printf("Starting capture\n");
      adc_run(true);
-    dma_active = 0;
 
 
-    uint32_t trig_msg = 0;
+    uint prev_xfer_count = 0;
+    bool stop = false;
     while (1) {
+        uint xfer_count = CAPTURE_DEPTH - dma_channel_hw_addr(main_chan)->transfer_count;
+        if (stop && xfer_count > trig_index) {
+            adc_run(false);
+           // dma_channel_abort(main_chan);
+           printf("Found trigger at %d\n", trig_index);
+           printf("Stopping at %d\n", xfer_count);
+           break;
+        }
+        for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
+            if (capture_buf[i] > 50 && trig_index == -1) {
+                trig_index = i;
+                break;
+            }
+        }
+        if (trig_index > -1 && xfer_count < trig_index && !stop) {
+            stop = true;
+        }
+        prev_xfer_count = xfer_count;
+    }
+
+
+    //for (int i = 0; i < CAPTURE_DEPTH; i++) capture_buf[i] = 255 * i / CAPTURE_DEPTH;
+
+    uint32_t trig_msg = trig_index;
+    while (1) {
+        usb_send(&trig_msg, 4);
         for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
-        trig_msg++;
     }
 
     /*
