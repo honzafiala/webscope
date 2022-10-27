@@ -124,6 +124,7 @@ export default function App() {
     // Read trigger index and parse
     do {
       result = await USBDevice.transferIn(1, 4);
+      await new Promise(res => setTimeout(res, 50));
     } while (result.data.byteLength == 0);
     console.log('result', result);
     let trigIndex = result.data.getUint32(0, true);

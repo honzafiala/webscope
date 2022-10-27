@@ -89,13 +89,14 @@ int main(void)
 {
     multicore_launch_core1(core1_task);
 
-    adc_configure(0);
 
     //==================
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
     while (1) {
+
+    adc_configure(0);
 
     analog_dma_configure(main_chan, ctrl_chan);
 
@@ -107,7 +108,7 @@ int main(void)
     //printf("Starting capture\n");
      adc_run(true);
 
-    int pretrigger = CAPTURE_DEPTH / 2;
+    int pretrigger = 0;
 
     uint capture_start_index;
 
@@ -138,8 +139,9 @@ int main(void)
         prev_xfer_count = xfer_count;
     }
 
-    //dma_channel_abort(main_chan);
-    //dma_channel_abort(ctrl_chan);
+    // Atomically abort both channels.
+    dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
+
 
     printf("Sending captured data\n");
     uint32_t trig_msg = capture_start_index;
