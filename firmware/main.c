@@ -89,60 +89,57 @@ int main(void)
 {
     multicore_launch_core1(core1_task);
 
+    adc_configure(0);
+
+    //==================
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
+    analog_dma_configure(main_chan, ctrl_chan);
 
+    dma_channel_start(main_chan);
+
+
+    sleep_ms(600);
+
+    //printf("Starting capture\n");
+     adc_run(true);
+
+    int pretrigger = CAPTURE_DEPTH / 2;
+
+    uint capture_start_index;
+
+    bool triggered = false;
+    uint xfer_count_since_trigger = 0;
+    uint prev_xfer_count = 0;
     while (1) {
-        adc_configure(0);
+        uint xfer_count = CAPTURE_DEPTH - dma_channel_hw_addr(main_chan)->transfer_count;
+        if (triggered) {
+            if (xfer_count > prev_xfer_count) xfer_count_since_trigger += xfer_count - prev_xfer_count;
+            else if (xfer_count < prev_xfer_count) xfer_count_since_trigger += CAPTURE_DEPTH - prev_xfer_count + xfer_count;
 
-        //==================
-
-        analog_dma_configure(main_chan, ctrl_chan);
-
-        dma_channel_start(main_chan);
-
-        sleep_ms(600);
-
-        //printf("Starting capture\n");
-        adc_run(true);
-
-        int pretrigger = 0;
-
-        uint capture_start_index;
-        bool triggered = false;
-        uint xfer_count_since_trigger = 0;
-        uint prev_xfer_count = 0;
-        while (1) {
-            uint xfer_count = CAPTURE_DEPTH - dma_channel_hw_addr(main_chan)->transfer_count;
-            if (triggered) {
-                if (xfer_count > prev_xfer_count) xfer_count_since_trigger += xfer_count - prev_xfer_count;
-                else if (xfer_count < prev_xfer_count) xfer_count_since_trigger += CAPTURE_DEPTH - prev_xfer_count + xfer_count;
-
-                if (xfer_count_since_trigger >= CAPTURE_DEPTH  - pretrigger) {
-                    adc_run(false);
-                    printf("Stopping adc at idx %d after %d xfers\n", xfer_count, xfer_count_since_trigger);
+            if (xfer_count_since_trigger >= CAPTURE_DEPTH  - pretrigger) {
+                adc_run(false);
+                printf("Stopping adc at idx %d after %d xfers\n", xfer_count, xfer_count_since_trigger);
+                break;
+            }
+        } else {
+            for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
+                if (capture_buf[i] > 140) {
+                    triggered = true;
+                    capture_start_index = (i - pretrigger + CAPTURE_DEPTH) % CAPTURE_DEPTH;
+                    printf("Trigger found at %d\n", i);
                     break;
                 }
-            } else {
-                for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
-                    if (capture_buf[i] > 140) {
-                        triggered = true;
-                        capture_start_index = (i - pretrigger + CAPTURE_DEPTH) % CAPTURE_DEPTH;
-                        printf("Trigger found at %d\n", i);
-                        break;
-                    }
-                }
             }
-            prev_xfer_count = xfer_count;
         }
+        prev_xfer_count = xfer_count;
+    }
 
-        dma_channel_abort(main_chan);
-        dma_channel_abort(ctrl_chan);
-
-
-        uint32_t trig_msg = capture_start_index;
+    uint32_t trig_msg = capture_start_index;
+    while (1) {
         usb_send(&trig_msg, 4);
         for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
     }
+
     return 0;
 }

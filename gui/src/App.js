@@ -40,7 +40,6 @@ export default function App() {
 
     // "Dummy" IN and OUT transfers
     let result = await device.transferIn(1, 4);
-    console.log(result);
     let buf = new Uint8Array([0]);
     device.transferOut(1, buf);
 
@@ -123,8 +122,7 @@ export default function App() {
     let result;
 
     // Read trigger index and parse
-      result = await USBDevice.transferIn(1, 4);
-      console.log(result);
+    result = await USBDevice.transferIn(1, 4);
     console.log('result', result);
     let trigIndex = result.data.getUint32(0, true);
     console.log('trigger:', trigIndex);
@@ -132,9 +130,7 @@ export default function App() {
 
 
 
-      result = await USBDevice.transferIn(1, 32768 * 6);
-      console.log(result);
-    while (result.data.byteLength == 0);
+    result = await USBDevice.transferIn(1, 32768 * 6);
     console.log('result', result);
     
   
@@ -144,10 +140,14 @@ export default function App() {
         parsedData.push(val);
       }
 
-      let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));  
+
+    let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
+   // let shiftedData = parsedData;
+  
       setData(shiftedData);
   }
 
+  let [showPlot, setShowPlot] = useState(true);
   return (
     <div className="root">
       <div className="topbar">
