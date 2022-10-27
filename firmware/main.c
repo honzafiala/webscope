@@ -66,12 +66,8 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
     false);
 }
 
-
-int main(void)
-{
-    multicore_launch_core1(core1_task);
-
-    // Configure ADC
+void adc_configure(float clkdiv) {
+   // Configure ADC
     adc_gpio_init(26 + CAPTURE_CHANNEL);
     adc_gpio_init(26 + CAPTURE_CHANNEL + 1);
     adc_select_input(CAPTURE_CHANNEL);
@@ -86,8 +82,14 @@ int main(void)
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96);
+    adc_set_clkdiv(clkdiv);
+}
 
+int main(void)
+{
+    multicore_launch_core1(core1_task);
+
+    adc_configure(0);
 
     //==================
     const uint main_chan = dma_claim_unused_channel(true);
