@@ -29,12 +29,37 @@ volatile int trig_index = -1;
 extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
 
-volatile uint trig = -1;
 
-volatile int dma_active = -1;
+void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
+     /* Nastaveni hlavniho DMA kanalu */
+    dma_channel_config chan_cfg = dma_channel_get_default_config(main_chan);
+    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_8);
+    channel_config_set_chain_to(&chan_cfg, ctrl_chan);
+    channel_config_set_write_increment(&chan_cfg, true);
+    channel_config_set_read_increment(&chan_cfg, false);
 
-volatile bool capture_complete = true;
+    channel_config_set_dreq(&chan_cfg, DREQ_ADC);
 
+    dma_channel_configure(main_chan,
+    &chan_cfg,
+    capture_buf,
+    &adc_hw->fifo,
+    CAPTURE_DEPTH,
+    false);
+
+    static void * array_addr = capture_buf;
+    /* Nastaveni kanalu pro restart hlavniho */
+    chan_cfg = dma_channel_get_default_config(ctrl_chan);
+    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_32);
+    channel_config_set_read_increment(&chan_cfg, false);
+    channel_config_set_write_increment(&chan_cfg, false);
+    dma_channel_configure(ctrl_chan,
+    &chan_cfg,
+    &dma_channel_hw_addr(main_chan)->al2_write_addr_trig,
+    &array_addr,
+    1,
+    false);
+}
 
 
 int main(void)
@@ -74,35 +99,7 @@ int main(void)
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
-    /* Nastaveni hlavniho DMA kanalu */
-    dma_channel_config chan_cfg = dma_channel_get_default_config(main_chan);
-    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_8);
-    channel_config_set_chain_to(&chan_cfg, ctrl_chan);
-    channel_config_set_write_increment(&chan_cfg, true);
-    channel_config_set_read_increment(&chan_cfg, false);
-
-    channel_config_set_dreq(&chan_cfg, DREQ_ADC);
-
-    dma_channel_configure(main_chan,
-    &chan_cfg,
-    capture_buf,
-    &adc_hw->fifo,
-    CAPTURE_DEPTH,
-    false);
-
-    void * array_addr = capture_buf;
-    /* Nastaveni kanalu pro restart hlavniho */
-    chan_cfg = dma_channel_get_default_config(ctrl_chan);
-    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_32);
-    channel_config_set_read_increment(&chan_cfg, false);
-    channel_config_set_write_increment(&chan_cfg, false);
-    dma_channel_configure(ctrl_chan,
-    &chan_cfg,
-    &dma_channel_hw_addr(main_chan)->al2_write_addr_trig,
-    &array_addr,
-    1,
-    false);
-    //--------------------
+    analog_dma_configure(main_chan, ctrl_chan);
 
 
     gpio_put(dma_pin, 1);
