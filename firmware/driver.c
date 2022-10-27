@@ -148,7 +148,6 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
 
     else if (ep_addr == _bulk_in) {
         usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_len);
-        printf("sent %d bytes\n", buf_len);
         sent = true;
     }
     else

@@ -121,10 +121,11 @@ export default function App() {
   async function readSingle() {
     let result;
 
+    while (1) {
     // Read trigger index and parse
     do {
       result = await USBDevice.transferIn(1, 4);
-      await new Promise(res => setTimeout(res, 50));
+      await new Promise(res => setTimeout(res, 200));
     } while (result.data.byteLength == 0);
     console.log('result', result);
     let trigIndex = result.data.getUint32(0, true);
@@ -148,6 +149,7 @@ export default function App() {
    // let shiftedData = parsedData;
   
       setData(shiftedData);
+    }
   }
 
   let [showPlot, setShowPlot] = useState(true);
