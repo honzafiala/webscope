@@ -103,7 +103,7 @@ int main(void)
     dma_channel_start(main_chan);
 
 
-    sleep_ms(600);
+  //  sleep_ms(600);
 
     //printf("Starting capture\n");
      adc_run(true);
