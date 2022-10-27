@@ -94,6 +94,9 @@ int main(void)
     //==================
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
+
+    while (1) {
+
     analog_dma_configure(main_chan, ctrl_chan);
 
     dma_channel_start(main_chan);
@@ -135,10 +138,13 @@ int main(void)
         prev_xfer_count = xfer_count;
     }
 
+    //dma_channel_abort(main_chan);
+    //dma_channel_abort(ctrl_chan);
+
+    printf("Sending captured data\n");
     uint32_t trig_msg = capture_start_index;
-    while (1) {
-        usb_send(&trig_msg, 4);
-        for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
+    usb_send(&trig_msg, 4);
+    for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
     }
 
     return 0;
