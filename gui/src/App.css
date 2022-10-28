@@ -10,6 +10,7 @@ body {
 .root {
   height: 100vh;
   margin: 0;
+  padding: 0;
   display: flex;
   flex-flow: column;
 }
@@ -32,7 +33,7 @@ body {
   flex: 1;
   margin: 0;
   padding: 0;
-  position: relative;
+  background-color: rgb(46, 46, 46);
 }
 
 

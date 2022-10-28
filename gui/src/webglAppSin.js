@@ -9,18 +9,17 @@ let line, horizontal;
 
 export default function WebglAppSin({data, test}) {
   const canvasMain = useRef(null);
-  let freq = 1;
-  let amp = 1;
-  let noise = 0.5;
 
 
   useEffect(() => {
     if (canvasMain.current) {
-      const devicePixelRatio = window.devicePixelRatio || 1;
-      canvasMain.current.width =
-        canvasMain.current.clientWidth * devicePixelRatio;
-      canvasMain.current.height =
-        canvasMain.current.clientHeight * devicePixelRatio;
+      
+      canvasMain.current.width = canvasMain.current.clientWidth * window.devicePixelRatio;
+      canvasMain.current.height = canvasMain.current.parentElement.offsetHeight * window.devicePixelRatio;
+
+      console.log(canvasMain.current.clientHeight);
+      console.log('parent', canvasMain.current.clientHeight);
+
 
       webglp = new WebglPlot(canvasMain.current);
       const numX = 1000;
@@ -41,10 +40,6 @@ export default function WebglAppSin({data, test}) {
   useEffect(() => {
     let id = 0;
     let renderPlot = () => {
-      //const freq = 0.001;
-      //const noise = 0.1;
-      //const amp = 0.5;
-      const noise1 = noise || 0.1;
 
       for (let i = 0; i < line.numPoints; i++) {
 
@@ -55,7 +50,6 @@ export default function WebglAppSin({data, test}) {
       }
       id = requestAnimationFrame(renderPlot);
       webglp.update();
-      console.log("update", test, data.length);
     };
     id = requestAnimationFrame(renderPlot);
 
@@ -68,12 +62,11 @@ export default function WebglAppSin({data, test}) {
   const canvasStyle = {
     width: "100%",
     height: "100%",
-    border: "1px solid red"
-  };
+    padding: 0,
+    margin:  0
+    };
 
   return (
-    <div>
-      <canvas style={canvasStyle} ref={canvasMain} />
-    </div>
+       <canvas style={canvasStyle} ref={canvasMain} />
   );
 }
