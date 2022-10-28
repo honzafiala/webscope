@@ -108,6 +108,11 @@ async function readContinuous() {
   
       data = shiftedData;
       setData(shiftedData);
+
+      let max = 0;
+      for (let i = 0; i < data.length; i++)
+        if (data[i] > max) max = data[i];
+      console.log('max:', max);
   }
 
   return (
