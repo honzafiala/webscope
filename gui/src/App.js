@@ -81,8 +81,6 @@ async function readContinuous() {
     let status = await USBDevice.transferOut(1, buf);
     console.log(status);
 
-    console.log(performance.now() / 1000, "sent config");
-
     let result;
 
     // Read trigger index and parse
@@ -95,14 +93,11 @@ async function readContinuous() {
     console.log('trigger:', trigIndex);
     
 
-    console.log(performance.now() / 1000, "received trigger index");
 
 
     result = await USBDevice.transferIn(1, 32768 * 6);
     console.log('result', result);
     
-    console.log(performance.now() / 1000, "received capture data");
-
   
       let parsedData = [];
       for (let i = 0; i < result.data.byteLength; i++) {
@@ -117,9 +112,10 @@ async function readContinuous() {
       data = shiftedData;
       setData(shiftedData);
 
-
-    console.log(performance.now() / 1000, "parsed data");
-
+      let max = 0;
+      for (let i = 0; i < data.length; i++)
+        if (data[i] > max) max = data[i];
+      console.log('max:', max);
   }
 
   function toggleGrid() {
