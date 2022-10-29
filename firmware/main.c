@@ -19,9 +19,11 @@ extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (1024*96*2)     
+#define CAPTURE_DEPTH (1024*96)     
+#define NUM_ADC_CHANNELS 2
+#define CAPTURE_BUFFER_LEN (CAPTURE_DEPTH * NUM_ADC_CHANNELS)
 
-volatile uint8_t capture_buf[CAPTURE_DEPTH] = {0};
+volatile uint8_t capture_buf[CAPTURE_BUFFER_LEN] = {0};
 
 #define DEBUG_PIN0 16
 #define DEBUG_PIN1 17
@@ -50,7 +52,7 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
     &chan_cfg,
     capture_buf,
     &adc_hw->fifo,
-    CAPTURE_DEPTH,
+    CAPTURE_BUFFER_LEN,
     false);
 
     static void * array_addr = capture_buf;
@@ -73,7 +75,7 @@ void adc_configure(float clkdiv) {
     adc_gpio_init(26 + CAPTURE_CHANNEL + 1);
     adc_select_input(CAPTURE_CHANNEL);
     adc_init();
-    //  adc_set_round_robin(0x3);
+    adc_set_round_robin(0x3);
     adc_fifo_setup(
         true,    // Write each completed conversion to the sample FIFO
         true,    // Enable DMA data request (DREQ)
@@ -135,21 +137,21 @@ int main(void)
     uint xfer_count_since_trigger = 0;
     uint prev_xfer_count = 0;
     while (1) {
-        uint xfer_count = CAPTURE_DEPTH - dma_channel_hw_addr(main_chan)->transfer_count;
+        uint xfer_count = CAPTURE_BUFFER_LEN - dma_channel_hw_addr(main_chan)->transfer_count;
         if (triggered) {
             if (xfer_count > prev_xfer_count) xfer_count_since_trigger += xfer_count - prev_xfer_count;
-            else if (xfer_count < prev_xfer_count) xfer_count_since_trigger += CAPTURE_DEPTH - prev_xfer_count + xfer_count;
+            else if (xfer_count < prev_xfer_count) xfer_count_since_trigger += CAPTURE_BUFFER_LEN - prev_xfer_count + xfer_count;
 
-            if (xfer_count_since_trigger >= CAPTURE_DEPTH  - pretrigger) {
+            if (xfer_count_since_trigger >= CAPTURE_BUFFER_LEN  - pretrigger) {
                 adc_run(false);
                 printf("Stopping adc at idx %d after %d xfers\n", xfer_count, xfer_count_since_trigger);
                 break;
             }
         } else {
-            for (uint i = prev_xfer_count; i != xfer_count; i = ++i % CAPTURE_DEPTH) {
-                if (capture_buf[i] > 140) {
+            for (uint i = prev_xfer_count; i != xfer_count; i = (i + 2) % CAPTURE_BUFFER_LEN) {
+                if (capture_buf[i] > 140 || capture_buf[i + 1] > 140) {
                     triggered = true;
-                    capture_start_index = (i - pretrigger + CAPTURE_DEPTH) % CAPTURE_DEPTH;
+                    capture_start_index = (i - pretrigger + CAPTURE_BUFFER_LEN) % CAPTURE_BUFFER_LEN;
                     printf("Trigger found at %d\n", i);
                     break;
                 }
