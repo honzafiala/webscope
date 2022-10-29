@@ -14,9 +14,8 @@ let dummyData = getDummyData();
 
 export default function App() {
   let [data, setData] = useState([]);
-  let [test, setTest] = useState(0);
+  let [config, setConfig] = useState({grid: false});
   let [USBDevice, setUSBDevice] = useState(null);
-  let [running, setRunning] = useState(false);
   let [clk, setClk] = useState(0);
 
 
@@ -115,6 +114,10 @@ async function readContinuous() {
       console.log('max:', max);
   }
 
+  function toggleGrid() {
+    setConfig({...config, grid: !config.grid});
+  }
+
   return (
     <div className="root">
       <div className="topbar">
@@ -127,11 +130,13 @@ async function readContinuous() {
         <button onClick={sendConfig}>send config</button>
         <input type="text" value={clk} size="5" onChange={clkChange}/>
 
+        <button onClick={toggleGrid}>Grid</button>
+
 
         </div>
       <div className="main">
          {/* <WebglAppSin data={data} test={test}/> */}
-        <CanvasPlot data={data}/>
+        <CanvasPlot data={data} config={config}/>
         <div className='side'>
           <ChannelControl number="1" color="#ffff0078" active="true"/>
 
