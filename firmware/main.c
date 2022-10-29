@@ -117,15 +117,17 @@ int main(void)
     uint8_t rec_buf[4] = {0};
 
 
-     
-
 
     while (1) {
-    
+    uint32_t start;
+    start = to_ms_since_boot(get_absolute_time());
+
     uint ret = usb_rec(rec_buf, 4);
     printf("REC: %d bytes: %d %d %d %d\n", ret, rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3]);
 
-    uint32_t start;
+    printf("%d ms\n", to_ms_since_boot(get_absolute_time()) - start);
+    start = to_ms_since_boot(get_absolute_time());
+
 
     adc_configure(0);
 
@@ -137,6 +139,10 @@ int main(void)
   //  sleep_ms(600);
 
     //printf("Starting capture\n");
+    printf("%d ms\n", to_ms_since_boot(get_absolute_time()) - start);
+    printf("ADC started\n");
+    start = to_ms_since_boot(get_absolute_time());
+
      adc_run(true);
 
     int pretrigger = 0;
@@ -173,11 +179,18 @@ int main(void)
     // Atomically abort both channels.
     dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
 
+    printf("%d ms\n", to_ms_since_boot(get_absolute_time()) - start);
+    start = to_ms_since_boot(get_absolute_time());
+
 
     printf("Sending captured data\n");
     uint32_t trig_msg = capture_start_index;
     usb_send(&trig_msg, 4);
     for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
+
+    printf("%d ms\n", to_ms_since_boot(get_absolute_time()) - start);
+    start = to_ms_since_boot(get_absolute_time());
+
     }
 
     return 0;
