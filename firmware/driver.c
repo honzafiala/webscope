@@ -23,6 +23,9 @@ uint8_t _ctrl_req_buf[256];
 uint8_t _bulk_in_buf[BULK_BUFLEN];
 uint8_t _bulk_out_buf[BULK_BUFLEN];
 
+uint8_t rec_buf[64] = {0};
+
+
 
 static void usbtest_init(void)
 {
@@ -65,7 +68,7 @@ static uint16_t usbtest_open(uint8_t rhport, tusb_desc_interface_t const * itf_d
 
     TU_ASSERT( usbd_open_edpt_pair(rhport, p_desc, 2, TUSB_XFER_BULK, &_bulk_out, &_bulk_in) );
 
-    TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, _bulk_out_buf, sizeof(_bulk_out_buf)) );
+    TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_out, rec_buf, sizeof(rec_buf)) );
     TU_ASSERT ( usbd_edpt_xfer(rhport, _bulk_in, _bulk_in_buf, 0));
 
 
@@ -115,21 +118,37 @@ static bool usbtest_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_
 }
 
 volatile bool sent = false;
-
 volatile uint8_t * buf_in = _bulk_in_buf;
-volatile uint buf_len = 0;
+volatile uint buf_in_len = 0;
+
+volatile bool rec = false;
+volatile uint8_t * buf_out = _bulk_out_buf;
+volatile uint buf_out_len = 0;
+
 
 void usb_send(volatile uint8_t * buf, uint len) {
     while (!sent);
     sent = false;
     buf_in = buf;
-    buf_len = len;
+    buf_in_len = len;
     while (!sent) {
         gpio_put(PICO_DEFAULT_LED_PIN, 1);
         gpio_put(PICO_DEFAULT_LED_PIN, 0);
     }
-    buf_len = 0;
+    buf_in_len = 0;
 }
+
+
+volatile uint rec_bytes = 0;
+
+uint usb_rec(volatile uint8_t * buf, uint len) {
+    while (!rec_bytes);
+    memcpy(buf, rec_buf, rec_bytes);
+    uint ret = rec_bytes;
+    rec_bytes = 0;
+    return ret;
+}
+
 
 
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
@@ -142,12 +161,13 @@ static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t resul
     // if (!xferred_bytes) USBTEST_LOG2("                 ZLP\n");
 
     if (ep_addr == _bulk_out) {
-       //handle_usb_in(xferred_bytes, _bulk_out_buf);
-        //usb_rec_bytes = xferred_bytes;
+        memcpy(buf_out, rec_buf, xferred_bytes);
+        rec_bytes = xferred_bytes;
+        usbd_edpt_xfer(rhport, _bulk_out, rec_buf, sizeof(rec_buf));
     }
 
     else if (ep_addr == _bulk_in) {
-        usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_len);
+        usbd_edpt_xfer(rhport, _bulk_in, buf_in, buf_in_len);
         sent = true;
     }
     else

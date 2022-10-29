@@ -26,10 +26,8 @@ export default function App() {
 
     setUSBDevice(device);
 
-    // "Dummy" IN and OUT transfers
+    // "Dummy" IN transfer
     let result = await device.transferIn(1, 4);
-    let buf = new Uint8Array([0]);
-    device.transferOut(1, buf);
 
   }
 
@@ -77,6 +75,12 @@ async function readContinuous() {
 
 
   async function readSingle() {
+
+    // Send capture start command
+    let buf = new Uint8Array([1, 2, 3, 4]);
+    let status = await USBDevice.transferOut(1, buf);
+    console.log(status);
+
     let result;
 
     // Read trigger index and parse

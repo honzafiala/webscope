@@ -114,7 +114,17 @@ int main(void)
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
+    uint8_t rec_buf[4] = {0};
+
+
+     
+
+
     while (1) {
+    
+    uint ret = usb_rec(rec_buf, 4);
+    printf("REC: %d bytes: %d %d %d %d\n", ret, rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3]);
+
     uint32_t start;
 
     adc_configure(0);
