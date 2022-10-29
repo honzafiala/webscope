@@ -7,6 +7,7 @@
 // For ADC input:
 #include "hardware/adc.h"
 #include "hardware/dma.h"
+#include "hardware/pwm.h"
 
 #include "pico/multicore.h"
 
@@ -85,9 +86,26 @@ void adc_configure(float clkdiv) {
     adc_set_clkdiv(clkdiv);
 }
 
+#define PWM_PIN 2
+void pwm_configure() {
+    // Tell GPIO 0 and 1 they are allocated to the PWM
+    gpio_set_function(2, GPIO_FUNC_PWM);
+
+    // Find out which PWM slice is connected to GPIO 0 (it's slice 0)
+    uint slice_num = pwm_gpio_to_slice_num(2);
+
+
+    pwm_config config = pwm_get_default_config();
+    pwm_config_set_clkdiv(&config, 100.f);
+    pwm_init(slice_num, &config, true);
+    pwm_set_gpio_level(2, 32768); // 32768 out of 65535 = 50% duty cycle
+}
+
 int main(void)
 {
     multicore_launch_core1(core1_task);
+
+    pwm_configure();
 
 
     //==================
@@ -95,6 +113,7 @@ int main(void)
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
     while (1) {
+    uint32_t start;
 
     adc_configure(0);
 
