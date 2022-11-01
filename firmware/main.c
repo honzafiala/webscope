@@ -150,8 +150,39 @@ int main(void)
     bool triggered = false;
     uint xfer_count_since_trigger = 0;
     uint prev_xfer_count = 0;
-    uint64_t xfer_count_since_start = 0;
+    uint32_t xfer_count_since_start = 0;
+    uint32_t prev_xfer_count_since_start = 0;
+    uint trigger_index;
+
     while (1) {
+        uint xfer_count = CAPTURE_BUFFER_LEN - dma_channel_hw_addr(main_chan)->transfer_count;
+
+        if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
+        else if (xfer_count < prev_xfer_count) xfer_count_since_start += CAPTURE_BUFFER_LEN - prev_xfer_count + xfer_count;
+
+        if (!triggered && xfer_count_since_start >= pretrigger) {
+            for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
+                if (capture_buf[i % CAPTURE_BUFFER_LEN] > 140 && i % 2) {
+                    trigger_index = i;
+                    printf("Found trigger at %d kS\n", i / 1024);
+                    triggered = true;
+                    break;
+                }
+            }
+        } else if (triggered && xfer_count_since_start - trigger_index >= CAPTURE_BUFFER_LEN) {
+            adc_run(false);
+            printf("Stopping at %d, %d after %d\n", xfer_count_since_start / 1024, (xfer_count_since_start - trigger_index) / 1024,
+                trigger_index / 1024);
+            break;
+        }
+
+        prev_xfer_count = xfer_count;
+        prev_xfer_count_since_start = xfer_count_since_start;
+    }
+
+
+
+    while (0) {
         uint xfer_count = CAPTURE_BUFFER_LEN - dma_channel_hw_addr(main_chan)->transfer_count;
 
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
@@ -184,7 +215,7 @@ int main(void)
 
 
     printf("Sending captured data\n");
-    uint32_t trig_msg = capture_start_index;
+    uint32_t trig_msg = trigger_index % CAPTURE_BUFFER_LEN;
     usb_send(&trig_msg, 4);
     for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
     }

@@ -153,7 +153,7 @@ uint usb_rec(volatile uint8_t * buf, uint len) {
 
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
 {
-    USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
+   // USBTEST_LOG1("%s: ep_addr=0x%02x result=%u xferred_bytes=%u\n", __func__, ep_addr, result, xferred_bytes);
 
     TU_VERIFY(result == XFER_RESULT_SUCCESS);
 
