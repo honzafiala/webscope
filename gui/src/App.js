@@ -36,9 +36,12 @@ let defaultViewConfig = {
 
 export default function App() {
   let [data, setData] = useState([]);
-  let [config, setConfig] = useState({grid: false, clk: 128, zoom: 1});
+  let [config, setConfig] = useState({grid: true, clk: 128, zoom: 1});
+
+  let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
+  let [ViewConfig, setViewConfig] = useState(defaultViewConfig);
+
   let [USBDevice, setUSBDevice] = useState(null);
-  let [stop, setStop] = useState(false);
 
 
   async function connectDevice() {
@@ -93,8 +96,7 @@ export default function App() {
 
   
 async function readContinuous() {
-  await readSingle();
-  if (!stop) await readContinuous();
+  while (true) await readSingle();
 }
 
 
@@ -143,10 +145,6 @@ async function readContinuous() {
     setConfig({...config, grid: !config.grid});
   }
 
-  function stopCapture() {
-    setStop(true);
-  }
-
   function zoom(dir) {
     console.log(dir);
     if (config.zoom <= 1 && dir == '-') return;
@@ -176,8 +174,7 @@ async function readContinuous() {
         <input type="text" value={config.clk} size="5" onChange={clkChange}/>
 
         <button onClick={toggleGrid}>Grid</button>
-        <button onClick={() => setStop(true)}>Stop</button>
-        {stop? "stopped" : ""}
+
 
         </div>
       <div className="main">
