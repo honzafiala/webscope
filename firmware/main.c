@@ -117,7 +117,6 @@ int main(void)
     uint8_t rec_buf[4] = {0};
 
 
-     
 
 
     while (1) {
@@ -125,6 +124,7 @@ int main(void)
     uint ret = usb_rec(rec_buf, 4);
     printf("REC: %d bytes: %d %d %d %d\n", ret, rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3]);
 
+     uint trig_level = rec_buf[0];
 
 
 
@@ -162,7 +162,8 @@ int main(void)
 
         if (!triggered && xfer_count_since_start >= pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if (capture_buf[i % CAPTURE_BUFFER_LEN] > 140 && i % 2 && i >= pretrigger) {
+                if ( capture_buf[i % CAPTURE_BUFFER_LEN] > trig_level && capture_buf[i % CAPTURE_BUFFER_LEN - 1000] < trig_level              
+                && i % 2 && i >= pretrigger) {
                     trigger_index = i - pretrigger;
                     printf("Found trigger at %d kS\n", i / 1024);
                     triggered = true;

@@ -14,9 +14,8 @@ let dummyData = getDummyData();
 
 export default function App() {
   let [data, setData] = useState([]);
-  let [config, setConfig] = useState({grid: false});
+  let [config, setConfig] = useState({grid: false, clk: 128});
   let [USBDevice, setUSBDevice] = useState(null);
-  let [clk, setClk] = useState(0);
   let [stop, setStop] = useState(false);
 
 
@@ -45,10 +44,9 @@ export default function App() {
 
   async function sendConfig() {
    
+    console.log("clk", config);
+    return;
 
-    let config = {
-      clk_div: clk
-    };
 
     let str = JSON.stringify(config);
     console.log(str);
@@ -62,8 +60,12 @@ export default function App() {
   function clkChange(event) {
     let val = parseInt(event.target.value);
     console.log(event.target.value);
-    if (!isNaN(val)) setClk(val);
-    if (event.target.value == '') setClk(0);
+    if (!isNaN(val)) 
+    {
+      setConfig({...config, clk: val});
+
+    }
+    if (event.target.value == '') setConfig({...config, clk: 0});
   }
 
 
@@ -77,7 +79,7 @@ async function readContinuous() {
   async function readSingle() {
 
     // Send capture start command
-    let buf = new Uint8Array([1, 2, 3, 4]);
+    let buf = new Uint8Array([config.clk, 2, 3, 4]);
     let status = await USBDevice.transferOut(1, buf);
     console.log(status);
 
@@ -133,7 +135,7 @@ async function readContinuous() {
         <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
 
         <button onClick={sendConfig}>send config</button>
-        <input type="text" value={clk} size="5" onChange={clkChange}/>
+        <input type="text" value={config.clk} size="5" onChange={clkChange}/>
 
         <button onClick={toggleGrid}>Grid</button>
         <button onClick={() => setStop(true)}>Stop</button>
@@ -146,12 +148,7 @@ async function readContinuous() {
         <div className='side'>
           {/* <ChannelControl number="1" color="#ffff0078" active="true"/> */}
           <p>TODO</p>
-          <ul>
-            <li>Trigger level</li>
-            <li>Trigger up/down</li>
-            <li>Trigger channel</li>
-            <li>Horizontal control</li>
-          </ul>
+
         </div>
       </div>
     </div>
