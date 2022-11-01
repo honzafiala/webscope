@@ -19,7 +19,7 @@ extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (1024*96)     
+#define CAPTURE_DEPTH (100000)     
 #define NUM_ADC_CHANNELS 2
 #define CAPTURE_BUFFER_LEN (CAPTURE_DEPTH * NUM_ADC_CHANNELS)
 
@@ -187,7 +187,15 @@ int main(void)
     printf("Sending captured data\n");
     uint32_t trig_msg = trigger_index % CAPTURE_BUFFER_LEN;
     usb_send(&trig_msg, 4);
-    for (int i = 0; i < 6; i++) usb_send(&capture_buf[i * 32768], 32768);
+
+    const uint usb_packet_size = 32768; 
+
+    for (int i = 0; i < CAPTURE_BUFFER_LEN; i += usb_packet_size) {
+        printf("sending %d\n", CAPTURE_BUFFER_LEN - i > usb_packet_size ? usb_packet_size : CAPTURE_BUFFER_LEN - i);
+        usb_send(&capture_buf[i], CAPTURE_BUFFER_LEN - i > usb_packet_size ? usb_packet_size : CAPTURE_BUFFER_LEN - i);
+
+    }
+
     }
 
     return 0;

@@ -7,8 +7,30 @@ import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
 
 
-let dummyData = getDummyData();
 
+let defaultCaptureConfig = {
+  activeChannels: [true, true],
+  trigger: {
+    channels: [true, false], 
+    threshold: 128,
+    edge: "UP"
+  },
+  preTrigger: 0.5,
+  sampleRate: 500000,
+  captureDepth: 200000
+};
+
+let defaultViewConfig = {
+  visibleChannels: [true, true],
+  vertical: [
+    {offset: 0, zoom: 1}, 
+    {offset: 0, zoom: 1}
+  ],
+  horizontal: {
+    zoom: 1,
+    offset: 0
+  }
+}
 
 
 
@@ -97,7 +119,7 @@ async function readContinuous() {
 
 
 
-    result = await USBDevice.transferIn(1, 32768 * 6);
+    result = await USBDevice.transferIn(1, 200000);
     console.log('result', result);
     
   
@@ -141,7 +163,6 @@ async function readContinuous() {
       else newVal *= 2;
       setConfig({...config, zoom: newVal});
   }
-
   return (
     <div className="root">
       <div className="topbar">
