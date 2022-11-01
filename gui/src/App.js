@@ -17,6 +17,7 @@ export default function App() {
   let [config, setConfig] = useState({grid: false});
   let [USBDevice, setUSBDevice] = useState(null);
   let [clk, setClk] = useState(0);
+  let [stop, setStop] = useState(false);
 
 
   async function connectDevice() {
@@ -68,9 +69,8 @@ export default function App() {
 
   
 async function readContinuous() {
-  while (1) {
-    readSingle();
-  }
+  await readSingle();
+  if (!stop) await readContinuous();
 }
 
 
@@ -86,7 +86,7 @@ async function readContinuous() {
     // Read trigger index and parse
     do {
       result = await USBDevice.transferIn(1, 4);
-      await new Promise(res => setTimeout(res, 200));
+      await new Promise(res => setTimeout(res, 50));
     } while (result.data.byteLength == 0);
     console.log('result', result);
     let trigIndex = result.data.getUint32(0, true);
@@ -112,14 +112,15 @@ async function readContinuous() {
       data = shiftedData;
       setData(shiftedData);
 
-      let max = 0;
-      for (let i = 0; i < data.length; i++)
-        if (data[i] > max) max = data[i];
-      console.log('max:', max);
+      return true;
   }
 
   function toggleGrid() {
     setConfig({...config, grid: !config.grid});
+  }
+
+  function stopCapture() {
+    setStop(true);
   }
 
   return (
@@ -135,7 +136,8 @@ async function readContinuous() {
         <input type="text" value={clk} size="5" onChange={clkChange}/>
 
         <button onClick={toggleGrid}>Grid</button>
-
+        <button onClick={() => setStop(true)}>Stop</button>
+        {stop? "stopped" : ""}
 
         </div>
       <div className="main">
