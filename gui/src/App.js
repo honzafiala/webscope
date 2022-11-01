@@ -14,7 +14,7 @@ let dummyData = getDummyData();
 
 export default function App() {
   let [data, setData] = useState([]);
-  let [config, setConfig] = useState({grid: false, clk: 128});
+  let [config, setConfig] = useState({grid: false, clk: 128, zoom: 1});
   let [USBDevice, setUSBDevice] = useState(null);
   let [stop, setStop] = useState(false);
 
@@ -125,6 +125,23 @@ async function readContinuous() {
     setStop(true);
   }
 
+  function zoom(dir) {
+    console.log(dir);
+    if (config.zoom <= 1 && dir == '-') return;
+    let d = String(config.zoom)[0];
+    let newVal = config.zoom;
+    if (d == 1)
+      if (dir == '-' ) newVal /= 2;
+      else newVal *= 2;
+    else if (d == 2)
+      if (dir == '-') newVal /= 2;
+      else newVal *= 5/2;
+    else if (d == 5)
+      if (dir == '-') newVal /= 5/2;
+      else newVal *= 2;
+      setConfig({...config, zoom: newVal});
+  }
+
   return (
     <div className="root">
       <div className="topbar">
@@ -147,7 +164,10 @@ async function readContinuous() {
         <CanvasPlot data={data} config={config}/>
         <div className='side'>
           {/* <ChannelControl number="1" color="#ffff0078" active="true"/> */}
-          <p>TODO</p>
+          <div>Zoom: {config.zoom}</div>
+        <button onClick={() => zoom('-')}>-</button>
+        <button onClick={() => zoom('+')}>+</button>
+
 
         </div>
       </div>
