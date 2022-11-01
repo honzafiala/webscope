@@ -144,8 +144,14 @@ async function readContinuous() {
          {/* <WebglAppSin data={data} test={test}/> */}
         <CanvasPlot data={data} config={config}/>
         <div className='side'>
-          <ChannelControl number="1" color="#ffff0078" active="true"/>
-
+          {/* <ChannelControl number="1" color="#ffff0078" active="true"/> */}
+          <p>TODO</p>
+          <ul>
+            <li>Trigger level</li>
+            <li>Trigger up/down</li>
+            <li>Trigger channel</li>
+            <li>Horizontal control</li>
+          </ul>
         </div>
       </div>
     </div>

@@ -162,8 +162,8 @@ int main(void)
 
         if (!triggered && xfer_count_since_start >= pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if (capture_buf[i % CAPTURE_BUFFER_LEN] > 140 && i % 2) {
-                    trigger_index = i;
+                if (capture_buf[i % CAPTURE_BUFFER_LEN] > 140 && i % 2 && i >= pretrigger) {
+                    trigger_index = i - pretrigger;
                     printf("Found trigger at %d kS\n", i / 1024);
                     triggered = true;
                     break;
@@ -180,39 +180,8 @@ int main(void)
         prev_xfer_count_since_start = xfer_count_since_start;
     }
 
-
-
-    while (0) {
-        uint xfer_count = CAPTURE_BUFFER_LEN - dma_channel_hw_addr(main_chan)->transfer_count;
-
-        if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
-        else if (xfer_count < prev_xfer_count) xfer_count_since_start += CAPTURE_BUFFER_LEN - prev_xfer_count + xfer_count;
-
-        if (triggered) {
-            if (xfer_count > prev_xfer_count) xfer_count_since_trigger += xfer_count - prev_xfer_count;
-            else if (xfer_count < prev_xfer_count) xfer_count_since_trigger += CAPTURE_BUFFER_LEN - prev_xfer_count + xfer_count;
-
-            if (xfer_count_since_trigger >= CAPTURE_BUFFER_LEN  - pretrigger) {
-                adc_run(false);
-                printf("Stopping adc at idx %d after %d xfers, %d since start\n", xfer_count / 1023, xfer_count_since_trigger / 1024, xfer_count_since_start / 1024);
-                break;
-            }
-        } else {
-            for (uint i = prev_xfer_count; i != xfer_count; i = (i + 1) % CAPTURE_BUFFER_LEN) {
-                if (capture_buf[i] > 140 && i % 2 && xfer_count_since_start > pretrigger) {
-                    triggered = true;
-                    capture_start_index = (i - pretrigger + CAPTURE_BUFFER_LEN) % CAPTURE_BUFFER_LEN;
-                    printf("Trigger found at %d, %d since start\n", i / 1024, xfer_count_since_start / 1024);
-                    break;
-                }
-            }
-        }
-        prev_xfer_count = xfer_count;
-    }
-
     // Atomically abort both channels.
     dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
-
 
     printf("Sending captured data\n");
     uint32_t trig_msg = trigger_index % CAPTURE_BUFFER_LEN;
