@@ -36,7 +36,11 @@ let defaultViewConfig = {
 
 export default function App() {
   let [data, setData] = useState([]);
-  let [config, setConfig] = useState({grid: true, clk: 128, zoom: 1});
+  let [config, setConfig] = useState({
+    grid: true, 
+    clk: 128, 
+    zoom: 1,
+    offset: 0});
 
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
   let [ViewConfig, setViewConfig] = useState(defaultViewConfig);
@@ -161,6 +165,20 @@ async function readContinuous() {
       else newVal *= 2;
       setConfig({...config, zoom: newVal});
   }
+
+  function offset(dir) {
+    console.log(dir);
+    let newVal = config.offset;
+    let change = defaultCaptureConfig.captureDepth / 10 / config.zoom / 2;
+    if (dir == '+') newVal += change;
+    else newVal -= change;
+    console.log(newVal);
+    setConfig({...config, offset: newVal});
+
+  }
+
+
+
   return (
     <div className="root">
       <div className="topbar">
@@ -183,9 +201,14 @@ async function readContinuous() {
         <div className='side'>
           {/* <ChannelControl number="1" color="#ffff0078" active="true"/> */}
           <div>Zoom: {config.zoom}</div>
+          <div> 
+        {defaultCaptureConfig.captureDepth / 
+        defaultCaptureConfig.sampleRate * 100 / config.zoom} ms/div</div>
         <button onClick={() => zoom('-')}>-</button>
         <button onClick={() => zoom('+')}>+</button>
-
+        <div>Offset: {config.offset}</div>
+        <button onClick={() => offset('-')}>-</button>
+        <button onClick={() => offset('+')}>+</button>
 
         </div>
       </div>
