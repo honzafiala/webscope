@@ -33,14 +33,14 @@ let defaultViewConfig = {
 }
 
 
-
 export default function App() {
   let [data, setData] = useState([]);
   let [config, setConfig] = useState({
     grid: true, 
     clk: 128, 
     zoom: 1,
-    offset: 0});
+    offset: 0,
+  verticalZoom: 1});
 
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
   let [ViewConfig, setViewConfig] = useState(defaultViewConfig);
@@ -177,6 +177,16 @@ async function readContinuous() {
 
   }
 
+  function verticalZoom(dir) {
+    let newVal = config.verticalZoom;
+    if (dir == '+') newVal *= 1.1;
+    else newVal /= 1.1;
+    console.log(newVal);
+    setConfig({...config, verticalZoom: newVal});
+
+  }
+
+
 
 
   return (
@@ -209,6 +219,11 @@ async function readContinuous() {
         <div>Offset: {config.offset}</div>
         <button onClick={() => offset('-')}>-</button>
         <button onClick={() => offset('+')}>+</button>
+
+
+        <div>CH 1 zoom: {config.verticalZoom}</div>
+        <button onClick={() => verticalZoom('-')}>-</button>
+        <button onClick={() => verticalZoom('+')}>+</button>
 
         </div>
       </div>
