@@ -24,9 +24,14 @@ const CanvasPlot =({data, config}) => {
     ctx.lineTo(canvas.width / 2, canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
-    ctx.font = "15px Arial";
-    ctx.fillStyle = "#DB75FF";
-    ctx.fillText("0", canvas.width / 2 + 5, canvas.height - 5);
+    ctx.beginPath(canvas.width / 2, canvas.height - 14);
+    ctx.moveTo(canvas.width / 2, canvas.height);
+    ctx.lineTo(canvas.width / 2 + 15, canvas.height - 7);
+    ctx.lineTo(canvas.width / 2, canvas.height - 14);
+    ctx.fillStyle = 'magenta';
+    ctx.fill();
+
+
 
     // Draw grid
     if (config.grid) {
@@ -74,8 +79,8 @@ const CanvasPlot =({data, config}) => {
     // Calculate zoom
     let zoomStart = (1 - 1 / config.zoom) * data1.length / 2;
     let zoomEnd = data1.length - zoomStart;
-    zoomStart += config.offset;
-    zoomEnd += config.offset;
+    zoomStart -= config.offset;
+    zoomEnd -= config.offset;
    // console.log(zoomStart, '->', zoomEnd);
 
    // Draw channel 1
