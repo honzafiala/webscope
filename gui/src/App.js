@@ -208,8 +208,14 @@ async function readContinuous() {
       <div className="main">
          {/* <WebglAppSin data={data} test={test}/> */}
         <CanvasPlot data={data} config={config}/>
+
+
         <div className='side'>
-          {/* <ChannelControl number="1" color="#ffff0078" active="true"/> */}
+          <ChannelControl number="1" color="#FFF735" active="true"/>
+          <ChannelControl number="2" color="#E78787" active="true"/>
+         
+         
+         
           <div>Zoom: {config.zoom}</div>
           <div> 
         {defaultCaptureConfig.captureDepth / 
@@ -227,6 +233,7 @@ async function readContinuous() {
 
         </div>
       </div>
+
     </div>
   );
 }

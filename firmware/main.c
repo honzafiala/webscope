@@ -104,7 +104,7 @@ void pwm_configure() {
 }
 
 int main(void)
-{
+ {
     multicore_launch_core1(core1_task);
 
     pwm_configure();

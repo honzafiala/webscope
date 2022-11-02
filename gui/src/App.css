@@ -42,8 +42,8 @@ body {
 .side {
   flex: 0 1 auto;
   margin: 0;
-  padding: 1px;
-  background-color: gray;
+  background-color: #696969;
+  width: 150px;
 }
 
 
@@ -55,3 +55,10 @@ body {
   right: 0px;
   margin: 5px;
 };
+
+.horizontalCursor {
+  background-color: red;
+  border: 1px solid red;
+  z-index: 9;
+  position: absolute;
+}

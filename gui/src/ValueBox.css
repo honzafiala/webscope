@@ -1,30 +1,14 @@
 .ValueBox {
-margin: 3px;
+margin: 0px;
 }
-
-.ValueBox > .name {
-  background-color: white;
-  border-radius: 5px 5px 0px 0px;
-  text-align: center;
-  border-top: 1px solid black;
-  border-right: 1px solid black;
-  border-left: 1px solid black;
-font-size: 120%;
-
-}
-
-
 
 .data {
-  text-align: center;
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-  monospace;
-  background-color: darkgray;
+display: flex;
+}
 
-  border-right: 1px solid black;
-  border-left: 1px solid black;
-font-size: 150%;
 
+.data > .name {
+  width: 50%;
 }
 
 .buttons {
@@ -33,28 +17,29 @@ font-size: 150%;
   width: 100%;
 }
 
-.buttons button {
+.data > .value {
+  width: 50%;
+  text-align: right;
+}
+
+.buttons > button {
   flex-grow: 1;
+  border-radius: 10px;
+  margin: 3px;
   border: 0px;
-
-  border-bottom: 1px solid black;
-
-}
-
-button.buttonLeft {
-  border-radius: 0px 0px 0px 5px;
-  border-left: 1px solid black;
+background-color: #898989;
 
 }
 
-button.buttonMiddle {
-  border-radius: 0px 0px 0px 0px;
-  border-right: 1px solid gray;
-  border-left: 1px solid gray;
-
+.buttons > button:hover {
+  background-color: #C6C6C6;
 }
 
-button.buttonRight {
-  border-radius: 0px 0px 5px 0px;
-  border-right: 1px solid black;
+.buttons > button:active {
+  background-color: #FFFFFF;
 }
+
+
+
+
+
