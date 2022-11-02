@@ -14,8 +14,8 @@ export default function ChannelControl({number, color}) {
           </input>
         </div>
         <div className='content'>
-          <ValueBox name="Scale" unit="V" data={test1} setData={setTest1}/>
-          <ValueBox name="Vertical" unit="V" data={test2} setData={setTest2}/>
+          <ValueBox name="Scale" unit=" x" data={test1} setData={setTest1}/>
+          <ValueBox name="Offset" unit=" div" data={test2} setData={setTest2}/>
         </div>
     </div>
     )
