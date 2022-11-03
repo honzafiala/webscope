@@ -5,6 +5,8 @@ import ChannelControl from './ChannelControl';
 import getDummyData from './dummyData';
 import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
+import CursorControl from './CursorControl';
+import TriggerControl from './TriggerControl';
 
 
 let defaultCaptureConfig = {
@@ -173,7 +175,8 @@ async function readContinuous() {
           <ChannelControl number="1" color="#FFF735" active="true"/>
           <ChannelControl number="2" color="#E78787" active="true"/>
           <HorizontalControl config={config} setConfig={setConfig}/>
-         
+          <CursorControl/>
+          <TriggerControl/>
          
 
 

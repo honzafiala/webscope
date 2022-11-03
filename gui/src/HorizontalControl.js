@@ -47,7 +47,7 @@ export default function HorizontalControl({config, setConfig}) {
         </div>
         <div className='content'>
           <SettingControl name="Zoom" unit=" x" data={config.zoom} callback={zoomCallback}/>
-          <SettingControl name="Offset" unit=" S" data={config.offset} callback={offsetCallback}/>
+          <SettingControl name="Offset" unit=" m" data={config.offset} callback={offsetCallback}/>
         </div>
     </div>
     )
