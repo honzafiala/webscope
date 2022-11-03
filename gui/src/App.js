@@ -159,8 +159,7 @@ async function readContinuous() {
         <button onClick={readContinuous} disabled={USBDevice == null}>read continuous</button>
         <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
 
-        <button onClick={sendConfig}>send config</button>
-        <input type="text" value={config.clk} size="5" onChange={clkChange}/>
+
 
         <button onClick={toggleGrid}>Grid</button>
 
