@@ -15,15 +15,17 @@ const CanvasPlot =({data, config}) => {
     ctx.lineTo(canvas.width, uint8ToYPos(config.clk, 1));
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
-    ctx.setLineDash([]);
 
 
     // Draw vertical trigger
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 10]);
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, 0);
     ctx.lineTo(canvas.width / 2, canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
+    ctx.setLineDash([]);
     ctx.beginPath(canvas.width / 2, canvas.height - 14);
     ctx.moveTo(canvas.width / 2, canvas.height);
     ctx.lineTo(canvas.width / 2 + 15, canvas.height - 7);
@@ -63,10 +65,9 @@ const CanvasPlot =({data, config}) => {
   }
 
 
-    function uint8ToYPos(val, zoom) {
-      return (255 - val) * zoom *canvas.height / 255;
+    function uint8ToYPos(val, zoom, offset) {
+      return ((255 - val * zoom) * canvas.height / 255) - 0  * (0.5 / 3.3 * 255);
     }
-
     let data1 = [];
     let data2 = [];
 
@@ -88,7 +89,7 @@ const CanvasPlot =({data, config}) => {
     ctx.beginPath();
     for (let i = 1; i < canvas.width; i++) { 
       let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-      ctx.lineTo(i, uint8ToYPos(data1[bufferPos], config.verticalZoom));
+      ctx.lineTo(i, uint8ToYPos(data1[bufferPos], 1, 0));
     }
     ctx.strokeStyle = '#d4c84e';
     ctx.stroke();
@@ -97,7 +98,7 @@ const CanvasPlot =({data, config}) => {
     ctx.beginPath();
     for (let i = 1; i < canvas.width; i++) { 
       let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-      ctx.lineTo(i, uint8ToYPos(data2[bufferPos], 1) * 0.8);
+      ctx.lineTo(i, uint8ToYPos(data2[bufferPos], 1) * 0.8, 1, 0);
     }
     ctx.strokeStyle = '#E78787';
     ctx.stroke();

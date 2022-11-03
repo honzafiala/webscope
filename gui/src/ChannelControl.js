@@ -4,7 +4,7 @@ import './ChannelControl.css';
 
 
 export default function ChannelControl({number, color}) {
-  let [test1, setTest1] = useState(0);
+  let [test1, setTest1] = useState(1);
   let [test2, setTest2] = useState(0);
   return (
     <div className="ChannelControl">

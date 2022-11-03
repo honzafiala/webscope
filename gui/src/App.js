@@ -7,7 +7,6 @@ import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
 
 
-
 let defaultCaptureConfig = {
   activeChannels: [true, true],
   trigger: {
@@ -149,46 +148,6 @@ async function readContinuous() {
     setConfig({...config, grid: !config.grid});
   }
 
-  function zoom(dir) {
-    console.log(dir);
-    if (config.zoom <= 1 && dir == '-') return;
-    let d = String(config.zoom)[0];
-    let newVal = config.zoom;
-    if (d == 1)
-      if (dir == '-' ) newVal /= 2;
-      else newVal *= 2;
-    else if (d == 2)
-      if (dir == '-') newVal /= 2;
-      else newVal *= 5/2;
-    else if (d == 5)
-      if (dir == '-') newVal /= 5/2;
-      else newVal *= 2;
-      setConfig({...config, zoom: newVal});
-  }
-
-  function offset(dir) {
-    console.log(dir);
-    let newVal = config.offset;
-    let change = defaultCaptureConfig.captureDepth / 10 / config.zoom / 2;
-    if (dir == '+') newVal += change;
-    else newVal -= change;
-    console.log(newVal);
-    setConfig({...config, offset: newVal});
-
-  }
-
-  function verticalZoom(dir) {
-    let newVal = config.verticalZoom;
-    if (dir == '+') newVal *= 1.1;
-    else newVal /= 1.1;
-    console.log(newVal);
-    setConfig({...config, verticalZoom: newVal});
-
-  }
-
-
-
-
   return (
     <div className="root">
       <div className="topbar">
@@ -213,23 +172,10 @@ async function readContinuous() {
         <div className='side'>
           <ChannelControl number="1" color="#FFF735" active="true"/>
           <ChannelControl number="2" color="#E78787" active="true"/>
+          <HorizontalControl config={config} setConfig={setConfig}/>
          
          
-         
-          <div>Zoom: {config.zoom}</div>
-          <div> 
-        {defaultCaptureConfig.captureDepth / 
-        defaultCaptureConfig.sampleRate * 100 / config.zoom} ms/div</div>
-        <button onClick={() => zoom('-')}>-</button>
-        <button onClick={() => zoom('+')}>+</button>
-        <div>Offset: {config.offset}</div>
-        <button onClick={() => offset('-')}>-</button>
-        <button onClick={() => offset('+')}>+</button>
 
-
-        <div>CH 1 zoom: {config.verticalZoom}</div>
-        <button onClick={() => verticalZoom('-')}>-</button>
-        <button onClick={() => verticalZoom('+')}>+</button>
 
         </div>
       </div>
