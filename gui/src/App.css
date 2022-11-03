@@ -30,20 +30,12 @@ body {
 }
 
 .plot {
-  width: 100%;
-  height: 100%;
+  flex: 1;
   margin: 0;
   padding: 0;
   background-color: rgb(27, 27, 27);
 }
 
-.plotContainer {
-  flex: 1;
-  margin: 0;
-  padding: 0;
-  background-color: rgb(27, 27, 27);
-  background-color: red;
-}
 
 
 

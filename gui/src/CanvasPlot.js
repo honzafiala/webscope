@@ -1,19 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect } from 'react'
 const CanvasPlot =({data, config}) => {
-  let [h, setH] = useState(0);
   
   const canvasRef = useRef(null)
   const draw = (ctx, canvas, frameCount) => {
     if (canvasRef.current) {
-
-      if (h == 0) {
-        h = canvasRef.current.clientHeight;
-        setH(h);
-      }
-
     canvas.width = canvasRef.current.clientWidth;
-    canvas.height = h;
-    console.log(canvas.width, canvas.height);
+    canvas.height = canvasRef.current.clientHeight;
     }
 
     // Draw trigger level

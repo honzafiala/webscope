@@ -167,9 +167,8 @@ async function readContinuous() {
 
         </div>
       <div className="main">
-      <div className='plotContainer'>
-      <CanvasPlot data={data} config={config}/>        
-      </div>         
+         {/* <WebglAppSin data={data} test={test}/> */}
+        <CanvasPlot data={data} config={config}/>
 
 
         <div className='side'>
