@@ -79,26 +79,18 @@ const CanvasPlot =({data, viewConfig, captureConfig}) => {
 
    // Draw channel 1
     ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    for (let i = 1; i < canvas.width; i++) { 
-      let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-      ctx.lineTo(i, uint8ToYPos(data1[bufferPos], 1, 0));
-    }
-    ctx.strokeStyle = '#d4c84e';
-    ctx.stroke();
 
-    // Draw channel 2
-    ctx.beginPath();
-    for (let i = 1; i < canvas.width; i++) { 
-      let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-      ctx.lineTo(i, uint8ToYPos(data2[bufferPos], 1) * 0.8, 1, 0);
-    }
-    ctx.strokeStyle = '#E78787';
-    ctx.stroke();
-    
-    
- 
 
+    for (let channelIndex = 0; channelIndex < captureConfig.activeChannels.length; channelIndex++) {
+      if (!captureConfig.activeChannels[channelIndex]) continue;
+      ctx.beginPath();
+      for (let i = 1; i < canvas.width; i++) { 
+        let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
+        ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], 1, 0));
+      }
+      ctx.strokeStyle = captureConfig.channelColors[channelIndex];
+      ctx.stroke();
+    }
   };
 
   useEffect(() => {
