@@ -137,11 +137,11 @@ async function readContinuous() {
       <div className="topbar">
       
       
-        <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌" : "✅"} </span>Request device</button>
-        <button onClick={readContinuous} disabled={USBDevice == null}>read continuous</button>
-        <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
+        <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
+        <button onClick={readContinuous} disabled={USBDevice == null}>Continuous</button>
+        <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
 
-        <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Grid</button>
+        <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
 
         </div>
       <div className="main">

@@ -11,8 +11,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     // Draw trigger level
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, 1));
-    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, 1));
+    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, 1, 0));
+    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, 1, 0));
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
 
