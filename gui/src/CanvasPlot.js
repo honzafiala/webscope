@@ -116,7 +116,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
       ctx.beginPath();
       for (let i = 1; i < canvas.width; i++) { 
         let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-        ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], 1, viewConfig.vertical[channelIndex].offset));
+        ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
       }
       ctx.strokeStyle = captureConfig.channelColors[channelIndex];
       ctx.stroke();
