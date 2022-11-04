@@ -11,6 +11,8 @@ import TriggerControl from './TriggerControl';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true],
+  numActiveChannels: 2,
+  channelColors: ['#d4c84e', '#E78787'],
   trigger: {
     channels: [true, false], 
     threshold: 128,
@@ -18,7 +20,7 @@ let defaultCaptureConfig = {
   },
   preTrigger: 0.5,
   sampleRate: 500000,
-  captureDepth: 200000
+  captureDepth: 100000
 };
 
 let defaultCaptureData = [[], []];
@@ -41,14 +43,6 @@ let defaultViewConfig = {
 
 
 export default function App() {
-  let [data, setData] = useState([]);
-  let [config, setConfig] = useState({
-    grid: true, 
-    clk: 128, 
-    zoom: 1,
-    offset: 0,
-  verticalZoom: 1});
-
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
   let [viewConfig, setViewConfig] = useState(defaultViewConfig);
   let [captureData, setCaptureData] = useState(defaultCaptureData);
@@ -76,7 +70,17 @@ async function readContinuous() {
   async function readSingle() {
 
     // Send capture start command
-    let buf = new Uint8Array([captureConfig.trigger.threshold, 2, 3, 4]);
+
+    console.log("=====================================================");
+    console.log(captureConfig);
+
+    let activeChannelsByte = 0;
+    for (let i = 0; i < captureConfig.activeChannels.length; i++) {
+      if (captureConfig.activeChannels[i]) activeChannelsByte += 1 << i;
+    }
+    console.log("Active channels byte:", activeChannelsByte);
+
+    let buf = new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, 3, 4]);
     let status = await USBDevice.transferOut(1, buf);
     console.log(status);
 
@@ -91,17 +95,17 @@ async function readContinuous() {
     console.log('trigger:', trigIndex);
     
 
-    result = await USBDevice.transferIn(1, captureConfig.captureDepth);
+    result = await USBDevice.transferIn(1, captureConfig.captureDepth * captureConfig.numActiveChannels);
     console.log('captured data', result);
 
     let rawData = [];
-    for (let i = 0; i < captureConfig.captureDepth; i++) rawData.push(result.data.getUint8(i));
+    for (let i = 0; i < captureConfig.captureDepth * captureConfig.numActiveChannels; i++) rawData.push(result.data.getUint8(i));
     let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
     
 
     let parsedData = [[],[]];
     let i = 0;
-    while (i < captureConfig.captureDepth) {
+    while (i < captureConfig.captureDepth * captureConfig.numActiveChannels) {
       if (captureConfig.activeChannels[0]) {
         parsedData[0].push(rawShiftedData[i]);
         i++;
@@ -116,10 +120,6 @@ async function readContinuous() {
     return true;
   }
 
-  function toggleGrid() {
-    setViewConfig({...viewConfig, grid: !viewConfig.grid});
-  }
-
   return (
     <div className="root">
       <div className="topbar">
@@ -129,18 +129,20 @@ async function readContinuous() {
         <button onClick={readContinuous} disabled={USBDevice == null}>read continuous</button>
         <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
 
-        <button onClick={toggleGrid}>Grid</button>
+        <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Grid</button>
 
         </div>
       <div className="main">
         <CanvasPlot data={captureData} viewConfig={viewConfig} captureConfig={captureConfig}/>
 
         <div className='side'>
-          <ChannelControl number="1" color="#FFF735" active="true"/>
-          <ChannelControl number="2" color="#E78787" active="true"/>
+          <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+          <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+
+
           <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <CursorControl/>
-          <TriggerControl/>
+          <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
          
         </div>
       </div>

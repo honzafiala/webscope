@@ -72,8 +72,8 @@ const CanvasPlot =({data, viewConfig, captureConfig}) => {
 
 
     // Calculate zoom
-    let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * data1.length / 2;
-    let zoomEnd = data1.length - zoomStart;
+    let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
+    let zoomEnd = captureConfig.captureDepth - zoomStart;
     zoomStart -= viewConfig.horizontal.offset;
     zoomEnd -= viewConfig.horizontal.offset;
 
