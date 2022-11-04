@@ -14,9 +14,9 @@ export default function ValueBox({name, unit, data, setData}) {
             
                 <div className='buttons'>
 
-                <button className='buttonLeft' onClick={() => {setData(data - 1)}}>{"<"}</button>
-                <button className='buttonMiddle' onClick={() => {setData(0)}}>0</button>
-                <button className='buttonRight' onClick={() => {setData(data + 1)}}>{">"}</button>
+                <button className='buttonLeft' onClick={() => {setData('-')}}>{"<"}</button>
+                <button className='buttonMiddle' onClick={() => {setData('0')}}>0</button>
+                <button className='buttonRight' onClick={() => {setData('+')}}>{">"}</button>
                 </div>
 
             </div>       

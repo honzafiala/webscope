@@ -6,8 +6,6 @@ import './ChannelControl.css';
 export default function HorizontalControl({captureConfig, viewConfig, setViewConfig}) {
 
   function zoomCallback(dir) {
-
-
     if (dir == '0') {
       setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1}});
       return;
@@ -25,8 +23,6 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
       if (dir == '-') newVal /= 5/2;
       else newVal *= 2;
       setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: newVal}});
-
-
   }
 
   function offsetCallback(dir) {

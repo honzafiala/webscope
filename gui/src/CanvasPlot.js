@@ -97,7 +97,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
 
 
     function uint8ToYPos(val, zoom, offset) {
-      return ((255 - val * zoom) * canvas.height / 255) - 0  * (0.5 / 3.3 * 255);
+      return ((255 - val * zoom) * canvas.height / 255) - 0  * (0.5 / 3.3 * 255) - offset * 3.5 / 3.3 * canvas.height / 7 ;
     }
     let data1 = data[0];
     let data2 = data[1];
@@ -109,16 +109,14 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     zoomStart -= viewConfig.horizontal.offset;
     zoomEnd -= viewConfig.horizontal.offset;
 
-   // Draw channel 1
+   // Draw channels
     ctx.lineWidth = 2.5;
-
-
     for (let channelIndex = 0; channelIndex < captureConfig.activeChannels.length; channelIndex++) {
       if (!captureConfig.activeChannels[channelIndex]) continue;
       ctx.beginPath();
       for (let i = 1; i < canvas.width; i++) { 
         let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-        ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], 1, 0));
+        ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], 1, viewConfig.vertical[channelIndex].offset));
       }
       ctx.strokeStyle = captureConfig.channelColors[channelIndex];
       ctx.stroke();

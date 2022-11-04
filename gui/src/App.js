@@ -7,7 +7,7 @@ import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
-
+import Floating from './Floating';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true],
@@ -131,9 +131,7 @@ async function readContinuous() {
 
   return (
     <div className='root'>
-      <div className='floating' style={{position: "absolute", top: "40px", right: "150px", backgroundColor: "white"}}> 
-        Kokos
-      </div>
+      {cursorConfig.cursorX.visible && <Floating/>}
     <div className="app">
       <div className="topbar">
       <span role="img" aria-label="dog">{USBDevice == null ? "❌" : "✅"} </span>
@@ -149,8 +147,10 @@ async function readContinuous() {
         <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>
 
         <div className='side'>
-          <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
-          <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+          <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+          <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <CursorControl cursorConfig={cursorConfig}  captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
           <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
