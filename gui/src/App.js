@@ -19,7 +19,7 @@ let defaultCaptureConfig = {
     edge: "UP"
   },
   preTrigger: 0.5,
-  sampleRate: 500000,
+  sampleRate: 250000,
   captureDepth: 100000
 };
 
@@ -41,11 +41,20 @@ let defaultViewConfig = {
   grid: true
 }
 
+let defaultCursorConfig = {
+  cursorX: {
+    visible: false,
+    start: 0,
+    end: defaultCaptureConfig.captureDepth
+  }
+}
+
 
 export default function App() {
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
   let [viewConfig, setViewConfig] = useState(defaultViewConfig);
   let [captureData, setCaptureData] = useState(defaultCaptureData);
+  let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
 
 
@@ -121,7 +130,11 @@ async function readContinuous() {
   }
 
   return (
-    <div className="root">
+    <div className='root'>
+      <div className='floating' style={{position: "absolute", top: "40px", right: "150px", backgroundColor: "white"}}> 
+        Kokos
+      </div>
+    <div className="app">
       <div className="topbar">
       <span role="img" aria-label="dog">{USBDevice == null ? "❌" : "✅"} </span>
       
@@ -133,20 +146,18 @@ async function readContinuous() {
 
         </div>
       <div className="main">
-        <CanvasPlot data={captureData} viewConfig={viewConfig} captureConfig={captureConfig}/>
+        <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>
 
         <div className='side'>
           <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
           <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
-
-
+          <CursorControl cursorConfig={cursorConfig}  captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
           <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-          <CursorControl/>
           <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
          
         </div>
       </div>
-
+      </div>
     </div>
   );
 }

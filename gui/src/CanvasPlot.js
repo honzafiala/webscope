@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-const CanvasPlot =({data, viewConfig, captureConfig}) => {
+const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
   
   const canvasRef = useRef(null)
   const draw = (ctx, canvas, frameCount) => {
@@ -17,21 +17,50 @@ const CanvasPlot =({data, viewConfig, captureConfig}) => {
     ctx.stroke();
 
 
-    // Draw vertical trigger
+    // Draw vertical cursor 1
+    function getCursorPos(pos) {
+      let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
+      let zoomEnd = captureConfig.captureDepth - zoomStart;
+      zoomStart -= viewConfig.horizontal.offset;
+      zoomEnd -= viewConfig.horizontal.offset;
+      return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
+    }
+
+    if (cursorConfig.cursorX.visible) {
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, 0);
-    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.moveTo(getCursorPos(cursorConfig.cursorX.start), 0);
+    ctx.lineTo(getCursorPos(cursorConfig.cursorX.start), canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.beginPath(canvas.width / 2, canvas.height - 14);
-    ctx.moveTo(canvas.width / 2, canvas.height);
-    ctx.lineTo(canvas.width / 2 + 15, canvas.height - 7);
-    ctx.lineTo(canvas.width / 2, canvas.height - 14);
+    ctx.beginPath(getCursorPos(cursorConfig.cursorX.start), canvas.height - 14);
+    ctx.moveTo(getCursorPos(cursorConfig.cursorX.start), canvas.height);
+    ctx.lineTo(getCursorPos(cursorConfig.cursorX.start)+ 15, canvas.height - 7);
+    ctx.lineTo(getCursorPos(cursorConfig.cursorX.start), canvas.height - 14);
     ctx.fillStyle = 'magenta';
     ctx.fill();
+
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 10]);
+    ctx.beginPath();
+    ctx.moveTo(getCursorPos(cursorConfig.cursorX.end), 0);
+    ctx.lineTo(getCursorPos(cursorConfig.cursorX.end), canvas.height);
+    ctx.strokeStyle = 'magenta';
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(getCursorPos(cursorConfig.cursorX.end), canvas.height - 14);
+    ctx.moveTo(getCursorPos(cursorConfig.cursorX.end), canvas.height);
+    ctx.lineTo(getCursorPos(cursorConfig.cursorX.end)- 15, canvas.height - 7);
+    ctx.lineTo(getCursorPos(cursorConfig.cursorX.end), canvas.height - 14);
+    ctx.fillStyle = 'magenta';
+    ctx.fill();
+
+
+    }
+    ctx.setLineDash([]);
+
 
 
     // Draw grid
@@ -46,7 +75,10 @@ const CanvasPlot =({data, viewConfig, captureConfig}) => {
 
         ctx.font = "15px Arial";
         ctx.fillStyle = "gray";
-        ctx.fillText(String((i - 5) * 40) + " ms", canvas.width / 10 * i + 5, 15);
+
+        let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
+        let offsetMs = 1000 * viewConfig.horizontal.offset / captureConfig.sampleRate / viewConfig.horizontal.zoom;
+        ctx.fillText(String((i - 5) * divMs - offsetMs) + " ms", canvas.width / 10 * i + 5, 15);
     }
 
     for (let i = 0.5; i < 3.3; i += 0.5) {
@@ -109,7 +141,7 @@ const CanvasPlot =({data, viewConfig, captureConfig}) => {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [data, viewConfig, captureConfig]);
+  }, [data, viewConfig, captureConfig, cursorConfig]);
 
   return <canvas className="plot" ref={canvasRef}/>;
 }
