@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-const CanvasPlot =({data, config}) => {
+const CanvasPlot =({data, viewConfig, captureConfig}) => {
   
   const canvasRef = useRef(null)
   const draw = (ctx, canvas, frameCount) => {
@@ -11,8 +11,8 @@ const CanvasPlot =({data, config}) => {
     // Draw trigger level
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(0, uint8ToYPos(config.clk, 1));
-    ctx.lineTo(canvas.width, uint8ToYPos(config.clk, 1));
+    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, 1));
+    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, 1));
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
 
@@ -34,9 +34,8 @@ const CanvasPlot =({data, config}) => {
     ctx.fill();
 
 
-
     // Draw grid
-    if (config.grid) {
+    if (viewConfig.grid) {
     ctx.lineWidth = 0.3;
     for (let i = 1; i < 10; i++) {
         ctx.beginPath();
@@ -68,21 +67,15 @@ const CanvasPlot =({data, config}) => {
     function uint8ToYPos(val, zoom, offset) {
       return ((255 - val * zoom) * canvas.height / 255) - 0  * (0.5 / 3.3 * 255);
     }
-    let data1 = [];
-    let data2 = [];
+    let data1 = data[0];
+    let data2 = data[1];
 
-
-    for (let i = 0; i< data.length; i+= 2) {
-      data1.push(data[i]);
-      data2.push(data[i + 1]);
-    }
 
     // Calculate zoom
-    let zoomStart = (1 - 1 / config.zoom) * data1.length / 2;
+    let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * data1.length / 2;
     let zoomEnd = data1.length - zoomStart;
-    zoomStart -= config.offset;
-    zoomEnd -= config.offset;
-   // console.log(zoomStart, '->', zoomEnd);
+    zoomStart -= viewConfig.horizontal.offset;
+    zoomEnd -= viewConfig.horizontal.offset;
 
    // Draw channel 1
     ctx.lineWidth = 2.5;
@@ -124,7 +117,7 @@ const CanvasPlot =({data, config}) => {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [data, config]);
+  }, [data, viewConfig, captureConfig]);
 
   return <canvas className="plot" ref={canvasRef}/>;
 }

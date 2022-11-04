@@ -21,6 +21,9 @@ let defaultCaptureConfig = {
   captureDepth: 200000
 };
 
+let defaultCaptureData = [[], []];
+
+
 let defaultViewConfig = {
   visibleChannels: [true, true],
   vertical: [
@@ -29,8 +32,11 @@ let defaultViewConfig = {
   ],
   horizontal: {
     zoom: 1,
-    offset: 0
-  }
+    offset: 0,
+    viewStartIndex: 0,
+    viewEndIndex: defaultCaptureConfig.captureDepth / 2
+  },
+  grid: true
 }
 
 
@@ -44,8 +50,8 @@ export default function App() {
   verticalZoom: 1});
 
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
-  let [ViewConfig, setViewConfig] = useState(defaultViewConfig);
-
+  let [viewConfig, setViewConfig] = useState(defaultViewConfig);
+  let [captureData, setCaptureData] = useState(defaultCaptureData);
   let [USBDevice, setUSBDevice] = useState(null);
 
 
@@ -61,44 +67,6 @@ export default function App() {
 
   }
 
-
-  
-  function str2ab(str) {
-    var buf = new ArrayBuffer(str.length); // 2 bytes for each char
-    var bufView = new Uint8Array(buf);
-    for (var i = 0, strLen = str.length; i < strLen; i++) {
-      bufView[i] = str.charCodeAt(i);
-    }
-    return buf;
-  }
-
-  async function sendConfig() {
-   
-    console.log("clk", config);
-    return;
-
-
-    let str = JSON.stringify(config);
-    console.log(str);
-
-    let buf = str2ab(str);
-    console.log(buf);
-    let result = await USBDevice.transferOut(1, buf);
-
-  }
-
-  function clkChange(event) {
-    let val = parseInt(event.target.value);
-    console.log(event.target.value);
-    if (!isNaN(val)) 
-    {
-      setConfig({...config, clk: val});
-
-    }
-    if (event.target.value == '') setConfig({...config, clk: 0});
-  }
-
-
   
 async function readContinuous() {
   while (true) await readSingle();
@@ -108,7 +76,7 @@ async function readContinuous() {
   async function readSingle() {
 
     // Send capture start command
-    let buf = new Uint8Array([config.clk, 2, 3, 4]);
+    let buf = new Uint8Array([captureConfig.trigger.threshold, 2, 3, 4]);
     let status = await USBDevice.transferOut(1, buf);
     console.log(status);
 
@@ -119,35 +87,37 @@ async function readContinuous() {
       result = await USBDevice.transferIn(1, 4);
       await new Promise(res => setTimeout(res, 50));
     } while (result.data.byteLength == 0);
-    console.log('result', result);
     let trigIndex = result.data.getUint32(0, true);
     console.log('trigger:', trigIndex);
     
 
+    result = await USBDevice.transferIn(1, captureConfig.captureDepth);
+    console.log('captured data', result);
 
-
-    result = await USBDevice.transferIn(1, 200000);
-    console.log('result', result);
+    let rawData = [];
+    for (let i = 0; i < captureConfig.captureDepth; i++) rawData.push(result.data.getUint8(i));
+    let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
     
-  
-      let parsedData = [];
-      for (let i = 0; i < result.data.byteLength; i++) {
-        let val = result.data.getUint8(i);
-        parsedData.push(val);
+
+    let parsedData = [[],[]];
+    let i = 0;
+    while (i < captureConfig.captureDepth) {
+      if (captureConfig.activeChannels[0]) {
+        parsedData[0].push(rawShiftedData[i]);
+        i++;
       }
+      if (captureConfig.activeChannels[1]) {
+        parsedData[1].push(rawShiftedData[i]);
+        i++;
+      }
+    }
 
-
-    let shiftedData = parsedData.slice(trigIndex).concat(parsedData.slice(0, trigIndex));
-   // let shiftedData = parsedData;
-  
-      data = shiftedData;
-      setData(shiftedData);
-
-      return true;
+    setCaptureData(parsedData);
+    return true;
   }
 
   function toggleGrid() {
-    setConfig({...config, grid: !config.grid});
+    setViewConfig({...viewConfig, grid: !viewConfig.grid});
   }
 
   return (
@@ -159,26 +129,19 @@ async function readContinuous() {
         <button onClick={readContinuous} disabled={USBDevice == null}>read continuous</button>
         <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
 
-
-
         <button onClick={toggleGrid}>Grid</button>
-
 
         </div>
       <div className="main">
-         {/* <WebglAppSin data={data} test={test}/> */}
-        <CanvasPlot data={data} config={config}/>
-
+        <CanvasPlot data={captureData} viewConfig={viewConfig} captureConfig={captureConfig}/>
 
         <div className='side'>
           <ChannelControl number="1" color="#FFF735" active="true"/>
           <ChannelControl number="2" color="#E78787" active="true"/>
-          <HorizontalControl config={config} setConfig={setConfig}/>
+          <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <CursorControl/>
           <TriggerControl/>
          
-
-
         </div>
       </div>
 
