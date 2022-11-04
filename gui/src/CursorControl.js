@@ -22,7 +22,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   return (
     <div className="ChannelControl">
       <div className="topBar" style={{backgroundColor: "#DB75FF"}}>
-        <div className='name'>Cursors X</div> 
+        <div className='name'>Cursors</div> 
         <input className="checkBox"type = "checkbox" checked={cursorConfig.cursorX.visible} onChange={toggleActive}></input>
 
         </div>

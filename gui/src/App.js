@@ -10,7 +10,7 @@ import TriggerControl from './TriggerControl';
 import Floating from './Floating';
 
 let defaultCaptureConfig = {
-  activeChannels: [true, true],
+  activeChannels: [true, true, false],
   numActiveChannels: 2,
   channelColors: ['#d4c84e', '#E78787'],
   trigger: {
@@ -27,9 +27,10 @@ let defaultCaptureData = [[], []];
 
 
 let defaultViewConfig = {
-  visibleChannels: [true, true],
+  visibleChannels: [true, true, false],
   vertical: [
     {offset: 0, zoom: 1}, 
+    {offset: 0, zoom: 1},
     {offset: 0, zoom: 1}
   ],
   horizontal: {
@@ -134,9 +135,9 @@ async function readContinuous() {
       {cursorConfig.cursorX.visible && <Floating/>}
     <div className="app">
       <div className="topbar">
-      <span role="img" aria-label="dog">{USBDevice == null ? "❌" : "✅"} </span>
       
-        <button onClick={connectDevice}>Request device</button>
+      
+        <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌" : "✅"} </span>Request device</button>
         <button onClick={readContinuous} disabled={USBDevice == null}>read continuous</button>
         <button onClick={readSingle} disabled={USBDevice == null}>read single</button>
 
@@ -151,6 +152,10 @@ async function readContinuous() {
           viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
           viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+
+      <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+
           <CursorControl cursorConfig={cursorConfig}  captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
           <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>

@@ -17,8 +17,27 @@ body {
   flex: 0 1 auto;
   margin: 0;
   padding: 1px;
-  background-color: lightgray;
+  background-color: #e5e5e5;
 }
+
+.topbar > button {
+    flex-grow: 1;
+    border-radius: 10px;
+    margin: 3px;
+    border: 0px;
+  background-color: #898989;
+  
+}
+
+.topbar > button:hover {
+  background-color: #C6C6C6;
+}
+
+.topbar > button:active {
+  background-color: #FFFFFF;
+}
+
+
 
 .main {
   display: flex;
