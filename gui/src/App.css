@@ -20,6 +20,10 @@ body {
   background-color: #e5e5e5;
 }
 
+.topbar > * {
+  float: left;
+}
+
 .topbar > button {
     flex-grow: 1;
     border-radius: 10px;

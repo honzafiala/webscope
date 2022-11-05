@@ -8,6 +8,7 @@ import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
 import Floating from './Floating';
+import CaptureControl from './CaptureControl';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
@@ -136,12 +137,14 @@ async function readContinuous() {
     <div className="app">
       <div className="topbar">
       
-      
+
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
         <button onClick={readContinuous} disabled={USBDevice == null}>Continuous</button>
         <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
 
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
+
+        <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
 
         </div>
       <div className="main">
