@@ -21,9 +21,9 @@ extern uint usb_rec(uint8_t * buf, uint size);
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (100000)     
 #define NUM_ADC_CHANNELS 2
-#define CAPTURE_BUFFER_LEN (CAPTURE_DEPTH * NUM_ADC_CHANNELS)
+uint capture_buffer_len;
 
-volatile uint8_t capture_buf[CAPTURE_BUFFER_LEN] = {0};
+volatile uint8_t capture_buf[200000] = {0};
 
 #define DEBUG_PIN0 16
 #define DEBUG_PIN1 17
@@ -52,7 +52,7 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
     &chan_cfg,
     capture_buf,
     &adc_hw->fifo,
-    CAPTURE_BUFFER_LEN,
+    capture_buffer_len,
     false);
 
     static void * array_addr = capture_buf;
@@ -126,7 +126,10 @@ int main(void)
 
      uint trig_level = rec_buf[0];
 
+    uint capture_depth_div = rec_buf[2];
 
+    capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
+    printf("Capture depth: %d\n", capture_buffer_len);
 
     uint32_t start;
 
@@ -142,7 +145,7 @@ int main(void)
     //printf("Starting capture\n");
      adc_run(true);
 
-    int pretrigger = CAPTURE_BUFFER_LEN / 2;
+    int pretrigger = capture_buffer_len / 2;
 
     uint capture_start_index;
     
@@ -155,14 +158,14 @@ int main(void)
     uint trigger_index;
 
     while (1) {
-        uint xfer_count = CAPTURE_BUFFER_LEN - dma_channel_hw_addr(main_chan)->transfer_count;
+        uint xfer_count = capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
 
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
-        else if (xfer_count < prev_xfer_count) xfer_count_since_start += CAPTURE_BUFFER_LEN - prev_xfer_count + xfer_count;
+        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_buffer_len - prev_xfer_count + xfer_count;
 
         if (!triggered && xfer_count_since_start >= pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % CAPTURE_BUFFER_LEN] > trig_level && capture_buf[i % CAPTURE_BUFFER_LEN - 1000] < trig_level              
+                if ( capture_buf[i % capture_buffer_len] > trig_level && capture_buf[i % capture_buffer_len - 1000] < trig_level              
                 && i % 2 && i >= pretrigger) {
                     trigger_index = i - pretrigger;
                     printf("Found trigger at %d kS\n", i / 1024);
@@ -170,7 +173,7 @@ int main(void)
                     break;
                 }
             }
-        } else if (triggered && xfer_count_since_start - trigger_index >= CAPTURE_BUFFER_LEN) {
+        } else if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
             adc_run(false);
             printf("Stopping at %d, %d after %d\n", xfer_count_since_start / 1024, (xfer_count_since_start - trigger_index) / 1024,
                 trigger_index / 1024);
@@ -185,14 +188,14 @@ int main(void)
     dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
 
     printf("Sending captured data\n");
-    uint32_t trig_msg = trigger_index % CAPTURE_BUFFER_LEN;
+    uint32_t trig_msg = trigger_index % capture_buffer_len;
     usb_send(&trig_msg, 4);
 
     const uint usb_packet_size = 32768; 
 
-    for (int i = 0; i < CAPTURE_BUFFER_LEN; i += usb_packet_size) {
-        printf("sending %d\n", CAPTURE_BUFFER_LEN - i > usb_packet_size ? usb_packet_size : CAPTURE_BUFFER_LEN - i);
-        usb_send(&capture_buf[i], CAPTURE_BUFFER_LEN - i > usb_packet_size ? usb_packet_size : CAPTURE_BUFFER_LEN - i);
+    for (int i = 0; i < capture_buffer_len; i += usb_packet_size) {
+        printf("sending %d\n", capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
+        usb_send(&capture_buf[i], capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
 
     }
 

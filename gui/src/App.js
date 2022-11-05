@@ -89,13 +89,15 @@ async function readContinuous() {
     for (let i = 0; i < captureConfig.activeChannels.length; i++) {
       if (captureConfig.activeChannels[i]) activeChannelsByte += 1 << i;
     }
-    console.log("Active channels byte:", activeChannelsByte);
 
-    let buf = new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, 3, 4]);
+    let captureLengthDiv = 100000 / captureConfig.captureDepth;
+
+    let buf = new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, 4]);
     let status = await USBDevice.transferOut(1, buf);
-    console.log(status);
 
     let result;
+
+    console.log(captureConfig);
 
     // Read trigger index and parse
     do {
@@ -110,7 +112,8 @@ async function readContinuous() {
     console.log('captured data', result);
 
     let rawData = [];
-    for (let i = 0; i < captureConfig.captureDepth * captureConfig.numActiveChannels; i++) rawData.push(result.data.getUint8(i));
+    for (let i = 0; i < captureConfig.captureDepth * captureConfig.numActiveChannels; i++) 
+      rawData.push(result.data.getUint8(i));
     let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
     
 
