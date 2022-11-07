@@ -10,6 +10,11 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
   }
  
 
+  function preTriggerChange(e) {
+    setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, pretrigger: e.target.value}});
+  }
+ 
+
   return (
     <div className="ChannelControl">
       <div className="topBar" style={{backgroundColor: "#ACACAC"}}>
@@ -46,14 +51,14 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
             <div className='name'>Level</div>
             </div>
 
-<input type="range" min="1" max="255" value={captureConfig.trigger.threshold} onChange={triggerChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
+<input type="range" min="1" max="254" value={captureConfig.trigger.threshold} onChange={triggerChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
 
 
 <div className='data'>
             <div className='name'>Pretrigger</div>
             </div>
 
-<input type="range" min="-1" max="1" step="0.01" value={captureConfig.trigger.pretrigger} onChange={triggerChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
+<input type="range" min="-1" max="1" step="0.01" value={captureConfig.trigger.pretrigger} onChange={preTriggerChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
 
 
 

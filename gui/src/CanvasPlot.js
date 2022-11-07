@@ -76,9 +76,12 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
         ctx.font = "15px Arial";
         ctx.fillStyle = "gray";
 
+
         let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-        let offsetMs = 1000 * viewConfig.horizontal.offset / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-        ctx.fillText(String((i - 5) * divMs - offsetMs) + " ms", canvas.width / 10 * i + 5, 15);
+        let offsetMs = 1000 * viewConfig.horizontal.offset / captureConfig.sampleRate;
+        let preTriggerOffsetMs =  1000 * captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
+        console.log('pretrigger', preTriggerOffsetMs, 'divMS', divMs, 'offsetms', offsetMs);
+        ctx.fillText(String((i) * divMs - offsetMs - preTriggerOffsetMs) + " ms", canvas.width / 10 * i + 5, 15);
     }
 
     for (let i = 0.5; i < 3.3; i += 0.5) {

@@ -16,7 +16,7 @@ let defaultCaptureConfig = {
   channelColors: ['#d4c84e', '#E78787'],
   trigger: {
     channels: [true, false], 
-    threshold: 128,
+    threshold: 77, // 1 V
     edge: "UP"
   },
   preTrigger: 0.5,
