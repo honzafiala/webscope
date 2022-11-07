@@ -23,7 +23,7 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
   return (
     <div className="ChannelControl">
-      <div className="topBar" style={{backgroundColor: "#ACACAC"}}>
+      <div className="topBar" style={{backgroundColor: "cyan"}}>
         <div className='name'>Trigger</div> 
         </div>
         <div className='content'>

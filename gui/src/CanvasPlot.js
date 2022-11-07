@@ -11,16 +11,16 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     // Draw trigger level
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, 1, 0));
-    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, 1, 0));
+    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
+    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
+    console.log(viewConfig);
 
-
-    ctx.setLineDash([0, 0]);
+    ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), uint8ToYPos(captureConfig.trigger.threshold, 1, 0) -40);
-    ctx.lineTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), uint8ToYPos(captureConfig.trigger.threshold, 1, 0) +40);
+    ctx.moveTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), 0);
+    ctx.lineTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), canvas.height);
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
 
