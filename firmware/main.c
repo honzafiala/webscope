@@ -165,18 +165,16 @@ int main(void)
 
         if (!triggered && xfer_count_since_start >= pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_buffer_len] > trig_level && capture_buf[i % capture_buffer_len - 1000] < trig_level              
-                && i % 2 && i >= pretrigger) {
+                if ( capture_buf[i % capture_buffer_len] == trig_level && capture_buf[(i - 10) % capture_buffer_len] < trig_level && i % 2 && i >= pretrigger) {
                     trigger_index = i - pretrigger;
-                    printf("Found trigger at %d kS\n", i / 1024);
+                    printf("Found trigger at %d S\n", i);
                     triggered = true;
                     break;
                 }
             }
         } else if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
             adc_run(false);
-            printf("Stopping at %d, %d after %d\n", xfer_count_since_start / 1024, (xfer_count_since_start - trigger_index) / 1024,
-                trigger_index / 1024);
+            printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
             break;
         }
 
