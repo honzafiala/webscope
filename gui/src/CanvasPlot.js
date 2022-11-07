@@ -17,6 +17,13 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     ctx.stroke();
 
 
+    ctx.setLineDash([0, 0]);
+    ctx.beginPath();
+    ctx.moveTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), uint8ToYPos(captureConfig.trigger.threshold, 1, 0) -40);
+    ctx.lineTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), uint8ToYPos(captureConfig.trigger.threshold, 1, 0) +40);
+    ctx.strokeStyle = 'cyan';
+    ctx.stroke();
+
     // Draw vertical cursor 1
     function getCursorPos(pos) {
       let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
@@ -80,9 +87,14 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
         let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
         let offsetMs = 1000 * viewConfig.horizontal.offset / captureConfig.sampleRate;
         let preTriggerOffsetMs =  1000 * captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-        console.log('pretrigger', preTriggerOffsetMs, 'divMS', divMs, 'offsetms', offsetMs);
-        ctx.fillText(String((i) * divMs - offsetMs - preTriggerOffsetMs) + " ms", canvas.width / 10 * i + 5, 15);
-    }
+
+        console.log(divMs);
+        if (divMs >= 1)
+        ctx.fillText(String(Math.round((i * divMs - offsetMs - preTriggerOffsetMs) * 10) / 10) + " ms", canvas.width / 10 * i + 5, 15);
+        else
+        ctx.fillText(String(Math.round((i * divMs - offsetMs - preTriggerOffsetMs) * 10000) / 10) + " µs", canvas.width / 10 * i + 5, 15);
+
+      }
 
     for (let i = 0.5; i < 3.3; i += 0.5) {
         ctx.beginPath();

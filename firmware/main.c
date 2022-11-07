@@ -131,6 +131,8 @@ int main(void)
     capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
     printf("Capture depth: %d\n", capture_buffer_len);
 
+    
+
     uint32_t start;
 
     adc_configure(0);
@@ -145,7 +147,7 @@ int main(void)
     //printf("Starting capture\n");
      adc_run(true);
 
-    int pretrigger = capture_buffer_len / 2;
+    int pretrigger = capture_buffer_len * rec_buf[3] / 10;
 
     uint capture_start_index;
     

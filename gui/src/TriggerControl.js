@@ -10,8 +10,14 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
   }
  
 
-  function preTriggerChange(e) {
-    setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, pretrigger: e.target.value}});
+  function preTriggerChange(dir) {
+    let newVal = captureConfig.preTrigger;
+    if (dir == '+') newVal += 0.1;
+    else if (dir == '-') newVal -= 0.1;
+    else if (dir == '0') newVal = 0;
+    console.log(newVal);
+    setCaptureConfig({...captureConfig, preTrigger: Math.round(newVal * 10) / 10});
+    
   }
  
 
@@ -55,12 +61,11 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
 
 <div className='data'>
-            <div className='name'>Pretrigger</div>
             </div>
 
-<input type="range" min="-1" max="1" step="0.01" value={captureConfig.trigger.pretrigger} onChange={preTriggerChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
-
-
+<div className='content'>
+          <SettingControl name="Pretrigger" unit="" data={Math.round(captureConfig.preTrigger * 10) / 10} callback={preTriggerChange}/>
+        </div>
 
         </div>
     </div>

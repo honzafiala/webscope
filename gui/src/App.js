@@ -19,9 +19,9 @@ let defaultCaptureConfig = {
     threshold: 77, // 1 V
     edge: "UP"
   },
-  preTrigger: 0.5,
+  preTrigger: 0.1,
   sampleRate: 250000,
-  captureDepth: 100000
+  captureDepth: 10000
 };
 
 let defaultCaptureData = [[], []];
@@ -92,7 +92,9 @@ async function readContinuous() {
 
     let captureLengthDiv = 100000 / captureConfig.captureDepth;
 
-    let buf = new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, 4]);
+    let pretriggerByte = captureConfig.preTrigger * 10;
+
+    let buf = new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
     let status = await USBDevice.transferOut(1, buf);
 
     let result;
