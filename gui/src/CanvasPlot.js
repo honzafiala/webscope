@@ -9,7 +9,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     }
 
 
-    let offsetSamples = viewConfig.horizontal.offset * captureConfig.captureDepth / 10 / viewConfig.horizontal.zoom;
     
 
     // Draw trigger level
@@ -29,10 +28,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
 
     // Draw vertical cursor 1
     function getCursorPos(pos) {
-      let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
-      let zoomEnd = captureConfig.captureDepth - zoomStart;
-      zoomStart -= offsetSamples;
-      zoomEnd -= offsetSamples;
+      let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+      let zoomEnd = viewConfig.horizontal.viewCenter + captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
 
@@ -86,16 +83,12 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
         ctx.font = "15px Arial";
         ctx.fillStyle = "gray";
 
+        let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+        
 
         let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-        let offsetMs = 1000 * offsetSamples / captureConfig.sampleRate;
-        let preTriggerOffsetMs =  1000 * captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-
-        if (divMs >= 1)
-        ctx.fillText(String(Math.round((i * divMs - offsetMs - preTriggerOffsetMs) * 10) / 10) + " ms", canvas.width / 10 * i + 5, 15);
-        else
-        ctx.fillText(String(Math.round((i * divMs - offsetMs - preTriggerOffsetMs) * 10000) / 10) + " µs", canvas.width / 10 * i + 5, 15);
-
+        let zoomStartMs = 1000 * (zoomStart - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate;
+        ctx.fillText(String(zoomStartMs + i * divMs) + " ms", canvas.width / 10 * i + 5, 15);
       }
 
     for (let i = 0.5; i < 3.3; i += 0.5) {
@@ -116,15 +109,10 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     function uint8ToYPos(val, zoom, offset) {
       return ((255 - val * zoom) * canvas.height / 255) - 0  * (0.5 / 3.3 * 255) - offset * 3.5 / 3.3 * canvas.height / 7 ;
     }
-    let data1 = data[0];
-    let data2 = data[1];
-
 
     // Calculate zoom
-    let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
-    let zoomEnd = captureConfig.captureDepth - zoomStart;
-    zoomStart -= offsetSamples;
-    zoomEnd -= offsetSamples;
+    let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+    let zoomEnd = viewConfig.horizontal.viewCenter + captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
 
    // Draw channels
     ctx.lineWidth = 2.5;

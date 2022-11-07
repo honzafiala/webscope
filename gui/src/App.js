@@ -36,7 +36,8 @@ let defaultViewConfig = {
   ],
   horizontal: {
     zoom: 1,
-    offset: 0
+    offset: 0,
+    viewCenter: defaultCaptureConfig.captureDepth / 2
   },
   grid: true
 }
@@ -131,8 +132,27 @@ async function readContinuous() {
     }
 
     setCaptureData(parsedData);
+
+    setComplete(true);
     return true;
   }
+
+  async function asyncTest() {
+    let time = 500 * Math.random();
+    await new Promise(resolve => setTimeout(resolve, time));
+    console.log("rec", time);
+    setComplete(true);
+  }
+
+  const [complete, setComplete] = useState(true);
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    if (complete && running) {
+      setComplete(false);
+      readSingle();
+    }
+  }, [complete, running]);
+
 
   return (
     <div className='root'>
@@ -146,6 +166,8 @@ async function readContinuous() {
         <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
 
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
+
+        <button onClick={() => setRunning(!running)}>{running ? "RUNNING" : "STOPPED"}</button>
 
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
 
@@ -162,7 +184,7 @@ async function readContinuous() {
       <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
           viewConfig={viewConfig} setViewConfig={setViewConfig}/>
 
-          <CursorControl cursorConfig={cursorConfig}  captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
+          <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
           <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
           <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
          
