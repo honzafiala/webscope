@@ -36,9 +36,7 @@ let defaultViewConfig = {
   ],
   horizontal: {
     zoom: 1,
-    offset: 0,
-    viewStartIndex: 0,
-    viewEndIndex: defaultCaptureConfig.captureDepth / 2
+    offset: 0
   },
   grid: true
 }

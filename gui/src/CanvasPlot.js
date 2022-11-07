@@ -8,6 +8,10 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     canvas.height = canvasRef.current.clientHeight;
     }
 
+
+    let offsetSamples = viewConfig.horizontal.offset * captureConfig.captureDepth / 10 / viewConfig.horizontal.zoom;
+    
+
     // Draw trigger level
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
@@ -15,7 +19,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
-    console.log(viewConfig);
 
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
@@ -28,8 +31,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     function getCursorPos(pos) {
       let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
       let zoomEnd = captureConfig.captureDepth - zoomStart;
-      zoomStart -= viewConfig.horizontal.offset;
-      zoomEnd -= viewConfig.horizontal.offset;
+      zoomStart -= offsetSamples;
+      zoomEnd -= offsetSamples;
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
 
@@ -85,10 +88,9 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
 
 
         let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-        let offsetMs = 1000 * viewConfig.horizontal.offset / captureConfig.sampleRate;
+        let offsetMs = 1000 * offsetSamples / captureConfig.sampleRate;
         let preTriggerOffsetMs =  1000 * captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
 
-        console.log(divMs);
         if (divMs >= 1)
         ctx.fillText(String(Math.round((i * divMs - offsetMs - preTriggerOffsetMs) * 10) / 10) + " ms", canvas.width / 10 * i + 5, 15);
         else
@@ -121,8 +123,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     // Calculate zoom
     let zoomStart = (1 - 1 / viewConfig.horizontal.zoom) * captureConfig.captureDepth / 2;
     let zoomEnd = captureConfig.captureDepth - zoomStart;
-    zoomStart -= viewConfig.horizontal.offset;
-    zoomEnd -= viewConfig.horizontal.offset;
+    zoomStart -= offsetSamples;
+    zoomEnd -= offsetSamples;
 
    // Draw channels
     ctx.lineWidth = 2.5;

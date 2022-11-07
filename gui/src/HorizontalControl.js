@@ -11,25 +11,23 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
       return;
     }
     if (viewConfig.horizontal.zoom <= 1 && dir == '-') return;
-    let d = String(viewConfig.horizontal.zoom)[0];
-    let newVal = viewConfig.horizontal.zoom;
-    if (d == 1)
-      if (dir == '-' ) newVal /= 2;
-      else newVal *= 2;
-    else if (d == 2)
-      if (dir == '-') newVal /= 2;
-      else newVal *= 5/2;
-    else if (d == 5)
-      if (dir == '-') newVal /= 5/2;
-      else newVal *= 2;
-      setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: newVal}});
+    let newZoom = viewConfig.horizontal.zoom;
+    let newOffset = viewConfig.horizontal.offset;
+    if (dir == '-' ) {
+      newZoom /= 2;
+      newOffset = Math.round((newOffset - 5) / 2);
+      console.log(Math.round((newOffset - 5) / 2));
+    } else {
+      newZoom *= 2;
+      newOffset = 2 * newOffset + 5;
+    }
+      setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: newZoom, offset: Math.round(newOffset)}});
   }
 
   function offsetCallback(dir) {
     let newVal = viewConfig.horizontal.offset;
-    let change = 200000 / 10 / viewConfig.horizontal.zoom / 2;
-    if (dir == '+') newVal += change;
-    else if (dir == '-') newVal -= change;
+    if (dir == '+') newVal++;
+    else if (dir == '-') newVal--;
     else if (dir == '0') newVal = 0;
     console.log(newVal);
     setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, offset: newVal}});
@@ -43,7 +41,7 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
         </div>
         <div className='content'>
           <SettingControl name="Zoom" unit=" x" data={viewConfig.horizontal.zoom} callback={zoomCallback}/>
-          <SettingControl name="Offset" unit=" m" data={viewConfig.horizontal.offset} callback={offsetCallback}/>
+          <SettingControl name="Offset" unit=" div" data={viewConfig.horizontal.offset} callback={offsetCallback}/>
         </div>
     </div>
     )
