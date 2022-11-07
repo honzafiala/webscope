@@ -156,7 +156,7 @@ async function readContinuous() {
 
   return (
     <div className='root'>
-      {cursorConfig.cursorX.visible && <Floating/>}
+      {cursorConfig.cursorX.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
     <div className="app">
       <div className="topbar">
       
@@ -181,8 +181,8 @@ async function readContinuous() {
           <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
           viewConfig={viewConfig} setViewConfig={setViewConfig}/>
 
-      <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
-          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+      {/* <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+          viewConfig={viewConfig} setViewConfig={setViewConfig}/> */}
 
           <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
           <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
