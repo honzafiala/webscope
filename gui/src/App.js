@@ -50,6 +50,10 @@ let defaultCursorConfig = {
   }
 }
 
+let defaultAppState = {
+  state: "stop",
+  captureComplete: true
+}
 
 export default function App() {
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
@@ -57,7 +61,7 @@ export default function App() {
   let [captureData, setCaptureData] = useState(defaultCaptureData);
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
-
+  let [appState, setAppState] = useState(defaultAppState);
 
   async function connectDevice() {
     let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0 }] });
@@ -141,25 +145,25 @@ export default function App() {
 
     setCaptureData(parsedData);
 
-    setComplete(true);
+    setAppState({...appState, captureComplete: true});
     return true;
   }
 
   function abortCapture() {
+    setAppState({...appState, captureComplete: true, state: "stop"});
+
     let abortMessage = new Uint8Array([0]);
     USBDevice.transferOut(1, abortMessage);
-
-    setRunning(false);
   }
 
-  const [complete, setComplete] = useState(true);
-  const [running, setRunning] = useState(false);
   useEffect(() => {
-    if (complete && running) {
-      setComplete(false);
+    console.log(appState);
+    if (appState.captureComplete && appState.state == "run") {
+      setAppState({...appState, captureComplete: false});
+      appState = {...appState, captureComplete: false};
       readSingle();
     }
-  }, [complete, running]);
+  }, [appState]);
 
 
   return (
@@ -174,7 +178,7 @@ export default function App() {
         <div>
 
 
-        <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
+        <button onClick={() => setAppState({...appState, state: "run"})} disabled={USBDevice == null}>Run</button>
         <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
 
 
