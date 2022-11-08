@@ -95,15 +95,16 @@ export default function App() {
  }
 
   async function readSingle() {
-
-    // Send capture start command
-
+    // Send capture configuration to the device
     let captureConfigMessage = captureConfigToByteArray(captureConfig);    
     await USBDevice.transferOut(1, captureConfigMessage);
 
     let result;
 
-    console.log(captureConfig);
+    // Wait for capture status message from the device
+    // Status can be either OK = 0, Aborted = 1 or Timeout = 2
+    result = await pollUSB(1);
+    console.log('Capture status', result.data.getUint8());
 
     // Read trigger index and parse
     result = await pollUSB(1);

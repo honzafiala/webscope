@@ -110,7 +110,6 @@ int main(void)
     pwm_configure();
 
 
-    //==================
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
@@ -186,6 +185,12 @@ int main(void)
 
     // Atomically abort both channels.
     dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
+
+    // Send capture status message;
+    uint8_t status_msg = 0;
+    usb_send(&status_msg, 1);
+    printf("Status message sent\n");
+
 
     printf("Sending captured data\n");
     uint32_t trig_msg = trigger_index % capture_buffer_len;
