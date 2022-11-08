@@ -84,22 +84,29 @@ export default function App() {
     return new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
   }
   
+
+ async function pollUSB(len) {
+  let result
+  do {
+    result = await USBDevice.transferIn(1, 4);
+    await new Promise(res => setTimeout(res, 50));
+  } while (result.data.byteLength == 0);
+  return result;
+ }
+
   async function readSingle() {
 
     // Send capture start command
 
     let captureConfigMessage = captureConfigToByteArray(captureConfig);    
-    let status = await USBDevice.transferOut(1, captureConfigMessage);
+    await USBDevice.transferOut(1, captureConfigMessage);
 
     let result;
 
     console.log(captureConfig);
 
     // Read trigger index and parse
-    do {
-      result = await USBDevice.transferIn(1, 4);
-      await new Promise(res => setTimeout(res, 50));
-    } while (result.data.byteLength == 0);
+    result = await pollUSB(1);
     let trigIndex = result.data.getUint32(0, true);
     console.log('trigger:', trigIndex);
     
