@@ -1,17 +1,14 @@
 .floating {
     position: absolute;
-    top: 43px;
+    top: 23px;
     right: 150px;
-    margin: 7px;
+    width: 100px;
+    margin: 5px;
     padding: 5px;
     background-color: #D9D9D9;
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 .floating > div {
     padding: 3px;
-}
-
-tr {
-    text-align: right;
 }
