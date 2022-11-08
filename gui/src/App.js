@@ -83,16 +83,17 @@ export default function App() {
 
     return new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
   }
-
-  
   
   async function readSingle() {
 
+    // Send capture start command
+
     let captureConfigMessage = captureConfigToByteArray(captureConfig);    
-    await USBDevice.transferOut(1, captureConfigMessage);
+    let status = await USBDevice.transferOut(1, captureConfigMessage);
 
     let result;
 
+    console.log(captureConfig);
 
     // Read trigger index and parse
     do {
