@@ -24,7 +24,7 @@ body {
   float: left;
 }
 
-.topbar > button {
+.topbar > button, .topbar > div > button  {
     flex-grow: 1;
     border-radius: 10px;
     margin: 3px;
@@ -34,11 +34,12 @@ body {
   
 }
 
-.topbar > button:hover {
+
+.topbar > button:hover, .topbar > div > button:hover {
   background-color: #C6C6C6;
 }
 
-.topbar > button:active {
+.topbar > button:active, .topbar > div > button:active {
   background-color: #FFFFFF;
 }
 

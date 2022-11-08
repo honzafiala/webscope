@@ -143,8 +143,8 @@ volatile uint rec_bytes = 0;
 
 uint usb_rec(volatile uint8_t * buf, uint len) {
     while (!rec_bytes);
-    memcpy(buf, rec_buf, rec_bytes);
-    uint ret = rec_bytes;
+    memcpy(buf, rec_buf, len);
+    uint ret = rec_bytes <= len ? rec_bytes : len;
     rec_bytes = 0;
     return ret;
 }

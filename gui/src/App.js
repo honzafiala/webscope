@@ -168,15 +168,21 @@ export default function App() {
       
 
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
+
+        <div>
+
+
+        <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
         <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
+
+
+        <button onClick={abortCapture}>Stop</button>
+
+        </div>
+        <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
 
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
 
-        <button onClick={() => setRunning(!running)}>{running ? "RUNNING" : "STOPPED"}</button>
-
-        <button onClick={abortCapture}>Abort</button>
-
-        <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
 
         </div>
       <div className="main">
