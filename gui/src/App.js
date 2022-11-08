@@ -81,7 +81,7 @@ export default function App() {
 
     let pretriggerByte = captureConfig.preTrigger * 10;
 
-    return new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
+    return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
   }
   
 
@@ -148,6 +148,8 @@ export default function App() {
   function abortCapture() {
     let abortMessage = new Uint8Array([0]);
     USBDevice.transferOut(1, abortMessage);
+
+    setRunning(false);
   }
 
   const [complete, setComplete] = useState(true);

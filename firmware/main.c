@@ -121,12 +121,20 @@ int main(void)
 
     while (1) {
     
-    uint ret = usb_rec(rec_buf, 4);
-    printf("REC: %d bytes: %d %d %d %d\n", ret, rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3]);
+    while (1) {
+        uint ret = usb_rec(rec_buf, 5);
+        if (rec_buf[0] == 1) break;
+        else {
+            // Abort message was sent - wait for another config message
+            printf("Received abort, waiting for cfg...\n");
+        } 
+    }
 
-     uint trig_level = rec_buf[0];
+    printf("REC bytes: %d %d %d %d\n", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4]);
 
-    uint capture_depth_div = rec_buf[2];
+     uint trig_level = rec_buf[1];
+
+    uint capture_depth_div = rec_buf[3];
 
     capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
     printf("Capture depth: %d\n", capture_buffer_len);
@@ -144,7 +152,7 @@ int main(void)
 
      adc_run(true);
 
-    int pretrigger = capture_buffer_len * rec_buf[3] / 10;
+    int pretrigger = capture_buffer_len * rec_buf[4] / 10;
 
     uint capture_start_index;
     
