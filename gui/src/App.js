@@ -71,19 +71,7 @@ export default function App() {
 
   }
 
-  
-async function readContinuous() {
-  while (true) await readSingle();
-}
-
-
-  async function readSingle() {
-
-    // Send capture start command
-
-    console.log("=====================================================");
-    console.log(captureConfig);
-
+  function captureConfigToByteArray(captureConfig) {
     let activeChannelsByte = 0;
     for (let i = 0; i < captureConfig.activeChannels.length; i++) {
       if (captureConfig.activeChannels[i]) activeChannelsByte += 1 << i;
@@ -93,8 +81,15 @@ async function readContinuous() {
 
     let pretriggerByte = captureConfig.preTrigger * 10;
 
-    let buf = new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
-    let status = await USBDevice.transferOut(1, buf);
+    return new Uint8Array([captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
+  }
+  
+  async function readSingle() {
+
+    // Send capture start command
+
+    let captureConfigMessage = captureConfigToByteArray(captureConfig);    
+    let status = await USBDevice.transferOut(1, captureConfigMessage);
 
     let result;
 
@@ -162,7 +157,6 @@ async function readContinuous() {
       
 
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
-        <button onClick={readContinuous} disabled={USBDevice == null}>Continuous</button>
         <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
 
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
