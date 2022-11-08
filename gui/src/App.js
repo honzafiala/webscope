@@ -104,7 +104,12 @@ export default function App() {
     // Wait for capture status message from the device
     // Status can be either OK = 0, Aborted = 1 or Timeout = 2
     result = await pollUSB(1);
-    console.log('Capture status', result.data.getUint8());
+    let captureStatus = result.data.getUint8();
+    console.log('Capture status', captureStatus);
+    if (captureStatus != 0) {
+      console.log("Capture was aborted!");
+      return;
+    }
 
     // Read trigger index and parse
     result = await pollUSB(1);
@@ -140,11 +145,9 @@ export default function App() {
     return true;
   }
 
-  async function asyncTest() {
-    let time = 500 * Math.random();
-    await new Promise(resolve => setTimeout(resolve, time));
-    console.log("rec", time);
-    setComplete(true);
+  function abortCapture() {
+    let abortMessage = new Uint8Array([0]);
+    USBDevice.transferOut(1, abortMessage);
   }
 
   const [complete, setComplete] = useState(true);
@@ -170,6 +173,8 @@ export default function App() {
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
 
         <button onClick={() => setRunning(!running)}>{running ? "RUNNING" : "STOPPED"}</button>
+
+        <button onClick={abortCapture}>Abort</button>
 
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
 

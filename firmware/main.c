@@ -17,6 +17,7 @@ extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
 
 extern void usb_send(uint8_t * buf, uint size);
 extern uint usb_rec(uint8_t * buf, uint size);
+extern uint usb_data_ready();
 
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (100000)     
@@ -141,9 +142,6 @@ int main(void)
     dma_channel_start(main_chan);
 
 
-  //  sleep_ms(600);
-
-    //printf("Starting capture\n");
      adc_run(true);
 
     int pretrigger = capture_buffer_len * rec_buf[3] / 10;
@@ -158,9 +156,21 @@ int main(void)
     uint32_t prev_xfer_count_since_start = 0;
     uint trigger_index;
 
+    typedef enum {OK, ABORTED} capture_result_t;
+    capture_result_t capture_result;
     while (1) {
-        uint xfer_count = capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
+        // Check if abort message was received
+        if (usb_data_ready()) {
+            uint8_t msg;
+            usb_rec(&msg, 1);
+            printf("Received mesage: %d\n", msg);
+            adc_run(false);
+            capture_result = ABORTED;
+            break;
+        }
 
+        // Check trigger
+        uint xfer_count = capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
         else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_buffer_len - prev_xfer_count + xfer_count;
 
@@ -176,6 +186,7 @@ int main(void)
         } else if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
             adc_run(false);
             printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
+            capture_result = OK;
             break;
         }
 
@@ -187,23 +198,23 @@ int main(void)
     dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
 
     // Send capture status message;
-    uint8_t status_msg = 0;
+    uint8_t status_msg = capture_result;
     usb_send(&status_msg, 1);
     printf("Status message sent\n");
 
+    if (capture_result == OK) {
+        printf("Sending captured data\n");
+        uint32_t trig_msg = trigger_index % capture_buffer_len;
+        usb_send(&trig_msg, 4);
 
-    printf("Sending captured data\n");
-    uint32_t trig_msg = trigger_index % capture_buffer_len;
-    usb_send(&trig_msg, 4);
+        const uint usb_packet_size = 32768; 
 
-    const uint usb_packet_size = 32768; 
+        for (int i = 0; i < capture_buffer_len; i += usb_packet_size) {
+            printf("sending %d\n", capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
+            usb_send(&capture_buf[i], capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
 
-    for (int i = 0; i < capture_buffer_len; i += usb_packet_size) {
-        printf("sending %d\n", capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
-        usb_send(&capture_buf[i], capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
-
+        }
     }
-
     }
 
     return 0;

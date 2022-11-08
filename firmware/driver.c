@@ -149,6 +149,10 @@ uint usb_rec(volatile uint8_t * buf, uint len) {
     return ret;
 }
 
+uint usb_data_ready() {
+    return rec_bytes;
+}
+
 
 
 static bool usbtest_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes)
