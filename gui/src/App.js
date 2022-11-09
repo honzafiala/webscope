@@ -164,7 +164,7 @@ export default function App() {
 
   return (
     <div className='root'>
-      {cursorConfig.cursorX.visible && <Floating/>}
+      {cursorConfig.cursorX.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
     <div className="app">
       <div className="topbar">
       

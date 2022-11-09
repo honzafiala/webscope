@@ -110,7 +110,7 @@ static gud_desc_string_t string_descriptor = {
 static const char *strings[] = {
     "",
     [MANUFACTURER_IDX] = "Raspberry Pi Pico",
-    [PRODUCT_IDX] = "Gadget Zero",
+    [PRODUCT_IDX] = "WebScope Rpi Pico",
     [SERIALNUMBER_IDX] = "0123456789.0123456789.0123456789",
     [SOURCE_SINK_IDX] = "source and sink data",
 };

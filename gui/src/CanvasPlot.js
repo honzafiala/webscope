@@ -115,7 +115,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     let zoomEnd = viewConfig.horizontal.viewCenter + captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
 
    // Draw channels
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     for (let channelIndex = 0; channelIndex < captureConfig.activeChannels.length; channelIndex++) {
       if (!captureConfig.activeChannels[channelIndex]) continue;
       ctx.beginPath();
