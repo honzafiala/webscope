@@ -8,7 +8,7 @@ import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
 import Floating from './Floating';
-import CaptureControl from './CaptureControl';
+import CaptureControl from './SamplingControl';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
