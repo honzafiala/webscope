@@ -21,7 +21,8 @@ let defaultCaptureConfig = {
   },
   preTrigger: 0.1,
   sampleRate: 250000,
-  captureDepth: 10000
+  captureDepth: 10000,
+  captureMode: "Auto"
 };
 
 let defaultCaptureData = [[], []];
@@ -81,7 +82,7 @@ export default function App() {
 
     let pretriggerByte = captureConfig.preTrigger * 10;
 
-    let captureModeByte = 1;
+    let captureModeByte = captureConfig.captureMode == "Auto" ? 1 : 0;
 
     return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte, captureModeByte]);
   }
@@ -163,32 +164,26 @@ export default function App() {
     }
   }, [complete, running]);
 
+  function toggleCaptureMode() {
+    let newCaptureMode = captureConfig.captureMode == "Auto" ? "Normal" : "Auto";
+    setCaptureConfig({...captureConfig, captureMode: newCaptureMode});
+  }
 
   return (
     <div className='root'>
       {cursorConfig.cursorX.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
     <div className="app">
       <div className="topbar">
-      
-
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
-
         <div>
-
-
-        <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
-        <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
-
-
-        <button onClick={abortCapture}>Stop</button>
-
+          <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
+          <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
+          <button onClick={abortCapture}>Stop</button>
+          <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>
         </div>
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
-
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
-
-
-        </div>
+      </div>
       <div className="main">
         <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>
 
