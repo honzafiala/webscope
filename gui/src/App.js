@@ -8,7 +8,7 @@ import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
 import Floating from './Floating';
-import SamplingControl from './SamplingControl';
+import CaptureControl from './CaptureControl';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
@@ -58,7 +58,7 @@ export default function App() {
   let [captureData, setCaptureData] = useState(defaultCaptureData);
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
-  let [captureState, setCaptureState] = useState({complete: true, running: false});
+
 
   async function connectDevice() {
     let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0 }] });
@@ -141,36 +141,33 @@ export default function App() {
         i++;
       }
     }
-    
+
     setCaptureData(parsedData);
 
-    setCaptureState({...captureState, complete: true});
-
+    setComplete(true);
     return true;
   }
 
   function abortCapture() {
-    setCaptureState({...captureState, running: false, complete: true});
-
     let abortMessage = new Uint8Array([0]);
     USBDevice.transferOut(1, abortMessage);
 
-
+    setRunning(false);
   }
 
+  const [complete, setComplete] = useState(true);
+  const [running, setRunning] = useState(false);
   useEffect(() => {
-    if (captureState.complete && captureState.running) {
-      setCaptureState({...captureState, complete: false});
+    if (complete && running) {
+      setComplete(false);
       readSingle();
     }
-  }, [captureState]);
+  }, [complete, running]);
 
   function toggleCaptureMode() {
     let newCaptureMode = captureConfig.captureMode == "Auto" ? "Normal" : "Auto";
     setCaptureConfig({...captureConfig, captureMode: newCaptureMode});
   }
-
-  console.log(captureState);
 
   return (
     <div className='root'>
@@ -178,13 +175,13 @@ export default function App() {
     <div className="app">
       <div className="topbar">
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
-        <div style={{backgroundColor: "#ffffff", borderRadius: "10px"}}>
-          <button onClick={() => setCaptureState({...captureState, running: true})} disabled={USBDevice == null}>Run</button>
+        <div>
+          <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
           <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
           <button onClick={abortCapture}>Stop</button>
           <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>
         </div>
-        <SamplingControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+        <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
       </div>
       <div className="main">
