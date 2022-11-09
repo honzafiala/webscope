@@ -9,6 +9,7 @@ import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
 import Floating from './Floating';
 import CaptureControl from './SamplingControl';
+import Capture from './Capture';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
@@ -51,6 +52,11 @@ let defaultCursorConfig = {
   }
 }
 
+let defaultCaptureState = {
+  running: false,
+  continuous: false
+}
+
 
 export default function App() {
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
@@ -58,6 +64,7 @@ export default function App() {
   let [captureData, setCaptureData] = useState(defaultCaptureData);
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
+  let [captureState, setCaptureState] = useState(defaultCaptureState);
 
 
   async function connectDevice() {
@@ -72,102 +79,10 @@ export default function App() {
 
   }
 
-  function captureConfigToByteArray(captureConfig) {
-    let activeChannelsByte = 0;
-    for (let i = 0; i < captureConfig.activeChannels.length; i++) {
-      if (captureConfig.activeChannels[i]) activeChannelsByte += 1 << i;
-    }
 
-    let captureLengthDiv = 100000 / captureConfig.captureDepth;
 
-    let pretriggerByte = captureConfig.preTrigger * 10;
 
-    let captureModeByte = captureConfig.captureMode == "Auto" ? 1 : 0;
 
-    return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte, captureModeByte]);
-  }
-  
-
- async function pollUSB(len) {
-  let result
-  do {
-    result = await USBDevice.transferIn(1, 4);
-    await new Promise(res => setTimeout(res, 50));
-  } while (result.data.byteLength == 0);
-  return result;
- }
-
-  async function readSingle() {
-    // Send capture configuration to the device
-    let captureConfigMessage = captureConfigToByteArray(captureConfig);    
-    await USBDevice.transferOut(1, captureConfigMessage);
-
-    let result;
-
-    // Wait for capture status message from the device
-    // Status can be either OK = 0, Aborted = 1 or Timeout = 2
-    result = await pollUSB(1);
-    let captureStatus = result.data.getUint8();
-    console.log('Capture status', captureStatus);
-    if (captureStatus != 0) {
-      console.log("Capture was aborted!");
-      return;
-    }
-
-    // Read trigger index and parse
-    result = await pollUSB(1);
-    let trigIndex = result.data.getUint32(0, true);
-    console.log('trigger:', trigIndex);
-    
-
-    result = await USBDevice.transferIn(1, captureConfig.captureDepth * captureConfig.numActiveChannels);
-    console.log('captured data', result);
-
-    let rawData = [];
-    for (let i = 0; i < captureConfig.captureDepth * captureConfig.numActiveChannels; i++) 
-      rawData.push(result.data.getUint8(i));
-    let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
-    
-
-    let parsedData = [[],[]];
-    let i = 0;
-    while (i < captureConfig.captureDepth * captureConfig.numActiveChannels) {
-      if (captureConfig.activeChannels[0]) {
-        parsedData[0].push(rawShiftedData[i]);
-        i++;
-      }
-      if (captureConfig.activeChannels[1]) {
-        parsedData[1].push(rawShiftedData[i]);
-        i++;
-      }
-    }
-
-    setCaptureData(parsedData);
-
-    setComplete(true);
-    return true;
-  }
-
-  function abortCapture() {
-    let abortMessage = new Uint8Array([0]);
-    USBDevice.transferOut(1, abortMessage);
-
-    setRunning(false);
-  }
-
-  const [complete, setComplete] = useState(true);
-  const [running, setRunning] = useState(false);
-  useEffect(() => {
-    if (complete && running) {
-      setComplete(false);
-      readSingle();
-    }
-  }, [complete, running]);
-
-  function toggleCaptureMode() {
-    let newCaptureMode = captureConfig.captureMode == "Auto" ? "Normal" : "Auto";
-    setCaptureConfig({...captureConfig, captureMode: newCaptureMode});
-  }
 
   return (
     <div className='root'>
@@ -175,12 +90,7 @@ export default function App() {
     <div className="app">
       <div className="topbar">
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
-        <div>
-          <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
-          <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
-          <button onClick={abortCapture}>Stop</button>
-          <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>
-        </div>
+        <Capture captureConfig={captureConfig} setCaptureConfig={captureConfig} captureState={captureState} setCaptureState={setCaptureState}  USBDevice={USBDevice} setCaptureData={setCaptureData} setCaptureConfig={setCaptureConfig}/>
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
       </div>
