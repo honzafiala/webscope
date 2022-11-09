@@ -40,7 +40,16 @@ body {
 }
 
 .topbar > button:active, .topbar > div > button:active {
-  background-color: #FFFFFF;
+  background-color: #929292;
+}
+
+.captureControl {
+  background-color: #bababa;
+  border-radius: 10px;
+}
+
+.captureControl > .triggerStatus {
+  padding: 5px;
 }
 
 

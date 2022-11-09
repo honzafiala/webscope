@@ -10,6 +10,11 @@ import TriggerControl from './TriggerControl';
 import Floating from './Floating';
 import CaptureControl from './CaptureControl';
 
+let captureModes = {
+  auto: "Auto",
+  normal: "Normal"
+}
+
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
   numActiveChannels: 2,
@@ -21,7 +26,8 @@ let defaultCaptureConfig = {
   },
   preTrigger: 0.1,
   sampleRate: 250000,
-  captureDepth: 10000
+  captureDepth: 10000,
+  captureMode: captureModes.auto
 };
 
 let defaultCaptureData = [[], []];
@@ -58,7 +64,6 @@ export default function App() {
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
 
-
   async function connectDevice() {
     let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0 }] });
     await device.open();
@@ -81,14 +86,16 @@ export default function App() {
 
     let pretriggerByte = captureConfig.preTrigger * 10;
 
-    return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
+    let captureModeByte = captureConfig.captureMode = captureModes.auto ? 1 : 0;
+
+    return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte, captureModeByte]);
   }
   
 
  async function pollUSB(len) {
   let result
   do {
-    result = await USBDevice.transferIn(1, 4);
+    result = await USBDevice.transferIn(1, len);
     await new Promise(res => setTimeout(res, 50));
   } while (result.data.byteLength == 0);
   return result;
@@ -111,6 +118,7 @@ export default function App() {
       return;
     }
 
+    console.log("waiting for trigger index ");
     // Read trigger index and parse
     result = await pollUSB(1);
     let trigIndex = result.data.getUint32(0, true);
@@ -161,6 +169,10 @@ export default function App() {
     }
   }, [complete, running]);
 
+  function toggleCaptureMode() {
+    let newMode = captureConfig.captureMode == captureModes.auto ? captureModes.normal : captureModes.auto;
+    setCaptureConfig({...captureConfig, captureMode: newMode});
+  }
 
   return (
     <div className='root'>
@@ -171,7 +183,7 @@ export default function App() {
 
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
 
-        <div>
+        <div className='captureControl'>
 
 
         <button onClick={() => setRunning(!running)} disabled={USBDevice == null}>Run</button>
@@ -179,6 +191,10 @@ export default function App() {
 
 
         <button onClick={abortCapture}>Stop</button>
+
+        <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>
+
+        <span className='triggerStatus'>Trigger 🟢</span>
 
         </div>
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
