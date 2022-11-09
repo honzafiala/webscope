@@ -114,7 +114,7 @@ int main(void)
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
-    uint8_t rec_buf[4] = {0};
+    uint8_t rec_buf[6] = {0};
 
 
 
@@ -122,7 +122,7 @@ int main(void)
     while (1) {
     
     while (1) {
-        uint ret = usb_rec(rec_buf, 5);
+        uint ret = usb_rec(rec_buf, 6);
         if (rec_buf[0] == 1) break;
         else {
             // Abort message was sent - wait for another config message
@@ -130,7 +130,11 @@ int main(void)
         } 
     }
 
-    printf("REC bytes: %d %d %d %d\n", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4]);
+    printf("REC bytes: %d %d %d %d %d %dn", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4], rec_buf[5]);
+
+    bool auto_mode = rec_buf[5];
+    printf("Capture mode: %d\n", auto_mode);
+
 
      uint trig_level = rec_buf[1];
 

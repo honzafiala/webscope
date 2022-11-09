@@ -81,7 +81,9 @@ export default function App() {
 
     let pretriggerByte = captureConfig.preTrigger * 10;
 
-    return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte]);
+    let captureModeByte = 1;
+
+    return new Uint8Array([1, captureConfig.trigger.threshold, activeChannelsByte, captureLengthDiv, pretriggerByte, captureModeByte]);
   }
   
 
