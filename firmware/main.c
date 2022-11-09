@@ -116,10 +116,13 @@ int main(void)
 
     uint8_t rec_buf[4] = {0};
 
+
+
+
     while (1) {
     
     while (1) {
-        uint ret = usb_rec(rec_buf, 6);
+        uint ret = usb_rec(rec_buf, 5);
         if (rec_buf[0] == 1) break;
         else {
             // Abort message was sent - wait for another config message
@@ -127,21 +130,15 @@ int main(void)
         } 
     }
 
-    printf("REC bytes: %d %d %d %d %d\n", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4], rec_buf[5]);
+    printf("REC bytes: %d %d %d %d\n", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4]);
 
      uint trig_level = rec_buf[1];
 
     uint capture_depth_div = rec_buf[3];
-    
-    typedef enum {AUTO, NORMAL} capture_mode_t;
-    capture_mode_t capture_mode = rec_buf[5] ? AUTO : NORMAL;
-
-    printf("Capture mode: %s\n", capture_mode == AUTO ? "AUTO" : "NORMAL");
 
     capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
     printf("Capture depth: %d\n", capture_buffer_len);
 
-    const uint auto_mode_timeout_samples = capture_buffer_len * 5; 
     
 
     uint32_t start;
@@ -194,11 +191,6 @@ int main(void)
                     break;
                 }
             }
-        } if (!triggered && capture_mode == AUTO && xfer_count_since_start >= auto_mode_timeout_samples) {
-               trigger_index = xfer_count - pretrigger;
-                printf("Auto trigger at %d S\n", xfer_count);
-                triggered = true;
-                break;
         } else if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
             adc_run(false);
             printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
@@ -215,8 +207,6 @@ int main(void)
 
     // Send capture status message;
     uint8_t status_msg = capture_result;
-    printf("Sending status message: %d\n", status_msg);
-
     usb_send(&status_msg, 1);
     printf("Status message sent\n");
 
