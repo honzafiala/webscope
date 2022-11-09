@@ -133,7 +133,7 @@ int main(void)
     printf("REC bytes: %d %d %d %d %d %dn", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4], rec_buf[5]);
 
     bool auto_mode = rec_buf[5];
-    printf("Capture mode: %d\n", auto_mode);
+    printf("Auto mode: %d\n", auto_mode);
 
 
      uint trig_level = rec_buf[1];
@@ -143,7 +143,7 @@ int main(void)
     capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
     printf("Capture depth: %d\n", capture_buffer_len);
 
-    
+    uint auto_mode_timeout_samples = capture_buffer_len * 10;    
 
     uint32_t start;
 
@@ -195,7 +195,12 @@ int main(void)
                     break;
                 }
             }
-        } else if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
+        } if (!triggered && auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
+            trigger_index = xfer_count - pretrigger;
+            printf("Timeout at %d S\n", xfer_count_since_start);
+            triggered = true;
+            break;
+        }  if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
             adc_run(false);
             printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
             capture_result = OK;
