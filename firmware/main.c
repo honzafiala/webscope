@@ -1,238 +1,303 @@
-// SPDX-License-Identifier: CC0-1.0
+/* 
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Ha Thach (tinyusb.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
+/* This example demonstrates WebUSB as web serial with browser with WebUSB support (e.g Chrome).
+ * After enumerated successfully, browser will pop-up notification
+ * with URL to landing page, click on it to test
+ *  - Click "Connect" and select device, When connected the on-board LED will litted up.
+ *  - Any charters received from either webusb/Serial will be echo back to webusb and Serial
+ *
+ * Note:
+ * - The WebUSB landing page notification is currently disabled in Chrome
+ * on Windows due to Chromium issue 656702 (https://crbug.com/656702). You have to
+ * go to landing page (below) to test
+ *
+ * - On Windows 7 and prior: You need to use Zadig tool to manually bind the
+ * WebUSB interface with the WinUSB driver for Chrome to access. From windows 8 and 10, this
+ * is done automatically by firmware.
+ *
+ * - On Linux/macOS, udev permission may need to be updated by
+ *   - copying '/examples/device/99-tinyusb.rules' file to /etc/udev/rules.d/ then
+ *   - run 'sudo udevadm control --reload-rules && sudo udevadm trigger'
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "bsp/board.h"
 #include "tusb.h"
-#include <stdio.h>
-#include "pico/stdlib.h"
-// For ADC input:
-#include "hardware/adc.h"
-#include "hardware/dma.h"
-#include "hardware/pwm.h"
+#include "usb_descriptors.h"
 
-#include "pico/multicore.h"
+//--------------------------------------------------------------------+
+// MACRO CONSTANT TYPEDEF PROTYPES
+//--------------------------------------------------------------------+
 
-extern void core1_task();
+/* Blink pattern
+ * - 250 ms  : device not mounted
+ * - 1000 ms : device mounted
+ * - 2500 ms : device is suspended
+ */
+enum  {
+  BLINK_NOT_MOUNTED = 250,
+  BLINK_MOUNTED     = 1000,
+  BLINK_SUSPENDED   = 2500,
 
-extern inline dma_channel_hw_t *dma_channel_hw_addr(uint channel);
+  BLINK_ALWAYS_ON   = UINT32_MAX,
+  BLINK_ALWAYS_OFF  = 0
+};
 
-extern void usb_send(uint8_t * buf, uint size);
-extern uint usb_rec(uint8_t * buf, uint size);
-extern uint usb_data_ready();
+static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
-#define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (100000)     
-#define NUM_ADC_CHANNELS 2
-uint capture_buffer_len;
+#define URL  "example.tinyusb.org/webusb-serial/index.html"
 
-volatile uint8_t capture_buf[200000] = {0};
+const tusb_desc_webusb_url_t desc_url =
+{
+  .bLength         = 3 + sizeof(URL) - 1,
+  .bDescriptorType = 3, // WEBUSB URL type
+  .bScheme         = 1, // 0: http, 1: https
+  .url             = URL
+};
 
-#define DEBUG_PIN0 16
-#define DEBUG_PIN1 17
-#define DEBUG_PIN2 18
+static bool web_serial_connected = false;
 
-void debug_gpio_init() {
-    gpio_init(DEBUG_PIN0);
-    gpio_set_dir(DEBUG_PIN0, GPIO_OUT);
-    gpio_init(DEBUG_PIN1);
-    gpio_set_dir(DEBUG_PIN1, GPIO_OUT);
-    gpio_init(DEBUG_PIN2);
-    gpio_set_dir(DEBUG_PIN2, GPIO_OUT);
-}
+//------------- prototypes -------------//
+void led_blinking_task(void);
+void cdc_task(void);
+void webserial_task(void);
 
-void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
-     /* Nastaveni hlavniho DMA kanalu */
-    dma_channel_config chan_cfg = dma_channel_get_default_config(main_chan);
-    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_8);
-    channel_config_set_chain_to(&chan_cfg, ctrl_chan);
-    channel_config_set_write_increment(&chan_cfg, true);
-    channel_config_set_read_increment(&chan_cfg, false);
-
-    channel_config_set_dreq(&chan_cfg, DREQ_ADC);
-
-    dma_channel_configure(main_chan,
-    &chan_cfg,
-    capture_buf,
-    &adc_hw->fifo,
-    capture_buffer_len,
-    false);
-
-    static void * array_addr = capture_buf;
-    /* Nastaveni kanalu pro restart hlavniho */
-    chan_cfg = dma_channel_get_default_config(ctrl_chan);
-    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_32);
-    channel_config_set_read_increment(&chan_cfg, false);
-    channel_config_set_write_increment(&chan_cfg, false);
-    dma_channel_configure(ctrl_chan,
-    &chan_cfg,
-    &dma_channel_hw_addr(main_chan)->al2_write_addr_trig,
-    &array_addr,
-    1,
-    false);
-}
-
-void adc_configure(float clkdiv) {
-   // Configure ADC
-    adc_gpio_init(26 + CAPTURE_CHANNEL);
-    adc_gpio_init(26 + CAPTURE_CHANNEL + 1);
-    adc_select_input(CAPTURE_CHANNEL);
-    adc_init();
-    adc_set_round_robin(0x3);
-    adc_fifo_setup(
-        true,    // Write each completed conversion to the sample FIFO
-        true,    // Enable DMA data request (DREQ)
-        1,       // DREQ (and IRQ) asserted when at least 1 sample present
-        false,   // We won't see the ERR bit because of 8 bit reads; disable.
-        true     // Shift each sample to 8 bits when pushing to FIFO
-    );
-
-    // Set the ADC sampling
-    adc_set_clkdiv(clkdiv);
-}
-
-#define PWM_PIN 2
-void pwm_configure() {
-    // Tell GPIO 0 and 1 they are allocated to the PWM
-    gpio_set_function(2, GPIO_FUNC_PWM);
-
-    // Find out which PWM slice is connected to GPIO 0 (it's slice 0)
-    uint slice_num = pwm_gpio_to_slice_num(2);
-
-
-    pwm_config config = pwm_get_default_config();
-    pwm_config_set_clkdiv(&config, 100.f);
-    pwm_init(slice_num, &config, true);
-    pwm_set_gpio_level(2, 32768); // 32768 out of 65535 = 50% duty cycle
-}
-
+/*------------- MAIN -------------*/
 int main(void)
- {
-    multicore_launch_core1(core1_task);
+{
+  board_init();
 
-    pwm_configure();
+  // init device stack on configured roothub port
+  tud_init(BOARD_TUD_RHPORT);
 
+  while (1)
+  {
+    tud_task(); // tinyusb device task
+    cdc_task();
+    webserial_task();
+    led_blinking_task();
+  }
 
-    const uint main_chan = dma_claim_unused_channel(true);
-    const uint ctrl_chan = dma_claim_unused_channel(true);
+  return 0;
+}
 
-    uint8_t rec_buf[6] = {0};
+// send characters to both CDC and WebUSB
+void echo_all(uint8_t buf[], uint32_t count)
+{
+  // echo to web serial
+  if ( web_serial_connected )
+  {
+    tud_vendor_write(buf, count);
+    tud_vendor_flush();
+  }
 
+  // echo to cdc
+  if ( tud_cdc_connected() )
+  {
+    for(uint32_t i=0; i<count; i++)
+    {
+      tud_cdc_write_char(buf[i]);
 
-
-
-    while (1) {
-    
-    while (1) {
-        uint ret = usb_rec(rec_buf, 6);
-        if (rec_buf[0] == 1) break;
-        else {
-            // Abort message was sent - wait for another config message
-            printf("Received abort, waiting for cfg...\n");
-        } 
+      if ( buf[i] == '\r' ) tud_cdc_write_char('\n');
     }
+    tud_cdc_write_flush();
+  }
+}
 
-    printf("REC bytes: %d %d %d %d %d %dn", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4], rec_buf[5]);
+//--------------------------------------------------------------------+
+// Device callbacks
+//--------------------------------------------------------------------+
 
-    bool auto_mode = rec_buf[5];
-    printf("Auto mode: %d\n", auto_mode);
+// Invoked when device is mounted
+void tud_mount_cb(void)
+{
+  blink_interval_ms = BLINK_MOUNTED;
+}
 
+// Invoked when device is unmounted
+void tud_umount_cb(void)
+{
+  blink_interval_ms = BLINK_NOT_MOUNTED;
+}
 
-     uint trig_level = rec_buf[1];
+// Invoked when usb bus is suspended
+// remote_wakeup_en : if host allow us  to perform remote wakeup
+// Within 7ms, device must draw an average of current less than 2.5 mA from bus
+void tud_suspend_cb(bool remote_wakeup_en)
+{
+  (void) remote_wakeup_en;
+  blink_interval_ms = BLINK_SUSPENDED;
+}
 
-    uint capture_depth_div = rec_buf[3];
+// Invoked when usb bus is resumed
+void tud_resume_cb(void)
+{
+  blink_interval_ms = BLINK_MOUNTED;
+}
 
-    capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
-    printf("Capture depth: %d\n", capture_buffer_len);
+//--------------------------------------------------------------------+
+// WebUSB use vendor class
+//--------------------------------------------------------------------+
 
-    uint auto_mode_timeout_samples = capture_buffer_len * 10;    
+// Invoked when a control transfer occurred on an interface of this class
+// Driver response accordingly to the request and the transfer stage (setup/data/ack)
+// return false to stall control endpoint (e.g unsupported request)
+bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const * request)
+{
+  // nothing to with DATA & ACK stage
+  if (stage != CONTROL_STAGE_SETUP) return true;
 
-    uint32_t start;
+  switch (request->bmRequestType_bit.type)
+  {
+    case TUSB_REQ_TYPE_VENDOR:
+      switch (request->bRequest)
+      {
+        case VENDOR_REQUEST_WEBUSB:
+          // match vendor request in BOS descriptor
+          // Get landing page url
+          return tud_control_xfer(rhport, request, (void*)(uintptr_t) &desc_url, desc_url.bLength);
 
-    adc_configure(0);
+        case VENDOR_REQUEST_MICROSOFT:
+          if ( request->wIndex == 7 )
+          {
+            // Get Microsoft OS 2.0 compatible descriptor
+            uint16_t total_len;
+            memcpy(&total_len, desc_ms_os_20+8, 2);
 
-    analog_dma_configure(main_chan, ctrl_chan);
+            return tud_control_xfer(rhport, request, (void*)(uintptr_t) desc_ms_os_20, total_len);
+          }else
+          {
+            return false;
+          }
 
-    dma_channel_start(main_chan);
+        default: break;
+      }
+    break;
 
+    case TUSB_REQ_TYPE_CLASS:
+      if (request->bRequest == 0x22)
+      {
+        // Webserial simulate the CDC_REQUEST_SET_CONTROL_LINE_STATE (0x22) to connect and disconnect.
+        web_serial_connected = (request->wValue != 0);
 
-     adc_run(true);
+        // Always lit LED if connected
+        if ( web_serial_connected )
+        {
+          board_led_write(true);
+          blink_interval_ms = BLINK_ALWAYS_ON;
 
-    int pretrigger = capture_buffer_len * rec_buf[4] / 10;
-
-    uint capture_start_index;
-    
-
-    bool triggered = false;
-    uint xfer_count_since_trigger = 0;
-    uint prev_xfer_count = 0;
-    uint32_t xfer_count_since_start = 0;
-    uint32_t prev_xfer_count_since_start = 0;
-    uint trigger_index;
-
-    typedef enum {OK, ABORTED} capture_result_t;
-    capture_result_t capture_result;
-    while (1) {
-        // Check if abort message was received
-        if (usb_data_ready()) {
-            uint8_t msg;
-            usb_rec(&msg, 1);
-            printf("Received mesage: %d\n", msg);
-            adc_run(false);
-            capture_result = ABORTED;
-            break;
+          tud_vendor_write_str("\r\nWebUSB interface connected\r\n");
+          tud_vendor_flush();
+        }else
+        {
+          blink_interval_ms = BLINK_MOUNTED;
         }
 
-        // Check trigger
-        uint xfer_count = capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
-        if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
-        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_buffer_len - prev_xfer_count + xfer_count;
+        // response with status OK
+        return tud_control_status(rhport, request);
+      }
+    break;
 
-        if (!triggered && xfer_count_since_start >= pretrigger) {
-            for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_buffer_len] == trig_level && capture_buf[(i - 10) % capture_buffer_len] < trig_level && i % 2 && i >= pretrigger) {
-                    trigger_index = i - pretrigger;
-                    printf("Found trigger at %d S\n", i);
-                    triggered = true;
-                    break;
-                }
-            }
-        } if (!triggered && auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
-            trigger_index = xfer_count - pretrigger;
-            printf("Timeout at %d S\n", xfer_count_since_start);
-            triggered = true;
-            break;
-        }  if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
-            adc_run(false);
-            printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
-            capture_result = OK;
-            break;
-        }
+    default: break;
+  }
 
-        prev_xfer_count = xfer_count;
-        prev_xfer_count_since_start = xfer_count_since_start;
+  // stall unknown request
+  return false;
+}
+
+void webserial_task(void)
+{
+  if ( web_serial_connected )
+  {
+    if ( tud_vendor_available() )
+    {
+      uint8_t buf[64];
+      uint32_t count = tud_vendor_read(buf, sizeof(buf));
+
+      // echo back to both web serial and cdc
+      echo_all(buf, count);
     }
+  }
+}
 
-    // Atomically abort both channels.
-    dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
 
-    // Send capture status message;
-    uint8_t status_msg = capture_result;
-    usb_send(&status_msg, 1);
-    printf("Status message sent\n");
+//--------------------------------------------------------------------+
+// USB CDC
+//--------------------------------------------------------------------+
+void cdc_task(void)
+{
+  if ( tud_cdc_connected() )
+  {
+    // connected and there are data available
+    if ( tud_cdc_available() )
+    {
+      uint8_t buf[64];
 
-    if (capture_result == OK) {
-        printf("Sending captured data\n");
-        uint32_t trig_msg = trigger_index % capture_buffer_len;
-        usb_send(&trig_msg, 4);
+      uint32_t count = tud_cdc_read(buf, sizeof(buf));
 
-        const uint usb_packet_size = 32768; 
-
-        for (int i = 0; i < capture_buffer_len; i += usb_packet_size) {
-            printf("sending %d\n", capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
-            usb_send(&capture_buf[i], capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
-
-        }
+      // echo back to both web serial and cdc
+      echo_all(buf, count);
     }
-    }
+  }
+}
 
-    return 0;
+// Invoked when cdc when line state changed e.g connected/disconnected
+void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
+{
+  (void) itf;
+
+  // connected
+  if ( dtr && rts )
+  {
+    // print initial message when connected
+    tud_cdc_write_str("\r\nTinyUSB WebUSB device example\r\n");
+  }
+}
+
+// Invoked when CDC interface received data from host
+void tud_cdc_rx_cb(uint8_t itf)
+{
+  (void) itf;
+}
+
+//--------------------------------------------------------------------+
+// BLINKING TASK
+//--------------------------------------------------------------------+
+void led_blinking_task(void)
+{
+  static uint32_t start_ms = 0;
+  static bool led_state = false;
+
+  // Blink every interval ms
+  if ( board_millis() - start_ms < blink_interval_ms) return; // not enough time
+  start_ms += blink_interval_ms;
+
+  board_led_write(led_state);
+  led_state = 1 - led_state; // toggle
 }
