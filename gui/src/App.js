@@ -96,7 +96,7 @@ export default function App() {
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
         </div>
         <div className='rightMenu'>
-        <button style={{align: "right"}}>Menu</button>
+        <button>Menu</button>
 
         </div>
 
