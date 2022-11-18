@@ -1,0 +1,14 @@
+.CaptureControl {
+    padding: 3px;
+}
+
+.CaptureControl > select {
+    border-radius: 10px;
+    padding: 1px;
+}
+
+.CaptureControl > * {
+    float: left;
+    margin: 0px 5px 0px 5px;
+
+}
