@@ -68,14 +68,14 @@ export default function App() {
 
 
   async function connectDevice() {
-    let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0 }] });
+    let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0xcafe }] });
     await device.open();
-    await device.claimInterface(0);
-
+    await device.selectConfiguration(1);
+    await device.claimInterface(2);
     setUSBDevice(device);
 
     // "Dummy" IN transfer
-    let result = await device.transferIn(1, 4);
+    let result = await device.transferIn(3, 4);
 
   }
 
