@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.13)
 
-#set(TINYUSB_DEBUG_LEVEL 2)
 
 include(pico_sdk_import.cmake)
 
+set(FAMILY rp2040)
+
+include(/home/honza/tinyusb/hw/bsp/family_support.cmake)
+
 project(usbtest_project)
+
 
 pico_sdk_init()
 

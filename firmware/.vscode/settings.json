@@ -31,7 +31,9 @@
         "multicore.h": "c",
         "platform.h": "c",
         "stdio_usb.h": "c",
-        "usbd_pvt.h": "c"
+        "usbd_pvt.h": "c",
+        "usb_descriptors.h": "c",
+        "usbd.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }
