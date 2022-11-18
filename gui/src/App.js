@@ -89,10 +89,17 @@ export default function App() {
       {cursorConfig.cursorX.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
     <div className="app">
       <div className="topbar">
+        <div className='leftMenu'>
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
         <Capture captureConfig={captureConfig} setCaptureConfig={captureConfig} captureState={captureState} setCaptureState={setCaptureState}  USBDevice={USBDevice} setCaptureData={setCaptureData} setCaptureConfig={setCaptureConfig}/>
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
+        </div>
+        <div className='rightMenu'>
+        <button style={{align: "right"}}>Menu</button>
+
+        </div>
+
       </div>
       <div className="main">
         <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>

@@ -24,7 +24,16 @@ body {
   float: left;
 }
 
-.topbar > button, .topbar > div > button  {
+.leftMenu > * {
+  float: left;
+  display: inline;
+}
+
+.rightMenu {
+  float: right
+}
+
+.topbar  button, .topbar > div > button  {
     flex-grow: 1;
     border-radius: 10px;
     margin: 3px;
