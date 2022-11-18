@@ -8,7 +8,9 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     canvas.height = canvasRef.current.clientHeight;
     }
 
-
+    // Fill whole canvas with background color
+    ctx.fillStyle = "#272727";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
 
     // Draw trigger level
