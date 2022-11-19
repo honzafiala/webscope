@@ -136,13 +136,14 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     capture_config.capture_depth = config_bytes[3] * 1000;
 
-    capture_config.pretrigger = config_bytes[4];
 
     capture_config.auto_mode = config_bytes[5] ? true : false;
 
     capture_config.sample_rate = config_bytes[6] * 1000;
 
     capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
+
+    capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[4] / 10;
 
     return capture_config;
 }
@@ -195,7 +196,7 @@ int main(void)
 
      adc_run(true);
 
-    int pretrigger = capture_config.capture_buffer_len * rec_buf[4] / 10;
+    
 
     uint capture_start_index;
     
@@ -225,17 +226,17 @@ int main(void)
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
         else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
 
-        if (!triggered && xfer_count_since_start >= pretrigger) {
+        if (!triggered && xfer_count_since_start >= capture_config.pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_config.capture_buffer_len] == capture_config.trigger_threshold && capture_buf[(i - 10) % capture_config.capture_buffer_len] < capture_config.trigger_threshold && i % 2 && i >= pretrigger) {
-                    trigger_index = i - pretrigger;
+                if ( capture_buf[i % capture_config.capture_buffer_len] == capture_config.trigger_threshold && capture_buf[(i - 10) % capture_config.capture_buffer_len] < capture_config.trigger_threshold && i % 2 && i >= capture_config.pretrigger) {
+                    trigger_index = i - capture_config.pretrigger;
                     printf("Found trigger at %d S\n", i);
                     triggered = true;
                     break;
                 }
             }
         } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
-            trigger_index = xfer_count - pretrigger;
+            trigger_index = xfer_count - capture_config.pretrigger;
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
             break;
