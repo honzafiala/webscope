@@ -43,13 +43,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     ctx.lineTo(getCursorPos(cursorConfig.cursorX.start), canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.beginPath(getCursorPos(cursorConfig.cursorX.start), canvas.height - 14);
-    ctx.moveTo(getCursorPos(cursorConfig.cursorX.start), canvas.height);
-    ctx.lineTo(getCursorPos(cursorConfig.cursorX.start)+ 15, canvas.height - 7);
-    ctx.lineTo(getCursorPos(cursorConfig.cursorX.start), canvas.height - 14);
-    ctx.fillStyle = 'magenta';
-    ctx.fill();
+    
 
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 10]);
@@ -58,13 +52,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     ctx.lineTo(getCursorPos(cursorConfig.cursorX.end), canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.beginPath(getCursorPos(cursorConfig.cursorX.end), canvas.height - 14);
-    ctx.moveTo(getCursorPos(cursorConfig.cursorX.end), canvas.height);
-    ctx.lineTo(getCursorPos(cursorConfig.cursorX.end)- 15, canvas.height - 7);
-    ctx.lineTo(getCursorPos(cursorConfig.cursorX.end), canvas.height - 14);
-    ctx.fillStyle = 'magenta';
-    ctx.fill();
 
 
     }
@@ -147,6 +134,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
       window.cancelAnimationFrame(animationFrameId);
     };
   }, [data, viewConfig, captureConfig, cursorConfig]);
+
 
   return <canvas className="plot" ref={canvasRef}/>;
 }

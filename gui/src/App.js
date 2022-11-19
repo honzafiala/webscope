@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import WebglAppSin from "./webglAppSin";
 import ChannelControl from './ChannelControl';
 import getDummyData from './dummyData';
 import HorizontalControl from './HorizontalControl';
@@ -10,6 +9,7 @@ import TriggerControl from './TriggerControl';
 import Floating from './Floating';
 import CaptureControl from './SamplingControl';
 import Capture from './Capture';
+import MultiRangeSlider from './MultiRangeSlider';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
@@ -82,8 +82,6 @@ export default function App() {
 
 
 
-
-
   return (
     <div className='root'>
       {cursorConfig.cursorX.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
@@ -96,13 +94,15 @@ export default function App() {
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
         </div>
         <div className='rightMenu'>
-        <button>Menu</button>
+        <button>{"<<<"}</button>
 
         </div>
 
       </div>
       <div className="main">
         <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>
+        {cursorConfig.cursorX.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
+        captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
         <div className='side'>
           <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
