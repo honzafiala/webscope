@@ -119,7 +119,12 @@ export default function App() {
             <div>Firmware</div>
             <div>Demo capture</div>
             <hr/>
+            <div>WebScope</div>
             <div>Version 1.0</div>
+            <hr/>
+            <div>Czech Technical University in Prague</div>
+            <div>Department of Measurement</div>
+            <img src="./cvut_logo.png" width="100%"></img>
           </div>
           :
           <div>

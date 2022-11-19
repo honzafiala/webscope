@@ -104,6 +104,43 @@ void pwm_configure() {
     pwm_set_gpio_level(2, 32768); // 32768 out of 65535 = 50% duty cycle
 }
 
+typedef struct {
+    bool active_channels[3];
+    uint num_active_channels;
+    uint capture_depth;
+    uint sample_rate;
+    bool auto_mode;
+    uint trigger_threshold;
+    uint pretrigger;
+} capture_config_t;
+
+capture_config_t parse_capture_config(uint8_t config_bytes[]) {
+    capture_config_t capture_config;
+
+    capture_config.trigger_threshold = config_bytes[1];
+
+    capture_config.num_active_channels = 0;
+    uint8_t active_channels_byte = config_bytes[2];
+    for (int i = 0; i < 3; i++) {
+        if ((active_channels_byte >> i) && 1) {
+            capture_config.active_channels[i] = true;
+            capture_config.num_active_channels++;
+        }
+        else capture_config.active_channels[i] = false;
+    }
+
+    capture_config.capture_depth = config_bytes[3] * 1000;
+
+    capture_config.pretrigger = config_bytes[4];
+
+    capture_config.auto_mode = config_bytes[5] ? true : false;
+
+    capture_config.sample_rate = config_bytes[6] * 1000;
+
+    return capture_config;
+}
+
+
 int main(void)
  {
     multicore_launch_core1(core1_task);
@@ -122,7 +159,7 @@ int main(void)
     while (1) {
     
     while (1) {
-        uint ret = usb_rec(rec_buf, 6);
+        uint ret = usb_rec(rec_buf, 7);
         if (rec_buf[0] == 1) break;
         else {
             // Abort message was sent - wait for another config message
@@ -130,13 +167,13 @@ int main(void)
         } 
     }
 
-    printf("REC bytes: %d %d %d %d %d %dn", rec_buf[0], rec_buf[1], rec_buf[2], rec_buf[3], rec_buf[4], rec_buf[5]);
+    capture_config_t capture_config = parse_capture_config(rec_buf);
+
 
     bool auto_mode = rec_buf[5];
     printf("Auto mode: %d\n", auto_mode);
 
 
-     uint trig_level = rec_buf[1];
 
     uint capture_depth_div = rec_buf[3];
 
@@ -188,7 +225,7 @@ int main(void)
 
         if (!triggered && xfer_count_since_start >= pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_buffer_len] == trig_level && capture_buf[(i - 10) % capture_buffer_len] < trig_level && i % 2 && i >= pretrigger) {
+                if ( capture_buf[i % capture_buffer_len] == capture_config.trigger_threshold && capture_buf[(i - 10) % capture_buffer_len] < capture_config.trigger_threshold && i % 2 && i >= pretrigger) {
                     trigger_index = i - pretrigger;
                     printf("Found trigger at %d S\n", i);
                     triggered = true;

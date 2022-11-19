@@ -35,5 +35,5 @@
         "usb_descriptors.h": "c",
         "usbd.h": "c"
     },
-    "cortex-debug.variableUseNaturalFormat": false
+    "cortex-debug.variableUseNaturalFormat": true
 }

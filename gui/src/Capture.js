@@ -60,19 +60,21 @@ function captureConfigToByteArray(captureConfig) {
         if (captureConfig.activeChannels[i]) activeChannelsByte += 1 << i;
     }
 
-    let captureLengthDiv = 100000 / captureConfig.captureDepth;
+    let captureDepth_kb = captureConfig.captureDepth / 1000;
 
     let pretriggerByte = captureConfig.preTrigger * 10;
 
     let captureModeByte = captureConfig.captureMode == "Auto" ? 1 : 0;
 
+    let sampleRateByte = captureConfig.sampleRate / 1000;
     return new Uint8Array([
         1, 
         captureConfig.trigger.threshold, 
         activeChannelsByte, 
-        captureLengthDiv, 
+        captureDepth_kb, 
         pretriggerByte, 
-        captureModeByte
+        captureModeByte, 
+        sampleRateByte
     ]);
 }
 
