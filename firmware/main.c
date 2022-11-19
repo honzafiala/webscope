@@ -177,9 +177,6 @@ int main(void)
     capture_config_t capture_config = parse_capture_config(rec_buf);
 
 
-    bool auto_mode = rec_buf[5];
-    printf("Auto mode: %d\n", auto_mode);
-
 
 
     uint capture_depth_div = rec_buf[3];
@@ -237,7 +234,7 @@ int main(void)
                     break;
                 }
             }
-        } if (!triggered && auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
+        } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
             trigger_index = xfer_count - pretrigger;
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
