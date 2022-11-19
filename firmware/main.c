@@ -22,13 +22,27 @@ extern uint usb_data_ready();
 #define CAPTURE_CHANNEL 0
 #define CAPTURE_DEPTH (100000)     
 #define NUM_ADC_CHANNELS 2
-uint capture_buffer_len;
-
-volatile uint8_t capture_buf[200000] = {0};
 
 #define DEBUG_PIN0 16
 #define DEBUG_PIN1 17
 #define DEBUG_PIN2 18
+
+
+volatile uint8_t capture_buf[200000] = {0};
+
+
+
+
+typedef struct {
+    bool active_channels[3];
+    uint num_active_channels;
+    uint capture_depth;
+    uint sample_rate;
+    bool auto_mode;
+    uint trigger_threshold;
+    uint pretrigger;
+    uint capture_buffer_len;
+} capture_config_t;
 
 void debug_gpio_init() {
     gpio_init(DEBUG_PIN0);
@@ -39,7 +53,7 @@ void debug_gpio_init() {
     gpio_set_dir(DEBUG_PIN2, GPIO_OUT);
 }
 
-void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
+void analog_dma_configure(const uint main_chan, const uint ctrl_chan, capture_config_t capture_config) {
      /* Nastaveni hlavniho DMA kanalu */
     dma_channel_config chan_cfg = dma_channel_get_default_config(main_chan);
     channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_8);
@@ -53,7 +67,7 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan) {
     &chan_cfg,
     capture_buf,
     &adc_hw->fifo,
-    capture_buffer_len,
+    capture_config.capture_buffer_len,
     false);
 
     static void * array_addr = capture_buf;
@@ -104,15 +118,6 @@ void pwm_configure() {
     pwm_set_gpio_level(2, 32768); // 32768 out of 65535 = 50% duty cycle
 }
 
-typedef struct {
-    bool active_channels[3];
-    uint num_active_channels;
-    uint capture_depth;
-    uint sample_rate;
-    bool auto_mode;
-    uint trigger_threshold;
-    uint pretrigger;
-} capture_config_t;
 
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config_t capture_config;
@@ -136,6 +141,8 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config.auto_mode = config_bytes[5] ? true : false;
 
     capture_config.sample_rate = config_bytes[6] * 1000;
+
+    capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
 
     return capture_config;
 }
@@ -177,23 +184,21 @@ int main(void)
 
     uint capture_depth_div = rec_buf[3];
 
-    capture_buffer_len = (CAPTURE_DEPTH * NUM_ADC_CHANNELS) / capture_depth_div;
-    printf("Capture depth: %d\n", capture_buffer_len);
 
-    uint auto_mode_timeout_samples = capture_buffer_len * 10;    
+    uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
     uint32_t start;
 
     adc_configure(0);
 
-    analog_dma_configure(main_chan, ctrl_chan);
+    analog_dma_configure(main_chan, ctrl_chan, capture_config);
 
     dma_channel_start(main_chan);
 
 
      adc_run(true);
 
-    int pretrigger = capture_buffer_len * rec_buf[4] / 10;
+    int pretrigger = capture_config.capture_buffer_len * rec_buf[4] / 10;
 
     uint capture_start_index;
     
@@ -219,13 +224,13 @@ int main(void)
         }
 
         // Check trigger
-        uint xfer_count = capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
+        uint xfer_count = capture_config.capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
-        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_buffer_len - prev_xfer_count + xfer_count;
+        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
 
         if (!triggered && xfer_count_since_start >= pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_buffer_len] == capture_config.trigger_threshold && capture_buf[(i - 10) % capture_buffer_len] < capture_config.trigger_threshold && i % 2 && i >= pretrigger) {
+                if ( capture_buf[i % capture_config.capture_buffer_len] == capture_config.trigger_threshold && capture_buf[(i - 10) % capture_config.capture_buffer_len] < capture_config.trigger_threshold && i % 2 && i >= pretrigger) {
                     trigger_index = i - pretrigger;
                     printf("Found trigger at %d S\n", i);
                     triggered = true;
@@ -237,7 +242,7 @@ int main(void)
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
             break;
-        }  if (triggered && xfer_count_since_start - trigger_index >= capture_buffer_len) {
+        }  if (triggered && xfer_count_since_start - trigger_index >= capture_config.capture_buffer_len) {
             adc_run(false);
             printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
             capture_result = OK;
@@ -258,14 +263,14 @@ int main(void)
 
     if (capture_result == OK) {
         printf("Sending captured data\n");
-        uint32_t trig_msg = trigger_index % capture_buffer_len;
+        uint32_t trig_msg = trigger_index % capture_config.capture_buffer_len;
         usb_send(&trig_msg, 4);
 
         const uint usb_packet_size = 32768; 
 
-        for (int i = 0; i < capture_buffer_len; i += usb_packet_size) {
-            printf("sending %d\n", capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
-            usb_send(&capture_buf[i], capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_buffer_len - i);
+        for (int i = 0; i < capture_config.capture_buffer_len; i += usb_packet_size) {
+            printf("sending %d\n", capture_config.capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len - i);
+            usb_send(&capture_buf[i], capture_config.capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len - i);
 
         }
     }
