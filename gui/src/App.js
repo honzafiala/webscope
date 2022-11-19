@@ -57,6 +57,10 @@ let defaultCaptureState = {
   continuous: false
 }
 
+let defaultAppState = {
+  menu: false
+}
+
 
 export default function App() {
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
@@ -65,6 +69,7 @@ export default function App() {
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
   let [captureState, setCaptureState] = useState(defaultCaptureState);
+  let [appState, setAppState] = useState(defaultAppState);
 
 
   async function connectDevice() {
@@ -94,7 +99,7 @@ export default function App() {
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
         </div>
         <div className='rightMenu'>
-        <button>{"<<<"}</button>
+        <button onClick={() => setAppState({...appState, menu : !appState.menu})}><b>{appState.menu ? "> > >" : "< < <"}</b></button>
 
         </div>
 
@@ -105,18 +110,30 @@ export default function App() {
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
         <div className='side'>
-          <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
-          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-          <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
-          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-
-      <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
-          viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-
-          <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
-          <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-          <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
-         
+          {appState.menu ?  
+          <div style={{backgroundColor: "#bbbbbb",  margin: "5px", padding: "5px"}}>
+            <div>Save</div>
+            <div>View</div>
+            <hr/>
+            <div>User manual</div>
+            <div>Firmware</div>
+            <div>Demo capture</div>
+            <hr/>
+            <div>Version 1.0</div>
+          </div>
+          :
+          <div>
+            <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+            viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+            <ChannelControl number="2" color="#E78787" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+            viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+            <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
+            viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+            <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
+            <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+            <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+          </div>
+          }
         </div>
       </div>
       </div>
