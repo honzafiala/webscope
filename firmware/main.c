@@ -190,6 +190,9 @@ int main(void)
 
     uint32_t start;
 
+    adc_run(false);
+
+
     adc_configure(capture_config);
 
     analog_dma_configure(main_chan, ctrl_chan, capture_config);

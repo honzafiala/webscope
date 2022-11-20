@@ -9,6 +9,7 @@ import Floating from './Floating';
 import CaptureControl from './SamplingControl';
 import Capture from './Capture';
 import MultiRangeSlider from './MultiRangeSlider';
+import CaptureSave from './CaptureSave';
 
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
@@ -124,6 +125,7 @@ export default function App() {
             <div>Czech Technical University in Prague</div>
             <div>Department of Measurement</div>
             <img src="./cvut_logo.png" width="100%"></img>
+            <CaptureSave captureData={captureData} captureConfig={captureConfig}/>
           </div>
           :
           <div>
