@@ -20,8 +20,6 @@ extern uint usb_rec(uint8_t * buf, uint size);
 extern uint usb_data_ready();
 
 #define CAPTURE_CHANNEL 0
-#define CAPTURE_DEPTH (100000)     
-#define NUM_ADC_CHANNELS 2
 
 #define DEBUG_PIN0 16
 #define DEBUG_PIN1 17
@@ -42,6 +40,7 @@ typedef struct {
     uint trigger_threshold;
     uint pretrigger;
     uint capture_buffer_len;
+    uint trigger_channel;
 } capture_config_t;
 
 void debug_gpio_init() {
@@ -84,13 +83,23 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan, capture_co
     false);
 }
 
-void adc_configure(float clkdiv) {
+void adc_configure(capture_config_t capture_config) {
    // Configure ADC
     adc_gpio_init(26 + CAPTURE_CHANNEL);
     adc_gpio_init(26 + CAPTURE_CHANNEL + 1);
+    adc_gpio_init(26 + CAPTURE_CHANNEL + 2);
     adc_select_input(CAPTURE_CHANNEL);
     adc_init();
-    adc_set_round_robin(0x3);
+
+    uint8_t active_channels_byte = 0;
+    for (int i = 0; i < 3; i++) {
+        if (capture_config.active_channels[i]) {
+            active_channels_byte += 1 << i;
+            printf("Channel %d active\n", i);
+        }
+    }
+    printf("Round robin setting: %d\n", active_channels_byte);
+    adc_set_round_robin(active_channels_byte);
     adc_fifo_setup(
         true,    // Write each completed conversion to the sample FIFO
         true,    // Enable DMA data request (DREQ)
@@ -100,7 +109,7 @@ void adc_configure(float clkdiv) {
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(clkdiv);
+    adc_set_clkdiv(96);
 }
 
 #define PWM_PIN 2
@@ -177,30 +186,19 @@ int main(void)
 
     capture_config_t capture_config = parse_capture_config(rec_buf);
 
-
-
-
-    uint capture_depth_div = rec_buf[3];
-
-
     uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
     uint32_t start;
 
-    adc_configure(0);
+    adc_configure(capture_config);
 
     analog_dma_configure(main_chan, ctrl_chan, capture_config);
 
     dma_channel_start(main_chan);
 
-
-     adc_run(true);
-
-    
+    adc_run(true);
 
     uint capture_start_index;
-    
-
     bool triggered = false;
     uint xfer_count_since_trigger = 0;
     uint prev_xfer_count = 0;
@@ -228,7 +226,11 @@ int main(void)
 
         if (!triggered && xfer_count_since_start >= capture_config.pretrigger) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_config.capture_buffer_len] == capture_config.trigger_threshold && capture_buf[(i - 10) % capture_config.capture_buffer_len] < capture_config.trigger_threshold && i % 2 && i >= capture_config.pretrigger) {
+                if ( capture_buf[i % capture_config.capture_buffer_len] == capture_config.trigger_threshold &&
+                    capture_buf[(i - 10) % capture_config.capture_buffer_len] < capture_config.trigger_threshold &&
+                    (i % 3) == 0 &&
+                    i >= capture_config.pretrigger
+                    ) {
                     trigger_index = i - capture_config.pretrigger;
                     printf("Found trigger at %d S\n", i);
                     triggered = true;
@@ -236,7 +238,7 @@ int main(void)
                 }
             }
         } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
-            trigger_index = xfer_count - capture_config.pretrigger;
+            trigger_index = 0;
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
             break;
@@ -262,6 +264,7 @@ int main(void)
     if (capture_result == OK) {
         printf("Sending captured data\n");
         uint32_t trig_msg = trigger_index % capture_config.capture_buffer_len;
+        trig_msg -= trig_msg % 2;
         usb_send(&trig_msg, 4);
 
         const uint usb_packet_size = 32768; 

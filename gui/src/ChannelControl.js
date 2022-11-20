@@ -1,12 +1,9 @@
 import ValueBox from './ValueBox';
 import React, {useState} from 'react';
 import './ChannelControl.css';
-import { act } from 'react-dom/test-utils';
 
 
 export default function ChannelControl({color, number, captureConfig, setCaptureConfig, viewConfig, setViewConfig}) {
-  let [test1, setTest1] = useState(1);
-  let [test2, setTest2] = useState(0);
 
   const channelNumber = parseInt(number);
 

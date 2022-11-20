@@ -31,11 +31,12 @@ async function readSingle() {
     
         let rawData = [];
         for (let i = 0; i < captureConfig.captureDepth * captureConfig.numActiveChannels; i++) 
-          rawData.push(result.data.getUint8(i));
+        rawData.push(result.data.getUint8(i));
+
+        trigIndex -= trigIndex % captureConfig.numActiveChannels;
         let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
-        
-    
-        let parsedData = [[],[]];
+
+        let parsedData = [[],[],[]];
         let i = 0;
         while (i < captureConfig.captureDepth * captureConfig.numActiveChannels) {
           if (captureConfig.activeChannels[0]) {
@@ -46,8 +47,14 @@ async function readSingle() {
             parsedData[1].push(rawShiftedData[i]);
             i++;
           }
+          if (captureConfig.activeChannels[2]) {
+            parsedData[2].push(rawShiftedData[i]);
+            i++;
+          }
         }
-    
+
+        console.log(captureConfig);
+        console.log(parsedData);
         setCaptureData(parsedData);
     
         setComplete(true);

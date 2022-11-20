@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
 import ChannelControl from './ChannelControl';
-import getDummyData from './dummyData';
 import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
@@ -14,19 +13,19 @@ import MultiRangeSlider from './MultiRangeSlider';
 let defaultCaptureConfig = {
   activeChannels: [true, true, false],
   numActiveChannels: 2,
-  channelColors: ['#d4c84e', '#E78787'],
+  channelColors: ['#d4c84e', '#E78787', '#68e05d'],
   trigger: {
     channels: [true, false], 
     threshold: 77, // 1 V
     edge: "UP"
   },
   preTrigger: 0.1,
-  sampleRate: 250000,
+  sampleRate: 500000,
   captureDepth: 10000,
   captureMode: "Auto"
 };
 
-let defaultCaptureData = [[], []];
+let defaultCaptureData = [[], [], []];
 
 
 let defaultViewConfig = {
