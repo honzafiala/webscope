@@ -111,7 +111,7 @@ export default function App() {
 
         <div className='side'>
           {appState.menu ?  
-          <div style={{backgroundColor: "#bbbbbb",  margin: "5px", padding: "5px"}}>
+          <div style={{backgroundColor: "#D9D9D9",  margin: "5px", padding: "5px", borderRadius: "10px"}}>
             <div>Save</div>
             <div>View</div>
             <hr/>

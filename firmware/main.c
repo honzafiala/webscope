@@ -183,15 +183,17 @@ int main(void)
             printf("Received abort, waiting for cfg...\n");
         } 
     }
+    
 
     capture_config_t capture_config = parse_capture_config(rec_buf);
 
     uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
-    uint32_t start;
+    printf("\n");
+    printf("Capture depth: %d\n", capture_config.capture_depth);
+    printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
 
     adc_run(false);
-
 
     adc_configure(capture_config);
 
@@ -235,7 +237,7 @@ int main(void)
                     i >= capture_config.pretrigger
                     ) {
                     trigger_index = i - capture_config.pretrigger;
-                    printf("Found trigger at %d S\n", i);
+                    printf("Found trigger at %d, %d since start\n", i, xfer_count_since_start);
                     triggered = true;
                     break;
                 }

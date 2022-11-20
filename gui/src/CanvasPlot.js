@@ -75,8 +75,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
         let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
         
 
-        let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate / viewConfig.horizontal.zoom;
-        let zoomStartMs = 1000 * (zoomStart - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate;
+        let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate * captureConfig.numActiveChannels / viewConfig.horizontal.zoom;
+        let zoomStartMs = 1000 * (zoomStart - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * captureConfig.numActiveChannels;
         ctx.fillText(String(zoomStartMs + i * divMs) + " ms", canvas.width / 10 * i + 5, 15);
       }
 
@@ -105,7 +105,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
 
 
    // Draw channels
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.5;
     for (let channelIndex = 0; channelIndex < captureConfig.activeChannels.length; channelIndex++) {
       if (!captureConfig.activeChannels[channelIndex]) continue;
       ctx.beginPath();

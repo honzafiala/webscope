@@ -1,8 +1,8 @@
 import './Floating.css'
 
 export default function Floating({captureConfig, captureData, cursorConfig}) {
-  let t1 = (cursorConfig.cursorX.start - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000;
-  let t2 = (cursorConfig.cursorX.end - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000;
+  let t1 = (cursorConfig.cursorX.start - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * captureConfig.numActiveChannels;
+  let t2 = (cursorConfig.cursorX.end - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * captureConfig.numActiveChannels;
 
   t1 = Math.round(t1 * 100) / 100;
   t2 = Math.round(t2 * 100) / 100;
