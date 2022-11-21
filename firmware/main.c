@@ -193,26 +193,30 @@ int main(void)
     printf("Capture depth: %d\n", capture_config.capture_depth);
     printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
 
-    adc_run(false);
-
     adc_configure(capture_config);
 
     analog_dma_configure(main_chan, ctrl_chan, capture_config);
 
+    //dma_channel_start(main_chan);
+    dma_channel_set_trans_count(main_chan, capture_config.capture_buffer_len, false);
     dma_channel_start(main_chan);
 
+    sleep_ms(100);
+
     adc_run(true);
+    int start = dma_channel_hw_addr(main_chan)->transfer_count;
+    printf("Started at %d\n", start);
 
     uint capture_start_index;
     bool triggered = false;
     uint xfer_count_since_trigger = 0;
     uint prev_xfer_count = 0;
     uint32_t xfer_count_since_start = 0;
-    uint32_t prev_xfer_count_since_start = 0;
     uint trigger_index;
 
     typedef enum {OK, ABORTED} capture_result_t;
     capture_result_t capture_result;
+    /*
     while (1) {
         // Check if abort message was received
         if (usb_data_ready()) {
@@ -257,9 +261,30 @@ int main(void)
         prev_xfer_count = xfer_count;
         prev_xfer_count_since_start = xfer_count_since_start;
     }
+    */
+
+   printf("---\n");
+    while (1) {
+        uint xfer_count = capture_config.capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
+        printf("xfer count: %d\n", xfer_count);
+        if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
+        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
+        printf("xfer count since start: %d\n", xfer_count_since_start);
+        if (xfer_count_since_start >= capture_config.capture_buffer_len) {
+            adc_run(false);
+            printf("Stopping at %d\n", xfer_count_since_start);
+            trigger_index = 0;
+            break;
+        }
+        prev_xfer_count = xfer_count;
+    }
+   printf("---\n");
+
 
     // Atomically abort both channels.
     dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
+    if (dma_channel_is_busy(main_chan)) dma_channel_abort(main_chan);
+    if (dma_channel_is_busy(ctrl_chan)) dma_channel_abort(ctrl_chan);
 
     // Send capture status message;
     uint8_t status_msg = capture_result;
