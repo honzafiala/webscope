@@ -5,12 +5,14 @@ export default function Capture({captureConfig, setCaptureConfig, setSavedCaptur
 const [complete, setComplete] = useState(true);
 
 async function readSingle() {
-
         // Set the current captureConfig as savedCaptureConfig
-        setSavedCaptureConfig(captureConfig);
+        let savedCaptureConfig = captureConfig;
+        setSavedCaptureConfig(savedCaptureConfig);
+        console.log('Requesting capture:', savedCaptureConfig);
 
         // Send capture configuration to the device
-        let captureConfigMessage = captureConfigToByteArray(captureConfig);    
+        let captureConfigMessage = captureConfigToByteArray(savedCaptureConfig);    
+        console.log("Parsed config:", captureConfigMessage);
         await USBDevice.transferOut(3, captureConfigMessage);
     
         let result;
@@ -28,38 +30,37 @@ async function readSingle() {
         // Read trigger index and parse
         result = await pollUSB(1);
         let trigIndex = result.data.getUint32(0, true);
-        console.log('trigger:', trigIndex);
+        console.log('trigger:', trigIndex); 
         
-    
-        result = await USBDevice.transferIn(3, captureConfig.captureDepth * getNumActiveChannels(captureConfig));
-    
+        result = await USBDevice.transferIn(3, savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig));
+        console.log('reply:', result);
+
         let rawData = [];
-        for (let i = 0; i < captureConfig.captureDepth * getNumActiveChannels(captureConfig); i++) 
+        for (let i = 0; i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig); i++) 
         rawData.push(result.data.getUint8(i));
 
-        trigIndex -= trigIndex % getNumActiveChannels(captureConfig);
+        trigIndex -= trigIndex % getNumActiveChannels(savedCaptureConfig);
         
         //let rawShiftedData = rawData;
         let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
 
         let parsedData = [[],[],[]];
         let i = 0;
-        while (i < captureConfig.captureDepth * getNumActiveChannels(captureConfig)) {
-          if (captureConfig.activeChannels[0]) {
+        while (i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig)) {
+          if (savedCaptureConfig.activeChannels[0]) {
             parsedData[0].push(rawShiftedData[i]);
             i++;
           }
-          if (captureConfig.activeChannels[1]) {
+          if (savedCaptureConfig.activeChannels[1]) {
             parsedData[1].push(rawShiftedData[i]);
             i++;
           }
-          if (captureConfig.activeChannels[2]) {
+          if (savedCaptureConfig.activeChannels[2]) {
             parsedData[2].push(rawShiftedData[i]);
             i++;
           }
         }
 
-        console.log(captureConfig);
         console.log(parsedData);
         setCaptureData(parsedData);
     
@@ -67,22 +68,25 @@ async function readSingle() {
         return true;
 }
 
-function captureConfigToByteArray(captureConfig) {
-    let activeChannelsByte = 0;
-    for (let i = 0; i < captureConfig.activeChannels.length; i++) {
-        if (captureConfig.activeChannels[i]) activeChannelsByte += 1 << i;
+function captureConfigToByteArray(cfg) {
+  console.log("cfg:", cfg);
+  console.log("Active channels:", cfg.activeChannels);
+  let activeChannelsByte = 0;
+    for (let i = 0; i < cfg.activeChannels.length; i++) {
+        if (cfg.activeChannels[i]) activeChannelsByte += 1 << i;
+        console.log("channel", i, cfg.activeChannels[i]);
     }
+    console.log("active channels byte", activeChannelsByte);
+    let captureDepth_kb = cfg.captureDepth / 1000;
 
-    let captureDepth_kb = captureConfig.captureDepth / 1000;
+    let pretriggerByte = cfg.preTrigger * 10;
 
-    let pretriggerByte = captureConfig.preTrigger * 10;
+    let captureModeByte = cfg.captureMode == "Auto" ? 1 : 0;
 
-    let captureModeByte = captureConfig.captureMode == "Auto" ? 1 : 0;
-
-    let sampleRateByte = captureConfig.sampleRate / 1000;
+    let sampleRateByte = cfg.sampleRate / 1000;
     return new Uint8Array([
         1, 
-        captureConfig.trigger.threshold, 
+        cfg.trigger.threshold, 
         activeChannelsByte, 
         captureDepth_kb, 
         pretriggerByte, 
