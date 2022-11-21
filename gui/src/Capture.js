@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import getNumActiveChannels from './Utils';
 
 export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
 const [complete, setComplete] = useState(true);
@@ -30,21 +31,20 @@ async function readSingle() {
         console.log('trigger:', trigIndex);
         
     
-        result = await USBDevice.transferIn(3, captureConfig.captureDepth * captureConfig.numActiveChannels);
-        console.log('captured data', result);
+        result = await USBDevice.transferIn(3, captureConfig.captureDepth * getNumActiveChannels(captureConfig));
     
         let rawData = [];
-        for (let i = 0; i < captureConfig.captureDepth * captureConfig.numActiveChannels; i++) 
+        for (let i = 0; i < captureConfig.captureDepth * getNumActiveChannels(captureConfig); i++) 
         rawData.push(result.data.getUint8(i));
 
-        trigIndex -= trigIndex % captureConfig.numActiveChannels;
+        trigIndex -= trigIndex % getNumActiveChannels(captureConfig);
         
         //let rawShiftedData = rawData;
         let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
 
         let parsedData = [[],[],[]];
         let i = 0;
-        while (i < captureConfig.captureDepth * captureConfig.numActiveChannels) {
+        while (i < captureConfig.captureDepth * getNumActiveChannels(captureConfig)) {
           if (captureConfig.activeChannels[0]) {
             parsedData[0].push(rawShiftedData[i]);
             i++;
@@ -118,8 +118,6 @@ async function pollUSB(len) {
     } while (result.data.byteLength == 0);
     return result;
 }
-
-console.log(USBDevice);
 
     return (
         <div>

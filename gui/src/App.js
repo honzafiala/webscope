@@ -13,7 +13,6 @@ import CaptureSave from './CaptureSave';
 
 let defaultCaptureConfig = {
   activeChannels: [true, false, false],
-  numActiveChannels: 1,
   channelColors: ['#d4c84e', '#E78787', '#68e05d'],
   trigger: {
     channels: [true, false, false], 
@@ -97,7 +96,7 @@ export default function App() {
        
         <Capture 
           captureConfig={captureConfig} 
-          setCaptureConfig={captureConfig}
+          setCaptureConfig={setCaptureConfig}
           setSavedCaptureConfig={setSavedCaptureConfig}
           captureState={captureState} 
           setCaptureState={setCaptureState}  

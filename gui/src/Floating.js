@@ -1,8 +1,9 @@
-import './Floating.css'
+import './Floating.css';
+import getNumActiveChannels from './Utils';
 
 export default function Floating({captureConfig, captureData, cursorConfig}) {
-  let t1 = (cursorConfig.start - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * captureConfig.numActiveChannels;
-  let t2 = (cursorConfig.end - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * captureConfig.numActiveChannels;
+  let t1 = (cursorConfig.start - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * getNumActiveChannels(captureConfig);
+  let t2 = (cursorConfig.end - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * getNumActiveChannels(captureConfig);
 
   t1 = Math.round(t1 * 100) / 100;
   t2 = Math.round(t2 * 100) / 100;

@@ -1,7 +1,7 @@
 import ValueBox from './ValueBox';
 import React, {useState} from 'react';
 import './ChannelControl.css';
-
+import getNumActiveChannels from './Utils'
 
 export default function ChannelControl({color, number, captureConfig, setCaptureConfig, viewConfig, setViewConfig}) {
 
@@ -52,8 +52,9 @@ export default function ChannelControl({color, number, captureConfig, setCapture
   function toggleActive() {
     let newActiveChannels = captureConfig.activeChannels;
     newActiveChannels[channelNumber - 1] = !newActiveChannels[channelNumber - 1];
-    let newNumActiveChannels = captureConfig.numActiveChannels + (newActiveChannels[channelNumber - 1] ? 1 : -1);
-    setCaptureConfig({...captureConfig, activeChannels: newActiveChannels, numActiveChannels: newNumActiveChannels});
+    setCaptureConfig({...captureConfig, activeChannels: newActiveChannels});
+
+    console.log("active channels: ", getNumActiveChannels(captureConfig));
   }
 
   return (
