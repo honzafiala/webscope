@@ -12,11 +12,11 @@ import MultiRangeSlider from './MultiRangeSlider';
 import CaptureSave from './CaptureSave';
 
 let defaultCaptureConfig = {
-  activeChannels: [true, true, false],
-  numActiveChannels: 2,
+  activeChannels: [true, false, false],
+  numActiveChannels: 1,
   channelColors: ['#d4c84e', '#E78787', '#68e05d'],
   trigger: {
-    channels: [true, false], 
+    channels: [true, false, false], 
     threshold: 77, // 1 V
     edge: "UP"
   },
@@ -63,6 +63,7 @@ let defaultAppState = {
 
 export default function App() {
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
+  let [savedCaptureConfig, setSavedCaptureConfig] = useState(defaultCaptureConfig);
   let [viewConfig, setViewConfig] = useState(defaultViewConfig);
   let [captureData, setCaptureData] = useState(defaultCaptureData);
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
@@ -93,8 +94,19 @@ export default function App() {
       <div className="topbar">
         <div className='leftMenu'>
         <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
-        <Capture captureConfig={captureConfig} setCaptureConfig={captureConfig} captureState={captureState} setCaptureState={setCaptureState}  USBDevice={USBDevice} setCaptureData={setCaptureData} setCaptureConfig={setCaptureConfig}/>
+       
+        <Capture 
+          captureConfig={captureConfig} 
+          setCaptureConfig={captureConfig}
+          setSavedCaptureConfig={setSavedCaptureConfig}
+          captureState={captureState} 
+          setCaptureState={setCaptureState}  
+          USBDevice={USBDevice} 
+          setCaptureData={setCaptureData}
+          />
+        
         <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+        
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
         </div>
         <div className='rightMenu'>
@@ -104,7 +116,12 @@ export default function App() {
 
       </div>
       <div className="main">
-        <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>
+        <CanvasPlot 
+          data={captureData} 
+          viewConfig={viewConfig} 
+          cursorConfig={cursorConfig} 
+          captureConfig={savedCaptureConfig}
+        />
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 

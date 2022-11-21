@@ -1,9 +1,13 @@
 import React, {useEffect, useState} from 'react';
 
-export default function Capture({captureConfig, setCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
+export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
 const [complete, setComplete] = useState(true);
 
 async function readSingle() {
+
+        // Set the current captureConfig as savedCaptureConfig
+        setSavedCaptureConfig(captureConfig);
+
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(captureConfig);    
         await USBDevice.transferOut(3, captureConfigMessage);
