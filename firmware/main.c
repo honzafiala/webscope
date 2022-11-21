@@ -212,11 +212,11 @@ int main(void)
     uint xfer_count_since_trigger = 0;
     uint prev_xfer_count = 0;
     uint32_t xfer_count_since_start = 0;
+    uint prev_xfer_count_since_start = 0;
     uint trigger_index;
 
     typedef enum {OK, ABORTED} capture_result_t;
     capture_result_t capture_result;
-    /*
     while (1) {
         // Check if abort message was received
         if (usb_data_ready()) {
@@ -261,24 +261,6 @@ int main(void)
         prev_xfer_count = xfer_count;
         prev_xfer_count_since_start = xfer_count_since_start;
     }
-    */
-
-   printf("---\n");
-    while (1) {
-        uint xfer_count = capture_config.capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
-        printf("xfer count: %d\n", xfer_count);
-        if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
-        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
-        printf("xfer count since start: %d\n", xfer_count_since_start);
-        if (xfer_count_since_start >= capture_config.capture_buffer_len) {
-            adc_run(false);
-            printf("Stopping at %d\n", xfer_count_since_start);
-            trigger_index = 0;
-            break;
-        }
-        prev_xfer_count = xfer_count;
-    }
-   printf("---\n");
 
 
     // Atomically abort both channels.

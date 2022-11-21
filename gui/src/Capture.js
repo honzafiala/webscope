@@ -35,8 +35,8 @@ async function readSingle() {
 
         trigIndex -= trigIndex % captureConfig.numActiveChannels;
         
-        let rawShiftedData = rawData;
-        //let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
+        //let rawShiftedData = rawData;
+        let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
 
         let parsedData = [[],[],[]];
         let i = 0;
