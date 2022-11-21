@@ -45,11 +45,10 @@ let defaultViewConfig = {
 }
 
 let defaultCursorConfig = {
-  cursorX: {
     visible: false,
     start: 0,
-    end: defaultCaptureConfig.captureDepth
-  }
+    end: defaultCaptureConfig.captureDepth,
+    channel: 0
 }
 
 let defaultCaptureState = {
@@ -89,7 +88,7 @@ export default function App() {
 
   return (
     <div className='root'>
-      {cursorConfig.cursorX.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
+      {cursorConfig.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
     <div className="app">
       <div className="topbar">
         <div className='leftMenu'>
@@ -106,7 +105,7 @@ export default function App() {
       </div>
       <div className="main">
         <CanvasPlot data={captureData} viewConfig={viewConfig} cursorConfig={cursorConfig} captureConfig={captureConfig}/>
-        {cursorConfig.cursorX.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
+        {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
         <div className='side'>

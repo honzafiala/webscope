@@ -35,12 +35,12 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
 
-    if (cursorConfig.cursorX.visible) {
+    if (cursorConfig.visible) {
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(getCursorPos(cursorConfig.cursorX.start), 0);
-    ctx.lineTo(getCursorPos(cursorConfig.cursorX.start), canvas.height);
+    ctx.moveTo(getCursorPos(cursorConfig.start), 0);
+    ctx.lineTo(getCursorPos(cursorConfig.start), canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
     
@@ -48,8 +48,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(getCursorPos(cursorConfig.cursorX.end), 0);
-    ctx.lineTo(getCursorPos(cursorConfig.cursorX.end), canvas.height);
+    ctx.moveTo(getCursorPos(cursorConfig.end), 0);
+    ctx.lineTo(getCursorPos(cursorConfig.end), canvas.height);
     ctx.strokeStyle = 'magenta';
     ctx.stroke();
 
