@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/https%3E//honzafiala.github.io/webscope-fw/static/css/main.3ed08f03.css",
-    "main.js": "/https%3E//honzafiala.github.io/webscope-fw/static/js/main.9743d386.js",
-    "static/js/787.ad33413d.chunk.js": "/https%3E//honzafiala.github.io/webscope-fw/static/js/787.ad33413d.chunk.js",
-    "index.html": "/https%3E//honzafiala.github.io/webscope-fw/index.html",
-    "main.3ed08f03.css.map": "/https%3E//honzafiala.github.io/webscope-fw/static/css/main.3ed08f03.css.map",
-    "main.9743d386.js.map": "/https%3E//honzafiala.github.io/webscope-fw/static/js/main.9743d386.js.map",
-    "787.ad33413d.chunk.js.map": "/https%3E//honzafiala.github.io/webscope-fw/static/js/787.ad33413d.chunk.js.map"
+    "main.css": "/webscope-fw/static/css/main.3ed08f03.css",
+    "main.js": "/webscope-fw/static/js/main.da3bb0b8.js",
+    "static/js/787.ad33413d.chunk.js": "/webscope-fw/static/js/787.ad33413d.chunk.js",
+    "index.html": "/webscope-fw/index.html",
+    "main.3ed08f03.css.map": "/webscope-fw/static/css/main.3ed08f03.css.map",
+    "main.da3bb0b8.js.map": "/webscope-fw/static/js/main.da3bb0b8.js.map",
+    "787.ad33413d.chunk.js.map": "/webscope-fw/static/js/787.ad33413d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3ed08f03.css",
-    "static/js/main.9743d386.js"
+    "static/js/main.da3bb0b8.js"
   ]
 }
