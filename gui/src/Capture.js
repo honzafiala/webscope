@@ -26,6 +26,7 @@ async function readSingle() {
         console.log('Capture status', captureStatus);
         if (captureStatus != 0) {
           console.log("Capture was aborted!");
+          setComplete(true);
           return;
         }
     
