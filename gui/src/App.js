@@ -76,6 +76,10 @@ export default function App() {
     await device.claimInterface(2);
     setUSBDevice(device);
 
+    navigator.usb.addEventListener('disconnect', event => {
+      setUSBDevice(null);
+    });
+
     // "Dummy" IN transfer
     let result = await device.transferIn(3, 4);
 
@@ -91,7 +95,7 @@ export default function App() {
       <div className="topbar">
         <div className='leftMenu'>
         <button onClick={connectDevice}
-        style={USBDevice != null ? {backgroundColor: "#1fa924", color: 'lightgray', boxShadow: "0px 0px 5px #1fa924"} : {}}>
+        style={USBDevice != null ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}>
           {USBDevice == null ? "Connect device" : "Connected"}
           </button>
        
@@ -120,7 +124,8 @@ export default function App() {
           data={captureData} 
           viewConfig={viewConfig} 
           cursorConfig={cursorConfig} 
-          captureConfig={savedCaptureConfig}
+          savedCaptureConfig={savedCaptureConfig}
+          captureConfig={captureConfig}
         />
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}

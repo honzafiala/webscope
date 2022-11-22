@@ -1,6 +1,7 @@
 {
   "name": "webusb-test",
   "version": "0.1.0",
+  "homepage": "https://honzafiala.github.io/webscope-fw",
   "private": true,
   "dependencies": {
     "@babel/runtime": "^7.20.1",
@@ -16,6 +17,8 @@
     "webgl-plot": "^0.7.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -38,5 +41,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^4.0.0"
   }
 }

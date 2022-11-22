@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import getNumActiveChannels from './Utils';
 
-const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
+const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig}) => {
   
   const canvasRef = useRef(null)
   const draw = (ctx, canvas, frameCount) => {
@@ -25,15 +25,15 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
 
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
-    ctx.moveTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), 0);
-    ctx.lineTo(getCursorPos(captureConfig.preTrigger * captureConfig.captureDepth), canvas.height);
+    ctx.moveTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), 0);
+    ctx.lineTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), canvas.height);
     ctx.strokeStyle = 'cyan';
     ctx.stroke();
 
     // Draw vertical cursor 1
     function getCursorPos(pos) {
-      let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
-      let zoomEnd = viewConfig.horizontal.viewCenter + captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+      let zoomStart = viewConfig.horizontal.viewCenter - savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+      let zoomEnd = viewConfig.horizontal.viewCenter + savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
 
@@ -74,11 +74,11 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
         ctx.font = "15px Arial";
         ctx.fillStyle = "gray";
 
-        let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+        let zoomStart = viewConfig.horizontal.viewCenter - savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
         
 
-        let divMs = 100 * captureConfig.captureDepth / captureConfig.sampleRate * getNumActiveChannels(captureConfig) / viewConfig.horizontal.zoom;
-        let zoomStartMs = 1000 * (zoomStart - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * getNumActiveChannels(captureConfig);
+        let divMs = 100 * savedCaptureConfig.captureDepth / savedCaptureConfig.sampleRate * getNumActiveChannels(savedCaptureConfig) / viewConfig.horizontal.zoom;
+        let zoomStartMs = 1000 * (zoomStart - savedCaptureConfig.captureDepth * savedCaptureConfig.preTrigger) / savedCaptureConfig.sampleRate * getNumActiveChannels(savedCaptureConfig);
         ctx.fillText(String(zoomStartMs + i * divMs) + " ms", canvas.width / 10 * i + 5, 15);
       }
 
@@ -102,20 +102,20 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     }
 
     // Calculate zoom
-    let zoomStart = viewConfig.horizontal.viewCenter - captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
-    let zoomEnd = viewConfig.horizontal.viewCenter + captureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+    let zoomStart = viewConfig.horizontal.viewCenter - savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
+    let zoomEnd = viewConfig.horizontal.viewCenter + savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
 
 
    // Draw channels
     ctx.lineWidth = 2.5;
-    for (let channelIndex = 0; channelIndex < captureConfig.activeChannels.length; channelIndex++) {
-      if (!captureConfig.activeChannels[channelIndex]) continue;
+    for (let channelIndex = 0; channelIndex < savedCaptureConfig.activeChannels.length; channelIndex++) {
+      if (!savedCaptureConfig.activeChannels[channelIndex]) continue;
       ctx.beginPath();
       for (let i = 1; i < canvas.width; i++) { 
         let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
         ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
       }
-      ctx.strokeStyle = captureConfig.channelColors[channelIndex];
+      ctx.strokeStyle = savedCaptureConfig.channelColors[channelIndex];
       ctx.stroke();
     }
   };
@@ -136,7 +136,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, cursorConfig}) => {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [data, viewConfig, captureConfig, cursorConfig]);
+  }, [data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig]);
 
 
   return <canvas className="plot" ref={canvasRef}/>;

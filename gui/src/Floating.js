@@ -36,33 +36,33 @@ export default function Floating({captureConfig, captureData, cursorConfig}) {
   <table>
     <tbody>
   <tr>
-    <td><b>t1</b></td>
+    <td><i><b>t<sub>1</sub></b></i></td>
     <td>{t1} ms</td>
   </tr>
   <tr>
-  <td><b>t2</b></td>
+  <td><i><b>t<sub>2</sub></b></i></td>
     <td>{t2} ms</td>
   </tr>
   <tr>
-  <td><b>Δt</b></td>
+  <td><i><b>Δ<sub>t</sub></b></i></td>
     <td>{deltaT} ms</td>
   </tr>
   <tr>
-    <td><b>V1</b></td>
+    <td><i><b>V<sub>1</sub></b></i></td>
     <td>{v1} V</td>
   </tr>
   <tr>
-  <td><b>V2</b></td>
+  <td><i><b>V<sub>2</sub></b></i></td>
     <td>{v2} V</td>
   </tr>
 
   <tr>
-  <td><b>Δv</b></td>
+  <td><i><b>Δ<sub>V</sub></b></i></td>
     <td>{deltaV} V</td>
   </tr>
 
   <tr>
-  <td><b>f</b></td>
+  <td><b><i>f</i></b></td>
     <td>{f} Hz</td>
   </tr>
   </tbody>

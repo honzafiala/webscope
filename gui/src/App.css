@@ -49,11 +49,11 @@ body {
 }
 
 
-.topbar > button:hover, .topbar > div > button:hover {
+.topbar  button:hover {
   background-color: #C6C6C6;
 }
 
-.topbar > button:active, .topbar > div > button:active {
+.topbar button:active {
   background-color: #FFFFFF;
 }
 
