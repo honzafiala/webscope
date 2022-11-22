@@ -85,10 +85,10 @@ void analog_dma_configure(const uint main_chan, const uint ctrl_chan, capture_co
 
 void adc_configure(capture_config_t capture_config) {
    // Configure ADC
+
     adc_gpio_init(26 + CAPTURE_CHANNEL);
     adc_gpio_init(26 + CAPTURE_CHANNEL + 1);
     adc_gpio_init(26 + CAPTURE_CHANNEL + 2);
-    adc_select_input(CAPTURE_CHANNEL);
     adc_init();
 
     uint8_t active_channels_byte = 0;

@@ -49,20 +49,28 @@ async function readSingle() {
 
         let parsedData = [[],[],[]];
         let i = 0;
-        while (i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig)) {
-          if (savedCaptureConfig.activeChannels[0]) {
-            parsedData[0].push(rawShiftedData[i]);
-            i++;
+
+        // This solves the issue with channel order being swapped in the capture buffer when activeChannels = [0, 1, 1]
+        if (!savedCaptureConfig.activeChannels[0] && savedCaptureConfig.activeChannels[1] && savedCaptureConfig.activeChannels[2])
+          while (i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig)) {
+            parsedData[2].push(rawShiftedData[i++]);
+            parsedData[1].push(rawShiftedData[i++]);
           }
-          if (savedCaptureConfig.activeChannels[1]) {
-            parsedData[1].push(rawShiftedData[i]);
-            i++;
+        else 
+          while (i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig)) {
+            if (savedCaptureConfig.activeChannels[0]) {
+              parsedData[0].push(rawShiftedData[i]);
+              i++;
+            }
+            if (savedCaptureConfig.activeChannels[1]) {
+              parsedData[1].push(rawShiftedData[i]);
+              i++;
+            }
+            if (savedCaptureConfig.activeChannels[2]) {
+              parsedData[2].push(rawShiftedData[i]);
+              i++;
+            }
           }
-          if (savedCaptureConfig.activeChannels[2]) {
-            parsedData[2].push(rawShiftedData[i]);
-            i++;
-          }
-        }
 
         console.log(parsedData);
         setCaptureData(parsedData);
