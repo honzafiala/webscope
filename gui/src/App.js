@@ -90,7 +90,10 @@ export default function App() {
     <div className="app">
       <div className="topbar">
         <div className='leftMenu'>
-        <button onClick={connectDevice}><span role="img" aria-label="dog">{USBDevice == null ? "❌ Connect device" : "✅ Connected"} </span></button>
+        <button onClick={connectDevice}
+        style={USBDevice != null ? {backgroundColor: "#1fa924", color: 'lightgray', boxShadow: "0px 0px 5px #1fa924"} : {}}>
+          {USBDevice == null ? "Connect device" : "Connected"}
+          </button>
        
         <Capture 
           captureConfig={captureConfig} 
@@ -107,7 +110,7 @@ export default function App() {
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
         </div>
         <div className='rightMenu'>
-        <button onClick={() => setAppState({...appState, menu : !appState.menu})}><b>{appState.menu ? "> > >" : "< < <"}</b></button>
+        <button onClick={() => setAppState({...appState, menu : !appState.menu})}>{appState.menu ? "> > >" : "< < <"}</button>
 
         </div>
 

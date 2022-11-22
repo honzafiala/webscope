@@ -114,6 +114,11 @@ function abortCapture() {
       setComplete(false);
       readSingle();
     }
+    else if (complete && captureState == "Single") {
+      setComplete(false);
+      readSingle().then(setCaptureState("Stopped"));
+      
+    }
   }, [complete, captureState]);
 
 function toggleCaptureMode() {
@@ -132,9 +137,23 @@ async function pollUSB(len) {
 
     return (
         <div>
-        <button onClick={() => setCaptureState("Run")} disabled={USBDevice == null}>Run</button>
-        <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
-        <button onClick={abortCapture}>Stop</button>
+        <button 
+          onClick={() => setCaptureState("Run")} 
+          disabled={USBDevice == null}
+          style={captureState == "Run" ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}
+        >
+        {captureState == "Run" ? "Running" : "Run"}</button>
+
+
+        <button onClick={() => setCaptureState("Single")} disabled={USBDevice == null}
+        style={captureState == "Single" ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}
+        >Single</button>
+        
+        <button 
+          onClick={abortCapture} 
+          style={captureState == "Stopped" ? {backgroundColor: "#e10f00", color: 'lightgray', boxShadow: "0px 0px 5px #e10f00"} : {}}
+        >{captureState == "Stopped" ? "Stopped" : "Stop"}</button>
+
         <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>
       </div>
     );
