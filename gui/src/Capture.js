@@ -98,11 +98,11 @@ function abortCapture() {
     let abortMessage = new Uint8Array([0]);
     USBDevice.transferOut(3, abortMessage);
 
-    setCaptureState({...captureState, running: false});
+    setCaptureState("Stopped");
   }
 
   useEffect(() => {
-    if (complete && captureState.running) {
+    if (complete && captureState == "Run") {
       setComplete(false);
       readSingle();
     }
@@ -124,7 +124,7 @@ async function pollUSB(len) {
 
     return (
         <div>
-        <button onClick={() => setCaptureState({...captureState, running: true})} disabled={USBDevice == null}>Run</button>
+        <button onClick={() => setCaptureState("Run")} disabled={USBDevice == null}>Run</button>
         <button onClick={readSingle} disabled={USBDevice == null}>Single</button>
         <button onClick={abortCapture}>Stop</button>
         <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>

@@ -50,10 +50,8 @@ let defaultCursorConfig = {
     channel: 0
 }
 
-let defaultCaptureState = {
-  running: false,
-  continuous: false
-}
+
+let defaultCaptureState = "Stopped";
 
 let defaultAppState = {
   menu: false
