@@ -136,7 +136,7 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config.num_active_channels = 0;
     uint8_t active_channels_byte = config_bytes[2];
     for (int i = 0; i < 3; i++) {
-        if ((active_channels_byte >> i) && 1) {
+        if ((active_channels_byte >> i) & 1) {
             capture_config.active_channels[i] = true;
             capture_config.num_active_channels++;
         }
