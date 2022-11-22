@@ -136,7 +136,7 @@ export default function App() {
             <div>Save</div>
             <div>View</div>
             <hr/>
-            <div>User manual</div>
+            <div><a href="./manual.html" target="_blank">User manual</a></div>
             <div>Firmware</div>
             <div>Demo capture</div>
             <hr/>

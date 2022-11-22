@@ -145,14 +145,14 @@ async function pollUSB(len) {
     return (
         <div>
         <button 
-          onClick={() => setCaptureState("Run")} 
+          onClick={() => {setCaptureState("Run"); setCaptureData([[], [], []])}} 
           disabled={USBDevice == null}
           style={captureState == "Run" ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}
         >
         {captureState == "Run" ? "Running" : "Run"}</button>
 
 
-        <button onClick={() => setCaptureState("Single")} disabled={USBDevice == null}
+        <button onClick={() => {setCaptureState("Single"); setCaptureData([[], [], []])}} disabled={USBDevice == null}
         style={captureState == "Single" ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}
         >Single</button>
         
