@@ -6,13 +6,13 @@ const [complete, setComplete] = useState(true);
 
 async function readSingle() {
         // Set the current captureConfig as savedCaptureConfig
-        let savedCaptureConfig = captureConfig;
+        // A deep copy needs to be created
+        let savedCaptureConfig = JSON.parse(JSON.stringify(captureConfig));
         setSavedCaptureConfig(savedCaptureConfig);
-        console.log('Requesting capture:', savedCaptureConfig);
+        console.log('Requesting capture:', JSON.stringify(savedCaptureConfig));
 
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(savedCaptureConfig);    
-        console.log("Parsed config:", captureConfigMessage);
         await USBDevice.transferOut(3, captureConfigMessage);
     
         let result;
@@ -32,6 +32,7 @@ async function readSingle() {
         let trigIndex = result.data.getUint32(0, true);
         console.log('trigger:', trigIndex); 
         
+        console.log('requesting bytes', savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig));
         result = await USBDevice.transferIn(3, savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig));
         console.log('reply:', result);
 
@@ -69,14 +70,10 @@ async function readSingle() {
 }
 
 function captureConfigToByteArray(cfg) {
-  console.log("cfg:", cfg);
-  console.log("Active channels:", cfg.activeChannels);
   let activeChannelsByte = 0;
     for (let i = 0; i < cfg.activeChannels.length; i++) {
         if (cfg.activeChannels[i]) activeChannelsByte += 1 << i;
-        console.log("channel", i, cfg.activeChannels[i]);
     }
-    console.log("active channels byte", activeChannelsByte);
     let captureDepth_kb = cfg.captureDepth / 1000;
 
     let pretriggerByte = cfg.preTrigger * 10;
