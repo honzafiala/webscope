@@ -77,7 +77,9 @@ async function readSingle() {
         setCaptureData(parsedData);
     
         setComplete(true);
+        if (result)
         return true;
+        else return false;
 }
 
 function captureConfigToByteArray(cfg) {
@@ -111,15 +113,19 @@ function abortCapture() {
   }
 
   useEffect(() => {
+    const capture = async () => {
     if (complete && captureState == "Run") {
       setComplete(false);
       readSingle();
     }
     else if (complete && captureState == "Single") {
       setComplete(false);
-      readSingle().then(setCaptureState("Stopped"));
-      
+      await readSingle();
+      console.log("Stop.");
+      setCaptureState("Stopped");
     }
+  }
+  capture();
   }, [complete, captureState]);
 
 function toggleCaptureMode() {
