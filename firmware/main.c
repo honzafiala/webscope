@@ -40,7 +40,7 @@ typedef struct {
     uint trigger_threshold;
     uint pretrigger;
     uint capture_buffer_len;
-    uint trigger_channel;
+    bool trigger_channels[3];
 } capture_config_t;
 
 void debug_gpio_init() {
@@ -154,12 +154,45 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[4] / 10;
 
+    for (int i = 0; i < 3; i++) {
+        if (((config_bytes[7] >> i) & 1) && capture_config.active_channels[i]) {
+            capture_config.trigger_channels[i] = true;
+        }
+        else capture_config.trigger_channels[i] = false;
+    }
+
     return capture_config;
 }
 
+bool is_trigger_index(const capture_config_t capture_config, uint index) {
+    uint channel_pos[3]; // The position of each channel in the capture buffer
+    if (capture_config.num_active_channels == 1) {
+        return true;
+    } else if (capture_config.num_active_channels == 2) {
+        if (capture_config.active_channels[0]) {
+            channel_pos[0] = 0;
+            channel_pos[1] = 1;
+            channel_pos[2] = 1;
+        } else {
+            channel_pos[0] = 2;
+            channel_pos[1] = 1;
+            channel_pos[2] = 0;
+        }
+    } else {
+            channel_pos[0] = 0;
+            channel_pos[1] = 1;
+            channel_pos[2] = 2;
+    }
+
+    index %= capture_config.num_active_channels;
+    for (int i = 0; i < 3; i++) {
+        if (capture_config.trigger_channels[i] && index == channel_pos[i]) return true;
+    }
+    return false;
+}
 
 int main(void)
- {
+  {
     multicore_launch_core1(core1_task);
 
     pwm_configure();
@@ -168,7 +201,7 @@ int main(void)
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
-    uint8_t rec_buf[6] = {0};
+    uint8_t rec_buf[100] = {0};
 
 
 
@@ -176,7 +209,7 @@ int main(void)
     while (1) {
     
     while (1) {
-        uint ret = usb_rec(rec_buf, 7);
+        uint ret = usb_rec(rec_buf, 8);
         if (rec_buf[0] == 1) break;
         else {
             // Abort message was sent - wait for another config message
@@ -185,13 +218,21 @@ int main(void)
     }
     
 
-    capture_config_t capture_config = parse_capture_config(rec_buf);
+    const capture_config_t capture_config = parse_capture_config(rec_buf);
 
     uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
     printf("\n");
     printf("Capture depth: %d\n", capture_config.capture_depth);
     printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
+
+    printf("Trigger channels: %d %d %d\n", capture_config.trigger_channels[0], capture_config.trigger_channels[1], capture_config.trigger_channels[2]);
+
+    printf("is_trigger_index: ");
+    for (int i = 0; i < 10; i++) {
+        printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
+    }
+    printf("\n");
 
     adc_configure(capture_config);
 
@@ -233,16 +274,22 @@ int main(void)
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
         else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
 
-        if (!triggered && xfer_count_since_start >= capture_config.pretrigger) {
-            for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i++) {
-                if ( capture_buf[i % capture_config.capture_buffer_len] == capture_config.trigger_threshold &&
-                    capture_buf[(i - 10) % capture_config.capture_buffer_len] < capture_config.trigger_threshold &&
-                    (i % 3) == 0 &&
-                    i >= capture_config.pretrigger
-                    ) {
+        if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 5) {
+            for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i ++) {
+                uint cur_val =  capture_buf[i % capture_config.capture_buffer_len];
+                uint prev_val = capture_buf[(i - capture_config.num_active_channels * 5) % capture_config.capture_buffer_len ];
+
+                if (!is_trigger_index(capture_config, i)) continue;
+
+                if (cur_val >= capture_config.trigger_threshold && prev_val <= capture_config.trigger_threshold
+                && i >= capture_config.pretrigger) {
                     trigger_index = i - capture_config.pretrigger;
                     printf("Found trigger at %d, %d since start\n", i, xfer_count_since_start);
                     triggered = true;
+
+
+                    printf("val[%d]: %d\n", i % capture_config.capture_buffer_len, prev_val);
+                    printf("val[%d]: %d\n", i % capture_config.capture_buffer_len - capture_config.num_active_channels * 5, cur_val);
                     break;
                 }
             }

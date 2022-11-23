@@ -94,6 +94,12 @@ function captureConfigToByteArray(cfg) {
     let captureModeByte = cfg.captureMode == "Auto" ? 1 : 0;
 
     let sampleRateByte = cfg.sampleRate / 1000;
+
+    let triggerChannelsByte = 0;
+    for (let i = 0; i < cfg.trigger.channels.length; i++) {
+        if (cfg.trigger.channels[i]) triggerChannelsByte += 1 << i;
+    }
+
     return new Uint8Array([
         1, 
         cfg.trigger.threshold, 
@@ -101,7 +107,8 @@ function captureConfigToByteArray(cfg) {
         captureDepth_kb, 
         pretriggerByte, 
         captureModeByte, 
-        sampleRateByte
+        sampleRateByte,
+        triggerChannelsByte
     ]);
 }
 

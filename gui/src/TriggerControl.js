@@ -20,6 +20,11 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
     
   }
  
+  function toggleTriggerChannel(channel) {
+    let newChannels = captureConfig.trigger.channels;
+    newChannels[channel] = !newChannels[channel];
+    setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, channels: newChannels}});
+  }
 
   return (
     <div className="ChannelControl">
@@ -32,13 +37,14 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
 
         <div className='data'>
-            <div className='name'>Channel</div>
+            <div className='name'>Channels</div>
             </div>
 
         <div className='buttons'>
 
-<button className='buttonLeft' style={{backgroundColor: captureConfig.channelColors[0]}} onClick={() => console.log("1")}>1</button>
-<button className='buttonMiddle' onClick={() => console.log("2")}>2</button>
+        <button onClick={() => toggleTriggerChannel(0)} style={{backgroundColor: captureConfig.trigger.channels[0] ? captureConfig.channelColors[0] : ""}}>1</button>
+        <button onClick={() => toggleTriggerChannel(1)} style={{backgroundColor: captureConfig.trigger.channels[1] ? captureConfig.channelColors[1] : ""}}>2</button>
+        <button onClick={() => toggleTriggerChannel(2)} style={{backgroundColor: captureConfig.trigger.channels[2] ? captureConfig.channelColors[2] : ""}}>3</button>
 </div>
 
 
