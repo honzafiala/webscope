@@ -10,6 +10,7 @@ import CaptureControl from './SamplingControl';
 import Capture from './Capture';
 import MultiRangeSlider from './MultiRangeSlider';
 import CaptureSave from './CaptureSave';
+import SideMenu from './SideMenu';
 
 let defaultCaptureConfig = {
   activeChannels: [true, false, false],
@@ -83,6 +84,10 @@ export default function App() {
     // "Dummy" IN transfer
     let result = await device.transferIn(3, 4);
 
+    // Out transfer - abort capture
+    let abortMessage = new Uint8Array([0]);
+    device.transferOut(3, abortMessage);
+
   }
 
 
@@ -132,22 +137,7 @@ export default function App() {
 
         <div className='side'>
           {appState.menu ?  
-          <div style={{backgroundColor: "#D9D9D9",  margin: "5px", padding: "5px", borderRadius: "10px"}}>
-            <div>Save</div>
-            <div>View</div>
-            <hr/>
-            <div><a href="./manual.html" target="_blank">User manual</a></div>
-            <div>Firmware</div>
-            <div>Demo capture</div>
-            <hr/>
-            <div>WebScope</div>
-            <div>Version 1.0</div>
-            <hr/>
-            <div>Czech Technical University in Prague</div>
-            <div>Department of Measurement</div>
-            <img src="./cvut_logo.png" width="100%"></img>
-            <CaptureSave captureData={captureData} captureConfig={captureConfig}/>
-          </div>
+          <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
           <div>
             <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
