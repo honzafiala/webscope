@@ -30,7 +30,7 @@ volatile uint8_t capture_buf[200000] = {0};
 
 
 
-
+typedef enum {EDGE_UP, EDGE_DOWN, EDGE_BOTH} trigger_edge_t;
 typedef struct {
     bool active_channels[3];
     uint num_active_channels;
@@ -41,6 +41,7 @@ typedef struct {
     uint pretrigger;
     uint capture_buffer_len;
     bool trigger_channels[3];
+    trigger_edge_t trigger_edge;
 } capture_config_t;
 
 void debug_gpio_init() {
@@ -161,6 +162,8 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
         else capture_config.trigger_channels[i] = false;
     }
 
+    capture_config.trigger_edge = EDGE_DOWN;
+
     return capture_config;
 }
 
@@ -269,11 +272,13 @@ int main(void)
             break;
         }
 
-        // Check trigger
+        // Calculate total xfer count and xfer count since last loop iteration
         uint xfer_count = capture_config.capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
         else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
 
+
+        // Check trigger condition
         if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 50) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i ++) {
                 uint cur_val =  capture_buf[i % capture_config.capture_buffer_len];
@@ -281,24 +286,26 @@ int main(void)
 
                 if (!is_trigger_index(capture_config, i)) continue;
 
-                if (cur_val >= capture_config.trigger_threshold &&
-                    prev_val < capture_config.trigger_threshold &&
+                uint threshold = capture_config.trigger_threshold;
+                trigger_edge_t edge = capture_config.trigger_edge;
+
+                if (((cur_val >= threshold && prev_val < threshold && (edge == EDGE_UP || edge == EDGE_BOTH)) ||
+                    (cur_val <= threshold && prev_val > threshold && (edge == EDGE_DOWN || edge == EDGE_BOTH))) &&
                     i >= capture_config.pretrigger) {
                     trigger_index = i - capture_config.pretrigger;
                     printf("Found trigger at %d, %d since start\n", i, xfer_count_since_start);
                     triggered = true;
-
-
-                    printf("val[%d]: %d\n", i % capture_config.capture_buffer_len, prev_val);
-                    printf("val[%d]: %d\n", i % capture_config.capture_buffer_len - capture_config.num_active_channels * 5, cur_val);
                     break;
                 }
             }
+
+        // Check for timeout (in auto mode)
         } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
             trigger_index = 0;
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
             break;
+        // Check for capture stop
         }  if (triggered && xfer_count_since_start - trigger_index >= capture_config.capture_buffer_len) {
             adc_run(false);
             printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);

@@ -33,7 +33,8 @@
         "stdio_usb.h": "c",
         "usbd_pvt.h": "c",
         "usb_descriptors.h": "c",
-        "usbd.h": "c"
+        "usbd.h": "c",
+        "limits": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }
