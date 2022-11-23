@@ -100,6 +100,11 @@ function captureConfigToByteArray(cfg) {
         if (cfg.trigger.channels[i]) triggerChannelsByte += 1 << i;
     }
 
+    let triggerEdgeByte;
+    if (captureConfig.trigger.edge == "UP") triggerEdgeByte = 0;
+    else if (captureConfig.trigger.edge == "DOWN") triggerEdgeByte = 1;
+    else triggerEdgeByte = 2;
+
     return new Uint8Array([
         1, 
         cfg.trigger.threshold, 
@@ -108,7 +113,8 @@ function captureConfigToByteArray(cfg) {
         pretriggerByte, 
         captureModeByte, 
         sampleRateByte,
-        triggerChannelsByte
+        triggerChannelsByte,
+        triggerEdgeByte
     ]);
 }
 

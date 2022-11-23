@@ -26,6 +26,10 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, channels: newChannels}});
   }
 
+  function setTriggerEdge(edge) {
+    setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, edge: edge}});
+  }
+
   return (
     <div className="ChannelControl">
       <div className="topBar" style={{backgroundColor: "cyan"}}>
@@ -54,9 +58,11 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
         <div className='buttons'>
 
-<button className='buttonLeft' onClick={() => console.log("1")}>Up</button>
-<button className='buttonMiddle' onClick={() => console.log("2")}>Down</button>
-<button className='buttonMiddle' onClick={() => console.log("2")}>Both</button>
+        <button  onClick={() => setTriggerEdge("UP")} style={{backgroundColor: captureConfig.trigger.edge == "UP" ? "#ffffff" : ""}}>Up</button>
+        <button  onClick={() => setTriggerEdge("DOWN")} style={{backgroundColor: captureConfig.trigger.edge == "DOWN" ? "#ffffff" : ""}}>Down</button>
+        <button  onClick={() => setTriggerEdge("BOTH")} style={{backgroundColor: captureConfig.trigger.edge == "BOTH" ? "#ffffff" : ""}}>Both</button>
+
+
 </div>
 
 <div className='data'>

@@ -162,7 +162,9 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
         else capture_config.trigger_channels[i] = false;
     }
 
-    capture_config.trigger_edge = EDGE_DOWN;
+    if (config_bytes[8] == 2) capture_config.trigger_edge = EDGE_BOTH;
+    else if (config_bytes[8] == 1) capture_config.trigger_edge = EDGE_DOWN;
+    else capture_config.trigger_edge = EDGE_UP;
 
     return capture_config;
 }
@@ -212,7 +214,7 @@ int main(void)
     while (1) {
     
     while (1) {
-        uint ret = usb_rec(rec_buf, 8);
+        uint ret = usb_rec(rec_buf, 9);
         if (rec_buf[0] == 1) break;
         else {
             // Abort message was sent - wait for another config message
