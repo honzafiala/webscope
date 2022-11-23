@@ -110,7 +110,7 @@ void adc_configure(capture_config_t capture_config) {
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96);
+    adc_set_clkdiv(96 * 500000 / capture_config.sample_rate);
 }
 
 #define PWM_PIN 2
@@ -149,7 +149,7 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     capture_config.auto_mode = config_bytes[5] ? true : false;
 
-    capture_config.sample_rate = config_bytes[6] * 1000;
+    capture_config.sample_rate = config_bytes[6] * 10000;
 
     capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
 

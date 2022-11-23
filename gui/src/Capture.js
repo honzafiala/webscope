@@ -93,7 +93,7 @@ function captureConfigToByteArray(cfg) {
 
     let captureModeByte = cfg.captureMode == "Auto" ? 1 : 0;
 
-    let sampleRateByte = cfg.sampleRate / 1000;
+    let sampleRateByte = cfg.sampleRate / 10000;
 
     let triggerChannelsByte = 0;
     for (let i = 0; i < cfg.trigger.channels.length; i++) {
@@ -104,6 +104,7 @@ function captureConfigToByteArray(cfg) {
     if (captureConfig.trigger.edge == "UP") triggerEdgeByte = 0;
     else if (captureConfig.trigger.edge == "DOWN") triggerEdgeByte = 1;
     else triggerEdgeByte = 2;
+
 
     return new Uint8Array([
         1, 
