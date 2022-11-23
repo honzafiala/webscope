@@ -274,15 +274,16 @@ int main(void)
         if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
         else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
 
-        if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 5) {
+        if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 50) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i ++) {
                 uint cur_val =  capture_buf[i % capture_config.capture_buffer_len];
-                uint prev_val = capture_buf[(i - capture_config.num_active_channels * 5) % capture_config.capture_buffer_len ];
+                uint prev_val = capture_buf[(i - capture_config.num_active_channels * 50) % capture_config.capture_buffer_len ];
 
                 if (!is_trigger_index(capture_config, i)) continue;
 
-                if (cur_val >= capture_config.trigger_threshold && prev_val <= capture_config.trigger_threshold
-                && i >= capture_config.pretrigger) {
+                if (cur_val >= capture_config.trigger_threshold &&
+                    prev_val < capture_config.trigger_threshold &&
+                    i >= capture_config.pretrigger) {
                     trigger_index = i - capture_config.pretrigger;
                     printf("Found trigger at %d, %d since start\n", i, xfer_count_since_start);
                     triggered = true;
