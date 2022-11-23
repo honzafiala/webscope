@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/webscope-fw/static/css/main.b5e52949.css",
-    "main.js": "/webscope-fw/static/js/main.6d5d91a4.js",
-    "static/js/787.ad33413d.chunk.js": "/webscope-fw/static/js/787.ad33413d.chunk.js",
-    "index.html": "/webscope-fw/index.html",
-    "main.b5e52949.css.map": "/webscope-fw/static/css/main.b5e52949.css.map",
-    "main.6d5d91a4.js.map": "/webscope-fw/static/js/main.6d5d91a4.js.map",
-    "787.ad33413d.chunk.js.map": "/webscope-fw/static/js/787.ad33413d.chunk.js.map"
+    "main.css": "/webscope/static/css/main.b5e52949.css",
+    "main.js": "/webscope/static/js/main.16c2756c.js",
+    "static/js/787.ad33413d.chunk.js": "/webscope/static/js/787.ad33413d.chunk.js",
+    "index.html": "/webscope/index.html",
+    "main.b5e52949.css.map": "/webscope/static/css/main.b5e52949.css.map",
+    "main.16c2756c.js.map": "/webscope/static/js/main.16c2756c.js.map",
+    "787.ad33413d.chunk.js.map": "/webscope/static/js/787.ad33413d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b5e52949.css",
-    "static/js/main.6d5d91a4.js"
+    "static/js/main.16c2756c.js"
   ]
 }
