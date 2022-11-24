@@ -5,6 +5,7 @@ export default function Capture({captureConfig, setCaptureConfig, setSavedCaptur
 const [complete, setComplete] = useState(true);
 
 async function readSingle() {
+  try {
         // Set the current captureConfig as savedCaptureConfig
         // A deep copy needs to be created
         let savedCaptureConfig = JSON.parse(JSON.stringify(captureConfig));
@@ -75,11 +76,14 @@ async function readSingle() {
 
         console.log(parsedData);
         setCaptureData(parsedData);
-    
+
+      } catch (error) {
+        console.log("Capture failed:", error);
+        setCaptureState("Stopped");
+      }
+
         setComplete(true);
-        if (result)
         return true;
-        else return false;
 }
 
 function captureConfigToByteArray(cfg) {

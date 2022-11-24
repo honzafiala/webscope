@@ -79,6 +79,7 @@ export default function App() {
 
     navigator.usb.addEventListener('disconnect', event => {
       setUSBDevice(null);
+      setCaptureState("Stopped");
     });
 
     // "Dummy" IN transfer

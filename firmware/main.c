@@ -306,6 +306,7 @@ int main(void)
             trigger_index = 0;
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
+            capture_result = OK;
             break;
         // Check for capture stop
         }  if (triggered && xfer_count_since_start - trigger_index >= capture_config.capture_buffer_len) {
@@ -328,7 +329,7 @@ int main(void)
     // Send capture status message;
     uint8_t status_msg = capture_result;
     usb_send(&status_msg, 1);
-    printf("Status message sent\n");
+    printf("Status message sent: %d\n", status_msg);
 
     if (capture_result == OK) {
         printf("Sending captured data\n");
