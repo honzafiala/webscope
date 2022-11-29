@@ -1,0 +1,103 @@
+
+<style>
+
+body {font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir,
+    "Nimbus Sans L", Roboto, "Noto Sans", "Segoe UI", Arial, Helvetica,
+    "Helvetica Neue", sans-serif;
+    max-width: 800px;
+}
+
+
+</style>
+<h1>About Webscope</h1>
+<img src="gui_screenshot.png" height="500px"/>
+
+<h2>About</h2>
+<p>Webscope allows you to use your Raspberry Pi Pico as an oscilloscope. Webscope consists of two parts:
+    the firmware, which runs on your Pico and the GUI, which runs in your browser. Since the GUI
+is browser-based, it runs on Windows, Mac and Linux and there is no need to install any software on your computer. </p>
+
+<h3>Technical overview</h3>
+<ul>
+    <li>Three analog channels</li>
+    <li>Maximum 500kS/s total sampling rate</li>
+    <li>8 bit sampling resolution</li>
+    <li>Maximum 200kS total capture depth</li>
+</ul>
+
+<h3>Pinout</h3>
+<p>The maximum voltage on the input pins is 3.3V!</p>
+<ul>
+    <li>Channel 1: Pin 31 (GPIO26)</li>
+    <li>Channel 2: Pin 32 (GPIO27)</li>
+    <li>Channel 3: Pin 34 (GPIO28)</li>
+</ul>
+
+<p>Don't forget to connect ground. The closest GND is on pin 33.</p>
+
+
+<h2>Firmware installation</h2>
+<p>Before using Webscope, it is necessary to flash your Raspberry Pi Pico with the Webscope firmware.
+    If you have not done it yet, here is how you can do it:</p>
+<ol>
+    <li>Download the firmware <a href="./firmware.uf2">here</a>.</li>
+    <li>If your Raspberry Pi Pico is connected to your computer, disconnect it.</li>
+    <li>Press and hold the user button on the Pico.</li>
+    <li>While holding the button down, reconnect the Pico to the computer.</li>
+    <li>Release the button.</li>
+    <li>The Pico should appear on your computer as an USB flash drive.</li>
+    <li>Drag and drop the firmware file onto the Pico (as you would with a standard flash drive).</li>
+    <li>Disconnect and connect the Pico again, this time without pressing the user button.</li>
+</ol>
+
+<h2>For Linux users: Udev rules</h2>
+<p>If you are using Linux, your web browser cannot access USB devices by default. 
+    To change this, you will need to add an udev rule file to your /etc/udev/rules.d/ folder. This only needs to be done one time.
+    Use the following commands to add the rule:
+    <ul>
+        <li><code>cd /etc/udev/rules.d</code></li>
+        <li><code>sudo echo "blablabla" > 99-webscope.udev</code></li>
+    </ul>
+
+    You might need to restart your computer before the new rule takes effect.
+</p>
+
+<h2>Web browser compatibility</h2>
+Webscope relies on the WebUSB API, which is currently only available on the following web browsers:
+<ul>
+    <li>Google Chrome</li>
+    <li>Chromium</li>
+    <li>Microsoft Edge</li>
+</ul>
+The up-to-date list compatible browsers, including compatible versions, can be found <a href="https://caniuse.com/webusb">here</a>.
+
+<h2>The GUI</h2>
+
+
+<h3>Connecting to the Pico</h3>
+<p>To connect the Pico, press the Connect device button on the top bar, 
+    then choose "Webscope Rpi Pico" from the pop-up window and press connect.</p>
+
+<h3>Capture modes</h3>
+<p>Similiar to other digital oscilloscopes, Webscope has two capture modes: <b>Single</b> and <b>continuous</b>.</p>
+<ul>
+    <li>In <b>Single</b> mode, Webscope waits for a trigger condition, captures the signal(s) and stops.
+        This mode can be activated by pressing the <b>Single</b> button on the top bar.
+    </li>
+    <li>In <b>Continuous</b> mode, new signals are captured continuously every time a trigger condition appears.
+        Press the <b>Run</b> button on the top bar to start <b>Continuous</b> mode, then press the <b>Stop</b> button to stop it. 
+    </li>
+</ul>
+
+<h3>Trigger modes</h3>
+<p>Webscope has two trigger modes: <b>Normal</b> and <b>Auto</b></p>
+<ul>
+
+    <li>In <b>Auto</b> trigger mode, when the trigger condition does not appear for a defined amount of time, Webscope triggers
+        the capture by itself. This is the default trigger mode.
+    </li>
+    <li>In <b>Normal</b> trigger mode, Webscope simply waits indefinitely until a trigger condition appears. Use this mode 
+        when you are certain what the signal you want to capture looks like.
+    </li>
+You can toggle between <b>Normal</b> and <b>Auto</b> trigger modes by pressing the <b>Auto/Normal</b> button on the top bar.
+</ul>
