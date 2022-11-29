@@ -110,10 +110,24 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
     ctx.lineWidth = 2.5;
     for (let channelIndex = 0; channelIndex < savedCaptureConfig.activeChannels.length; channelIndex++) {
       if (!savedCaptureConfig.activeChannels[channelIndex]) continue;
+
       ctx.beginPath();
+      if (zoomEnd - zoomStart >= canvas.width) {
       for (let i = 1; i < canvas.width; i++) { 
         let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
         ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
+      }
+      } else {
+        zoomStart -= zoomStart % 1;
+        zoomEnd -= zoomEnd % 1;
+        console.log('plotting', zoomStart  % 1, zoomEnd);
+        for (let i = 0; i < zoomEnd - zoomStart; i++) {
+          let xPos = i * canvas.width / (zoomEnd - zoomStart);
+          let captureIndex = i + zoomStart;
+          let captureVal = data[channelIndex][captureIndex];          
+
+          ctx.lineTo(xPos, uint8ToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
+        }
       }
       ctx.strokeStyle = savedCaptureConfig.channelColors[channelIndex];
       ctx.stroke();
