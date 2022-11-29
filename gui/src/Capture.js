@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import getNumActiveChannels from './Utils';
+import {getNumActiveChannels, formatValue} from './Utils';
 
 export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
 const [complete, setComplete] = useState(true);

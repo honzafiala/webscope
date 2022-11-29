@@ -1,18 +1,15 @@
 import './Floating.css';
-import getNumActiveChannels from './Utils';
+import {getNumActiveChannels, formatValue} from './Utils'
+
 
 export default function Floating({captureConfig, captureData, cursorConfig}) {
-  let t1 = (cursorConfig.start - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * getNumActiveChannels(captureConfig);
-  let t2 = (cursorConfig.end - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * 1000 * getNumActiveChannels(captureConfig);
+  let t1 = (cursorConfig.start - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate *  getNumActiveChannels(captureConfig);
+  let t2 = (cursorConfig.end - captureConfig.captureDepth * captureConfig.preTrigger) / captureConfig.sampleRate * getNumActiveChannels(captureConfig);
 
-  t1 = Math.round(t1 * 100) / 100;
-  t2 = Math.round(t2 * 100) / 100;
 
-  let deltaT = Math.round((t2 - t1) * 100) / 100;
+  let deltaT = t2 - t1;
 
-  let f = 1000/deltaT; 
-  f = Math.round(f * 100) / 100;
-
+  let f = 1/deltaT; 
 
   let v1, v2, deltaV;
 
@@ -20,15 +17,12 @@ export default function Floating({captureConfig, captureData, cursorConfig}) {
   v1 = captureData[cursorConfig.channel][cursorConfig.start] * 3.3 / 255;
   v2 = captureData[cursorConfig.channel][cursorConfig.end] * 3.3 / 255;
 
-  v1 = Math.round(v1 * 100) / 100;
-  v2 = Math.round(v2 * 100) / 100;
-
-  deltaV = Math.round((v2 - v1) * 100) / 100;
+  deltaV = v2 - v1
 
   } else {
-    v1 = "-";
-    v2 = "-";
-    deltaV = '-'
+    v1 = 0;
+    v2 = 0;
+    deltaV = 0;
   }
 
     return(
@@ -37,33 +31,33 @@ export default function Floating({captureConfig, captureData, cursorConfig}) {
     <tbody>
   <tr>
     <td><i><b>t<sub>1</sub></b></i></td>
-    <td>{t1} ms</td>
+    <td>{formatValue(t1)}s</td>
   </tr>
   <tr>
   <td><i><b>t<sub>2</sub></b></i></td>
-    <td>{t2} ms</td>
+    <td>{formatValue(t2)}s</td>
   </tr>
   <tr>
   <td><i><b>Δ<sub>t</sub></b></i></td>
-    <td>{deltaT} ms</td>
+    <td>{formatValue(deltaT)}s</td>
   </tr>
   <tr>
     <td><i><b>V<sub>1</sub></b></i></td>
-    <td>{v1} V</td>
+    <td>{formatValue(v1)}V</td>
   </tr>
   <tr>
   <td><i><b>V<sub>2</sub></b></i></td>
-    <td>{v2} V</td>
+    <td>{formatValue(v2)}V</td>
   </tr>
 
   <tr>
   <td><i><b>Δ<sub>V</sub></b></i></td>
-    <td>{deltaV} V</td>
+    <td>{formatValue(deltaV)}V</td>
   </tr>
 
   <tr>
   <td><b><i>f</i></b></td>
-    <td>{f} Hz</td>
+    <td>{formatValue(f)}Hz</td>
   </tr>
   </tbody>
 

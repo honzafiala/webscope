@@ -1,7 +1,7 @@
 import ValueBox from './ValueBox';
 import React, {useState} from 'react';
 import './ChannelControl.css';
-import getNumActiveChannels from './Utils'
+import {getNumActiveChannels, formatValue} from './Utils'
 
 export default function ChannelControl({color, number, captureConfig, setCaptureConfig, viewConfig, setViewConfig}) {
 

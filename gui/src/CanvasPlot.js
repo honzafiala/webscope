@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react'
-import getNumActiveChannels from './Utils';
+import {getNumActiveChannels, formatValue} from './Utils';
+
 
 const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig}) => {
   
@@ -131,7 +132,28 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       }
       ctx.strokeStyle = savedCaptureConfig.channelColors[channelIndex];
       ctx.stroke();
+
+      if (zoomEnd - zoomStart < 100) {
+      zoomStart -= zoomStart % 1;
+      zoomEnd -= zoomEnd % 1;
+      console.log('plotting', zoomStart  % 1, zoomEnd);
+      for (let i = 0; i < zoomEnd - zoomStart; i++) {
+        let xPos = i * canvas.width / (zoomEnd - zoomStart);
+        let captureIndex = i + zoomStart;
+        let captureVal = data[channelIndex][captureIndex];     
+        
+        ctx.beginPath();
+        ctx.arc(xPos, uint8ToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset),
+         5, 0, 2 * Math.PI);
+        ctx.stroke(); 
+        ctx.fillStyle = savedCaptureConfig.channelColors[channelIndex];
+        ctx.fill();
+
+      }
     }
+    }
+
+
   };
 
   useEffect(() => {
