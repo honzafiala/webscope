@@ -26,7 +26,7 @@ extern uint usb_data_ready();
 #define DEBUG_PIN2 18
 
 
-volatile uint8_t capture_buf[200000] = {0};
+volatile uint16_t capture_buf[100000] = {0};
 
 
 
@@ -56,7 +56,7 @@ void debug_gpio_init() {
 void analog_dma_configure(const uint main_chan, const uint ctrl_chan, capture_config_t capture_config) {
      /* Nastaveni hlavniho DMA kanalu */
     dma_channel_config chan_cfg = dma_channel_get_default_config(main_chan);
-    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_8);
+    channel_config_set_transfer_data_size(&chan_cfg, DMA_SIZE_16);
     channel_config_set_chain_to(&chan_cfg, ctrl_chan);
     channel_config_set_write_increment(&chan_cfg, true);
     channel_config_set_read_increment(&chan_cfg, false);
@@ -106,7 +106,7 @@ void adc_configure(capture_config_t capture_config) {
         true,    // Enable DMA data request (DREQ)
         1,       // DREQ (and IRQ) asserted when at least 1 sample present
         false,   // We won't see the ERR bit because of 8 bit reads; disable.
-        true     // Shift each sample to 8 bits when pushing to FIFO
+        false     // Shift each sample to 8 bits when pushing to FIFO
     );
 
     // Set the ADC sampling
@@ -127,7 +127,6 @@ void pwm_configure() {
     pwm_init(slice_num, &config, true);
     pwm_set_gpio_level(2, 32768); // 32768 out of 65535 = 50% duty cycle
 }
-
 
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config_t capture_config;
@@ -202,14 +201,10 @@ int main(void)
 
     pwm_configure();
 
-
     const uint main_chan = dma_claim_unused_channel(true);
     const uint ctrl_chan = dma_claim_unused_channel(true);
 
     uint8_t rec_buf[100] = {0};
-
-
-
 
     while (1) {
     
@@ -339,9 +334,11 @@ int main(void)
 
         const uint usb_packet_size = 32768; 
 
-        for (int i = 0; i < capture_config.capture_buffer_len; i += usb_packet_size) {
-            printf("sending %d\n", capture_config.capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len - i);
-            usb_send(&capture_buf[i], capture_config.capture_buffer_len - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len - i);
+        uint8_t * capture_buf_bytes = (uint8_t *) capture_buf;
+
+        for (int i = 0; i < capture_config.capture_buffer_len * 2; i += usb_packet_size) {
+            printf("sending %d\n", capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
+            usb_send(&capture_buf_bytes[i], capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
 
         }
     }

@@ -36,13 +36,13 @@ async function readSingle() {
         let trigIndex = result.data.getUint32(0, true);
         console.log('trigger:', trigIndex); 
         
-        console.log('requesting bytes', savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig));
-        result = await USBDevice.transferIn(3, savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig));
+        console.log('requesting bytes', savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig) * 2);
+        result = await USBDevice.transferIn(3, savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig) * 2);
         console.log('reply:', result);
 
         let rawData = [];
-        for (let i = 0; i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig); i++) 
-        rawData.push(result.data.getUint8(i));
+        for (let i = 0; i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig) * 2; i+=2) 
+        rawData.push(result.data.getUint16(i, true) / 16);
 
         trigIndex -= trigIndex % getNumActiveChannels(savedCaptureConfig);
         
