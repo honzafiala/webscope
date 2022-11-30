@@ -113,19 +113,19 @@ void adc_configure(capture_config_t capture_config) {
     adc_set_clkdiv(96 * 500000 / capture_config.sample_rate);
 }
 
-#define PWM_PIN 2
 void pwm_configure() {
+    const int pwm_gpio_pin = 16;
     // Tell GPIO 0 and 1 they are allocated to the PWM
-    gpio_set_function(2, GPIO_FUNC_PWM);
+    gpio_set_function(pwm_gpio_pin, GPIO_FUNC_PWM);
 
     // Find out which PWM slice is connected to GPIO 0 (it's slice 0)
-    uint slice_num = pwm_gpio_to_slice_num(2);
+    uint slice_num = pwm_gpio_to_slice_num(pwm_gpio_pin);
 
 
     pwm_config config = pwm_get_default_config();
-    pwm_config_set_clkdiv(&config, 100.f);
+    pwm_config_set_clkdiv(&config, 2.f);
     pwm_init(slice_num, &config, true);
-    pwm_set_gpio_level(2, 32768); // 32768 out of 65535 = 50% duty cycle
+    pwm_set_gpio_level(pwm_gpio_pin, 32768); // 32768 out of 65535 = 50% duty cycle
 }
 
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
