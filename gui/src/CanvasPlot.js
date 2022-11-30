@@ -80,7 +80,11 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
 
         let divMs = 100 * savedCaptureConfig.captureDepth / savedCaptureConfig.sampleRate * getNumActiveChannels(savedCaptureConfig) / viewConfig.horizontal.zoom;
         let zoomStartMs = 1000 * (zoomStart - savedCaptureConfig.captureDepth * savedCaptureConfig.preTrigger) / savedCaptureConfig.sampleRate * getNumActiveChannels(savedCaptureConfig);
-        ctx.fillText(String(zoomStartMs + i * divMs) + " ms", canvas.width / 10 * i + 5, 15);
+        
+        let time = zoomStartMs + i * divMs;
+        time = Math.round(time * 100) / 100;
+        
+        ctx.fillText(String(time) + " ms", canvas.width / 10 * i + 5, 15);
       }
 
     for (let i = 0.5; i < 3.3; i += 0.5) {
@@ -113,16 +117,18 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       if (!savedCaptureConfig.activeChannels[channelIndex]) continue;
 
       ctx.beginPath();
+      // Zoomed out
       if (zoomEnd - zoomStart >= canvas.width) {
       for (let i = 1; i < canvas.width; i++) { 
         let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
         ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
       }
       } else {
+      // Zoomed in - draw individual lines between sample points
         zoomStart -= zoomStart % 1;
         zoomEnd -= zoomEnd % 1;
         console.log('plotting', zoomStart  % 1, zoomEnd);
-        for (let i = 0; i < zoomEnd - zoomStart; i++) {
+        for (let i = 0; i <= zoomEnd - zoomStart; i++) {
           let xPos = i * canvas.width / (zoomEnd - zoomStart);
           let captureIndex = i + zoomStart;
           let captureVal = data[channelIndex][captureIndex];          
@@ -133,7 +139,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       ctx.strokeStyle = savedCaptureConfig.channelColors[channelIndex];
       ctx.stroke();
 
-      if (zoomEnd - zoomStart < 100) {
+      // Draw circles at sample points when zoomed in 
+      if (zoomEnd - zoomStart < 50) {
       zoomStart -= zoomStart % 1;
       zoomEnd -= zoomEnd % 1;
       console.log('plotting', zoomStart  % 1, zoomEnd);
@@ -144,7 +151,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
         
         ctx.beginPath();
         ctx.arc(xPos, uint8ToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset),
-         5, 0, 2 * Math.PI);
+         3, 0, 2 * Math.PI);
         ctx.stroke(); 
         ctx.fillStyle = savedCaptureConfig.channelColors[channelIndex];
         ctx.fill();
