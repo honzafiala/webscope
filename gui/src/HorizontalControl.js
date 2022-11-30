@@ -5,7 +5,6 @@ import './ChannelControl.css';
 
 export default function HorizontalControl({captureConfig, viewConfig, setViewConfig}) {
 
-  console.log(viewConfig);
 
   function changeZoom(dir) {
     if (dir == '0') {

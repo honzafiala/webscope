@@ -127,7 +127,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       // Zoomed in - draw individual lines between sample points
         zoomStart -= zoomStart % 1;
         zoomEnd -= zoomEnd % 1;
-        console.log('plotting', zoomStart  % 1, zoomEnd);
         for (let i = 0; i <= zoomEnd - zoomStart; i++) {
           let xPos = i * canvas.width / (zoomEnd - zoomStart);
           let captureIndex = i + zoomStart;
@@ -143,7 +142,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       if (zoomEnd - zoomStart < 50) {
       zoomStart -= zoomStart % 1;
       zoomEnd -= zoomEnd % 1;
-      console.log('plotting', zoomStart  % 1, zoomEnd);
       for (let i = 0; i < zoomEnd - zoomStart; i++) {
         let xPos = i * canvas.width / (zoomEnd - zoomStart);
         let captureIndex = i + zoomStart;

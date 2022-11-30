@@ -14,8 +14,10 @@ export default function Floating({captureConfig, captureData, cursorConfig}) {
   let v1, v2, deltaV;
 
   if (captureData[cursorConfig.channel].length) {
-  v1 = captureData[cursorConfig.channel][cursorConfig.start] * 3.3 / 255;
-  v2 = captureData[cursorConfig.channel][cursorConfig.end] * 3.3 / 255;
+
+
+  v1 = captureData[cursorConfig.channel][Math.round(cursorConfig.start)] * 3.3 / 255;
+  v2 = captureData[cursorConfig.channel][Math.round(cursorConfig.end)] * 3.3 / 255;
 
   deltaV = v2 - v1
 
