@@ -6,11 +6,12 @@ import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
 import CursorMeasurementBox from './CursorMeasurementBox';
-import CaptureControl from './CaptureDepthAndSampleRateConfig';
+import CaptureDepthAndSampleRateConfig from './CaptureDepthAndSampleRateConfig';
 import Capture from './Capture';
 import MultiRangeSlider from './MultiRangeSlider';
-import CaptureSave from './CaptureSave';
 import SideMenu from './SideMenu';
+import SplashScreen from './SplashScreen';
+
 
 let defaultCaptureConfig = {
   activeChannels: [true, false, false],
@@ -91,12 +92,10 @@ export default function App() {
 
   }
 
-
-
-
   return (
     <div className='root'>
       {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
+      <SplashScreen/>
     <div className="app">
       <div className="topbar">
         <div className='leftMenu'>
@@ -115,11 +114,13 @@ export default function App() {
           setCaptureData={setCaptureData}
           />
         
-        <CaptureControl 
+        <CaptureDepthAndSampleRateConfig 
           captureConfig={captureConfig} 
           setCaptureConfig={setCaptureConfig} 
           viewConfig={viewConfig} 
           setViewConfig={setViewConfig}
+          setCaptureData={setCaptureData}
+          defaultCaptureData={defaultCaptureData}
         />
         
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
