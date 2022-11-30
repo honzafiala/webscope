@@ -58,8 +58,8 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
         <div className='buttons'>
 
-        <button  onClick={() => setTriggerEdge("UP")} style={{backgroundColor: captureConfig.trigger.edge == "UP" ? "#ffffff" : ""}}>Up</button>
-        <button  onClick={() => setTriggerEdge("DOWN")} style={{backgroundColor: captureConfig.trigger.edge == "DOWN" ? "#ffffff" : ""}}>Down</button>
+        <button  onClick={() => setTriggerEdge("UP")} style={{backgroundColor: captureConfig.trigger.edge == "UP" ? "#ffffff" : ""}}>Rise</button>
+        <button  onClick={() => setTriggerEdge("DOWN")} style={{backgroundColor: captureConfig.trigger.edge == "DOWN" ? "#ffffff" : ""}}>Fall</button>
         <button  onClick={() => setTriggerEdge("BOTH")} style={{backgroundColor: captureConfig.trigger.edge == "BOTH" ? "#ffffff" : ""}}>Both</button>
 
 

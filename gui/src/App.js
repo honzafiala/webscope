@@ -115,7 +115,12 @@ export default function App() {
           setCaptureData={setCaptureData}
           />
         
-        <CaptureControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+        <CaptureControl 
+          captureConfig={captureConfig} 
+          setCaptureConfig={setCaptureConfig} 
+          viewConfig={viewConfig} 
+          setViewConfig={setViewConfig}
+        />
         
         <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
         </div>

@@ -1,17 +1,22 @@
 import './SamplingControl.css';
 
 
-export default function SamplingControl({captureConfig, setCaptureConfig}) {
+export default function SamplingControl({captureConfig, setCaptureConfig, viewConfig, setViewConfig}) {
 
     const sampleRateValues = [500, 250, 100, 50, 20, 10];
     const captureLengthValues = [100, 50, 20, 10, 5, 2, 1];
 
     function changeSampleRate(val) {
         setCaptureConfig({...captureConfig, sampleRate: val.target.value * 1000});
+
     }
 
     function changeCaptureDepth(val) {
         setCaptureConfig({...captureConfig, captureDepth: val.target.value * 1000});
+   
+
+        setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1, viewCenter: val.target.value * 1000 / 2}});
+    
     }
 
 
