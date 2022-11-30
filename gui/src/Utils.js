@@ -18,6 +18,7 @@ function formatValue(time) {
     }
     let beforeDecimal = String(Math.floor(time));
     let afterDecimal = String(Math.round((time % 1) * 1000));
+    while (afterDecimal.length < 3) afterDecimal = '0' + afterDecimal;
     let ret = beforeDecimal;
     if (time % 1) ret += '.' + afterDecimal;
     ret += prefixes[prefixIndex];

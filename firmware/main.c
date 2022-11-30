@@ -131,7 +131,7 @@ void pwm_configure() {
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config_t capture_config;
 
-    capture_config.trigger_threshold = config_bytes[1];
+    capture_config.trigger_threshold = config_bytes[1] * 16;
 
     capture_config.num_active_channels = 0;
     uint8_t active_channels_byte = config_bytes[2];
