@@ -50,6 +50,8 @@ export default function ChannelControl({color, number, captureConfig, setCapture
   }
 
   function toggleActive() {
+    if (captureConfig.activeChannels[channelNumber - 1] && getNumActiveChannels(captureConfig) == 1) return;
+
     let newActiveChannels = captureConfig.activeChannels;
     newActiveChannels[channelNumber - 1] = !newActiveChannels[channelNumber - 1];
     setCaptureConfig({...captureConfig, activeChannels: newActiveChannels});
