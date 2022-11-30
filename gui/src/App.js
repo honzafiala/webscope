@@ -5,8 +5,8 @@ import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
-import Floating from './Floating';
-import CaptureControl from './SamplingControl';
+import CursorMeasurementBox from './CursorMeasurementBox';
+import CaptureControl from './CaptureDepthAndSampleRateConfig';
 import Capture from './Capture';
 import MultiRangeSlider from './MultiRangeSlider';
 import CaptureSave from './CaptureSave';
@@ -96,7 +96,7 @@ export default function App() {
 
   return (
     <div className='root'>
-      {cursorConfig.visible && <Floating captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
+      {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
     <div className="app">
       <div className="topbar">
         <div className='leftMenu'>
