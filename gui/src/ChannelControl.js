@@ -10,24 +10,25 @@ export default function ChannelControl({color, number, captureConfig, setCapture
   function changeZoom(dir) {
       let newVertical = viewConfig.vertical;
       let oldVal = newVertical[channelNumber - 1].zoom;
-
-      if (dir == '0') {
-        newVertical[channelNumber - 1].zoom = 1;
-        setViewConfig({...viewConfig, vertical: newVertical});
-        return;
-      }
-      let d = String(oldVal)[0];
       let newVal = oldVal;
-      if (d == 1)
-        if (dir == '-' ) newVal /= 2;
-        else newVal *= 2;
-      else if (d == 2)
-        if (dir == '-') newVal /= 2;
-        else newVal *= 5/2;
-      else if (d == 5)
-        if (dir == '-') newVal /= 5/2;
-        else newVal *= 2;
-        newVertical[channelNumber - 1].zoom = newVal;
+      if (dir == '0') {
+        newVal = 1;
+      }
+      else if (dir == '+' && oldVal == 0.5) {
+        newVal = 1;
+      } else {
+        let d = String(oldVal)[0];
+        if (d == 1)
+          if (dir == '-' ) newVal /= 2;
+          else newVal *= 2;
+        else if (d == 2)
+          if (dir == '-') newVal /= 2;
+          else newVal *= 5/2;
+        else if (d == 5)
+          if (dir == '-') newVal /= 5/2;
+          else newVal *= 2;
+      }
+      newVertical[channelNumber - 1].zoom = newVal;
       setViewConfig({...viewConfig, vertical: newVertical});
 
   }
