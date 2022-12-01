@@ -1,7 +1,7 @@
 export default function SplashScreen() {
     return (
-        <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1>
+        <div className="absolute z-50 flex items-center justify-center h-screen">
+       <div>Kokos</div>
+      </div>
     );
 }
