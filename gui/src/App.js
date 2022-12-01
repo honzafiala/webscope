@@ -56,7 +56,8 @@ let defaultCursorConfig = {
 let defaultCaptureState = "Stopped";
 
 let defaultAppState = {
-  menu: false
+  menu: false,
+  splashScreen: true
 }
 
 
@@ -95,7 +96,7 @@ export default function App() {
   return (
     <div className='root'>
       {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
-      <SplashScreen/>
+      {appState.splashScreen && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
     <div className="app">
       <div className="topbar">
         <div className='leftMenu'>
