@@ -60,6 +60,44 @@ export default function ChannelControl({color, number, captureConfig, setCapture
     console.log("active channels: ", getNumActiveChannels(captureConfig));
   }
 
+  let channelColors = ['yellow', 'red', 'green'];
+
+  return (
+    <div className="my-2 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
+    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
+        <div className={`flex-1 px-3 py-1 bg-${channelColors[channelNumber - 1]}-300`} >Channel {channelNumber}</div>
+        <div className="       px-3 py-1 hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={() => console.log('klik')}>-</div>
+   
+    </div>
+    <div className='flex px-1 border-x border-slate-30'>
+    <div className="flex-1">Scale</div>
+    <div>{viewConfig.vertical[channelNumber - 1].zoom}&nbsp;x</div>
+    </div>
+    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-0 bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+          onClick={() => changeZoom('-')}>{"-"}</div>
+        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+          onClick={() => changeZoom('0')}>{"0"}</div>
+        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+          onClick={() => changeZoom('+')}>{"+"}</div>
+    </div>
+
+    <div className='flex px-1 border-x border-slate-30'>
+    <div className="flex-1">Offset</div>
+    <div>{viewConfig.vertical[channelNumber - 1].offset}&nbsp;div</div>
+    </div>
+    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+          onClick={() => changeOffset('-')}>{"-"}</div>
+        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+          onClick={() => changeOffset('0')}>{"0"}</div>
+        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+          onClick={() => changeOffset('+')}>{"+"}</div>
+    </div>
+
+</div>
+  );
+
   return (
     <div className="ChannelControl">
       <div className="topBar" style={{backgroundColor: color}}>

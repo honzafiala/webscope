@@ -143,7 +143,7 @@ export default function App() {
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
-        <div className='side'>
+        <div className='side bg-slate-100'>
           {appState.menu ?  
           <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
