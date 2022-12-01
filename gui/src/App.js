@@ -95,7 +95,6 @@ export default function App() {
   return (
     <div className='root'>
       {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
-      <SplashScreen/>
     <div className="app">
       <div className="topbar">
         <div className='leftMenu'>

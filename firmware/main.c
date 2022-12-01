@@ -123,7 +123,7 @@ void pwm_configure() {
 
 
     pwm_config config = pwm_get_default_config();
-    pwm_config_set_clkdiv(&config, 2.f);
+    pwm_config_set_clkdiv_int(&config, 38);
     pwm_init(slice_num, &config, true);
     pwm_set_gpio_level(pwm_gpio_pin, 32768); // 32768 out of 65535 = 50% duty cycle
 }
