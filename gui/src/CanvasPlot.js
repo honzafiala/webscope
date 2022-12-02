@@ -15,19 +15,18 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
 
 
     // Draw trigger level
-    ctx.setLineDash([5, 10]);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
     ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
-    ctx.strokeStyle = '#22d3ee';
-    ctx.lineWidth = 2;
+
     ctx.stroke();
 
-    ctx.setLineDash([5, 10]);
     ctx.beginPath();
     ctx.moveTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), 0);
     ctx.lineTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), canvas.height);
-    ctx.strokeStyle = '#22d3ee';
     ctx.stroke();
 
     // Draw vertical cursor 1
@@ -39,7 +38,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
 
     if (cursorConfig.visible) {
     ctx.lineWidth = 2;
-    ctx.setLineDash([5, 10]);
     ctx.beginPath();
     ctx.moveTo(getCursorPos(cursorConfig.start), 0);
     ctx.lineTo(getCursorPos(cursorConfig.start), canvas.height);
@@ -48,7 +46,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
     
 
     ctx.lineWidth = 2;
-    ctx.setLineDash([5, 10]);
     ctx.beginPath();
     ctx.moveTo(getCursorPos(cursorConfig.end), 0);
     ctx.lineTo(getCursorPos(cursorConfig.end), canvas.height);
@@ -87,7 +84,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
         ctx.fillText(String(time) + " ms", canvas.width / 10 * i + 5, 15);
       }
 
-    for (let i = 0.5; i < 3.3; i += 0.5) {
+    for (let i = 0; i < 3.3; i += 0.5) {
         ctx.beginPath();
         ctx.moveTo(0, canvas.height / 3.3 * (3.3 - i));
         ctx.lineTo(canvas.width, canvas.height / 3.3 * (3.3 - i));

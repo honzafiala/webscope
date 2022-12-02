@@ -65,8 +65,10 @@ export default function ChannelControl({color, number, captureConfig, setCapture
   return (
     <div className="my-2 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-        <div className={`flex-1 px-3 py-1 whitespace-nowrap  bg-${channelColors[channelNumber - 1]}-300`} >Channel {channelNumber}</div>
-        <div className="       px-3 py-1 hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={() => console.log('klik')}>-</div>
+        <div className={`flex-1 px-3 py-1 whitespace-nowrap  bg-${captureConfig.activeChannels[channelNumber - 1] ? channelColors[channelNumber - 1] + "-300": "slate-200"}`} >Channel {channelNumber}</div>
+        <div className="       px-3 py-1 hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={toggleActive}>
+        {captureConfig.activeChannels[channelNumber - 1] ? '-' : '+'}
+        </div>
    
     </div>
     <div className='flex px-1 border-x border-slate-30'>

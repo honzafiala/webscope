@@ -80,7 +80,7 @@ export default function App() {
       {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
       {false && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
     <div className="app">
-      <div className="flex bg-slate-100 border-b border-slate-200 w-screen justify-end">
+      <div className="px-1 flex bg-slate-100 border-b border-slate-200 w-screen justify-end select-none">
 
       <CaptureDepthAndSampleRateConfig 
           captureConfig={captureConfig} 
@@ -114,7 +114,7 @@ export default function App() {
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
-        <div className='side bg-slate-100 px-1 border-l'>
+        <div className='bg-slate-100 px-1 border-l select-none w-[165px]'>
           {appState.menu ?  
           <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
