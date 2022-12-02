@@ -12,23 +12,22 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
     }
 
     // Fill whole canvas with background color
-    ctx.fillStyle = "#272727";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
 
     // Draw trigger level
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
     ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
     ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
-    ctx.strokeStyle = 'cyan';
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     ctx.setLineDash([5, 10]);
     ctx.beginPath();
     ctx.moveTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), 0);
     ctx.lineTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), canvas.height);
-    ctx.strokeStyle = 'cyan';
+    ctx.strokeStyle = '#22d3ee';
     ctx.stroke();
 
     // Draw vertical cursor 1
@@ -64,6 +63,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
 
     // Draw grid
     if (viewConfig.grid) {
+    ctx.setLineDash([3, 6]);
     ctx.lineWidth = 0.3;
     for (let i = 1; i < 10; i++) {
         ctx.beginPath();
@@ -73,7 +73,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
         ctx.stroke();
 
         ctx.font = "15px Arial";
-        ctx.fillStyle = "gray";
+        ctx.fillStyle = "white";
 
         let zoomStart = viewConfig.horizontal.viewCenter - savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
         
@@ -91,14 +91,14 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
         ctx.beginPath();
         ctx.moveTo(0, canvas.height / 3.3 * (3.3 - i));
         ctx.lineTo(canvas.width, canvas.height / 3.3 * (3.3 - i));
-        ctx.strokeStyle = 'white';
         ctx.stroke();
 
-        ctx.font = "15px Arial";
-        ctx.fillStyle = "gray";
+
         let str = Math.round(i * 10) / 10;
         ctx.fillText(String(str + " V"), 5, canvas.height / 3.3 * (3.3 - i) - 5);
     }
+    ctx.setLineDash([]);
+
   }
 
 
@@ -180,6 +180,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
   }, [data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig]);
 
 
-  return <canvas className="plot" ref={canvasRef}/>;
+  return <canvas className="plot bg-slate-800 " ref={canvasRef}/>;
 }
 export default CanvasPlot;

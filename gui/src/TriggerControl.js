@@ -50,9 +50,9 @@ return (
 
 
 
-      <div onClick={() => toggleTriggerChannel(0)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[0] ? "yellow-300" : "slate-100"}`}>1</div>
-      <div onClick={() => toggleTriggerChannel(1)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[1] ? "red-300" : "slate-100"}`}>2</div>
-      <div onClick={() => toggleTriggerChannel(2)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[2] ? "green-300" : "slate-100"}`}>3</div>
+      <div onClick={() => toggleTriggerChannel(0)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[0] ? "slate-300" : "slate-100"}`}>1</div>
+      <div onClick={() => toggleTriggerChannel(1)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[1] ? "slate-300" : "slate-100"}`}>2</div>
+      <div onClick={() => toggleTriggerChannel(2)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[2] ? "slate-300" : "slate-100"}`}>3</div>
 
   </div>
 

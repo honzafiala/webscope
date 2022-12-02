@@ -151,6 +151,10 @@ function toggleCaptureMode() {
     setCaptureConfig({...captureConfig, captureMode: newCaptureMode});
   }
 
+function setCaptureMode(mode) {
+    setCaptureConfig({...captureConfig, captureMode: mode});
+  }
+
 async function pollUSB(len) {
     let result
     do {
@@ -159,6 +163,54 @@ async function pollUSB(len) {
     } while (result.data.byteLength == 0);
     return result;
 }
+
+
+    return (
+      <div className='flex flex-row'>
+      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
+        <div 
+          onClick={() => {setCaptureState("Run"); setCaptureData([[], [], []])}} 
+          disabled={USBDevice == null}
+          className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+          ${captureState == "Run" ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
+          {captureState == "Run" ? "Running" : "Run"}
+        </div>
+        <div 
+          onClick={() => {setCaptureState("Single"); setCaptureData([[], [], []])}} 
+          disabled={USBDevice == null}
+          className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+          ${captureState == "Single" ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
+          Single
+        </div>
+        <div 
+          onClick={abortCapture} 
+          className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+          ${captureState == "Stopped" ? "bg-red-600 text-slate-100" : "text-slate-700"}`}>
+          {captureState == "Stopped" ? "Stopped" : "Stop"}
+        </div>
+      </div>  
+      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
+      <div 
+        onClick={() => {setCaptureMode("Auto")}} 
+        disabled={USBDevice == null}
+        className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+        ${captureConfig.captureMode == "Auto" ? " bg-slate-300" : "text-slate-700"}`}>
+        Auto
+      </div>
+     
+      <div 
+        onClick={() => setCaptureMode("Normal")} 
+        className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+        ${captureConfig.captureMode == "Normal" ? " bg-slate-300" : "text-slate-700"}`}>
+        Normal
+      </div>
+      </div>  
+</div>  
+
+
+      
+    );
+
 
     return (
         <div>

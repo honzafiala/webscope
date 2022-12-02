@@ -220,8 +220,6 @@ export default function SplashScreen({close}) {
 
 
 
-
-
     </div>
 
 

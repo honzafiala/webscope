@@ -11,11 +11,12 @@ import Capture from './Capture';
 import MultiRangeSlider from './MultiRangeSlider';
 import SideMenu from './SideMenu';
 import SplashScreen from './SplashScreen';
+import ConnectDevice from './ConnectDevice';
 
 
 let defaultCaptureConfig = {
   activeChannels: [true, false, false],
-  channelColors: ['#d4c84e', '#E78787', '#68e05d'],
+  channelColors: ['#eab308', '#E78787', '#68e05d'],
   trigger: {
     channels: [true, false, false], 
     threshold: 77, // 1 V
@@ -72,38 +73,25 @@ export default function App() {
   let [appState, setAppState] = useState(defaultAppState);
 
 
-  async function connectDevice() {
-    let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0xcafe }] });
-    await device.open();
-    await device.selectConfiguration(1);
-    await device.claimInterface(2);
-    setUSBDevice(device);
 
-    navigator.usb.addEventListener('disconnect', event => {
-      setUSBDevice(null);
-      setCaptureState("Stopped");
-    });
-
-    // "Dummy" IN transfer
-    let result = await device.transferIn(3, 4);
-
-    // Out transfer - abort capture
-    let abortMessage = new Uint8Array([0]);
-    device.transferOut(3, abortMessage);
-
-  }
 
   return (
     <div className='root'>
       {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
-      {appState.splashScreen && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
+      {false && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
     <div className="app">
-      <div className="topbar">
-        <div className='leftMenu'>
-        <button onClick={connectDevice}
-        style={USBDevice != null ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}>
-          {USBDevice == null ? "Connect device" : "Connected"}
-          </button>
+      <div className="flex bg-slate-100 border-b border-slate-200 w-screen justify-end">
+
+      <CaptureDepthAndSampleRateConfig 
+          captureConfig={captureConfig} 
+          setCaptureConfig={setCaptureConfig} 
+          viewConfig={viewConfig} 
+          setViewConfig={setViewConfig}
+          setCaptureData={setCaptureData}
+          defaultCaptureData={defaultCaptureData}
+        />
+
+        <ConnectDevice USBDevice={USBDevice} setUSBDevice={setUSBDevice} setCaptureState={setCaptureState}/>
        
         <Capture 
           captureConfig={captureConfig} 
@@ -114,23 +102,6 @@ export default function App() {
           USBDevice={USBDevice} 
           setCaptureData={setCaptureData}
           />
-        
-        <CaptureDepthAndSampleRateConfig 
-          captureConfig={captureConfig} 
-          setCaptureConfig={setCaptureConfig} 
-          viewConfig={viewConfig} 
-          setViewConfig={setViewConfig}
-          setCaptureData={setCaptureData}
-          defaultCaptureData={defaultCaptureData}
-        />
-        
-        <button onClick={() => setViewConfig({...viewConfig, grid: !viewConfig.grid})}>Toggle grid</button>
-        </div>
-        <div className='rightMenu'>
-        <button onClick={() => setAppState({...appState, menu : !appState.menu})}>{appState.menu ? "> > >" : "< < <"}</button>
-
-        </div>
-
       </div>
       <div className="main">
         <CanvasPlot 
@@ -143,7 +114,7 @@ export default function App() {
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
-        <div className='side bg-slate-100'>
+        <div className='side bg-slate-100 px-1 border-l'>
           {appState.menu ?  
           <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
