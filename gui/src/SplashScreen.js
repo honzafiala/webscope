@@ -1,3 +1,5 @@
+import DropDown from "./DropDown";
+
 export default function SplashScreen({close}) {
     return (
 <div className="absolute flex h-screen top-20">
@@ -107,28 +109,14 @@ export default function SplashScreen({close}) {
                 <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
             </div>
 
-        </div>          
-
-        <div className="my-2 bg-white rounded-md  shadow text-slate-700 text-xl">
-            <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-                <div className="flex-1 px-3 py-1 bg-slate-200">Horizontal</div>
-            </div>
-
-
-            <div className="px-1 border-x border-slate-300">Zoom</div>
-            <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-slate-300">-</div>
-                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
-                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
-            </div>
-
-            <div className="px-1 border-x border-slate-300">Offset</div>
+            <div className="px-1 border-x border-slate-300">Pretrigger</div>
             <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-slate-300">-</div>
+                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
                 <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
                 <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
             </div>
-        </div>
+
+        </div>          
 
 
 
@@ -256,23 +244,21 @@ export default function SplashScreen({close}) {
                 <div className="flex-1 text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Auto</div>
     </div>
 
-    <div className=" float-left mx-1 pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
-                <div className="flex-1 text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 text-sm">Sampling</div>
-                <div className="flex flex-1 text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">500kS/s
-                <svg className="ml-2 w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+    <div className=" float-left mx-1 pointer-events-auto whitespace-nowrap flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="flex-1 text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
+        <div className="flex-1 text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Sampling 500kS/s</div>
+        <div className="flex-1 text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+
     </div>
 
-    <div className=" float-left mx-1 pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
-                <div className="flex-1 text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 text-sm">Depth</div>
-                <div className="flex flex-1 text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">10kS
-                <svg className="ml-2 w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-    </div>
+
+
 
 
 
     </div>
+
+
 
 
 

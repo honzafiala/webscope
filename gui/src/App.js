@@ -154,7 +154,7 @@ export default function App() {
             viewConfig={viewConfig} setViewConfig={setViewConfig}/>
             <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
             viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-            <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
+            {/* <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/> */}
             <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
             <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
           </div>
