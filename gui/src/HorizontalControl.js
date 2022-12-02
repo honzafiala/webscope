@@ -57,7 +57,7 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
 
     <div className="flex px-1 border-x border-slate-300">
       <div className="flex-1">Offset</div>
-      <div>{viewConfig.horizontal.viewCenter}&nbsp;div</div>
+      <div>?&nbsp;div</div>
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">

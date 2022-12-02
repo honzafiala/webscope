@@ -24,11 +24,69 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
     let newChannels = captureConfig.trigger.channels;
     newChannels[channel] = !newChannels[channel];
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, channels: newChannels}});
+
+    console.log(captureConfig.trigger.channels);
   }
 
   function setTriggerEdge(edge) {
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, edge: edge}});
   }
+
+
+
+
+
+
+
+return (
+  <div className="my-2 bg-white rounded-md  shadow text-slate-700 text-xl">
+  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
+      <div className="flex-1 px-3 py-1 bg-cyan-300">Trigger</div>
+  </div>
+
+
+  <div className="px-1 border-x border-slate-300">Channel</div>
+  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
+
+
+
+      <div onClick={() => toggleTriggerChannel(0)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[0] ? "yellow-300" : "slate-100"}`}>1</div>
+      <div onClick={() => toggleTriggerChannel(1)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[1] ? "red-300" : "slate-100"}`}>2</div>
+      <div onClick={() => toggleTriggerChannel(2)} className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.channels[2] ? "green-300" : "slate-100"}`}>3</div>
+
+  </div>
+
+  <div className="px-1 border-x border-slate-300">Edge</div>
+  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  leading-5 text-slate-700 border border-slate-300 shadow">
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-slate-300">Rise</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Fall</div>
+  </div>
+
+  <div className="px-1 border-x border-slate-300">Threshold</div>
+  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+  </div>
+
+  <div className="px-1 border-x border-slate-300">Pretrigger</div>
+  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+  </div>
+
+</div>          
+
+);
+
+
+
+
+
+
+
+
 
   return (
     <div className="ChannelControl">
