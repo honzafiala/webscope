@@ -38,14 +38,14 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
 
   return (
 
-    <div className="my-2 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
+    <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-        <div className="flex-1 px-3 py-1 bg-slate-200">Horizontal</div>
+        <div className="flex-1 px-1 py-[2px] bg-slate-200">Horizontal</div>
     </div>
 
 
     <div className="flex px-1 border-x border-slate-300">
-      <div className="flex-1">Zoom</div>
+      <div className="flex-1 ">Zoom</div>
       <div>{viewConfig.horizontal.zoom}&nbsp;x</div>
     </div>
 

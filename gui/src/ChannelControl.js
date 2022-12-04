@@ -63,10 +63,10 @@ export default function ChannelControl({color, number, captureConfig, setCapture
   let channelColors = ['yellow', 'red', 'green'];
 
   return (
-    <div className="my-2 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
+    <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-        <div className={`flex-1 px-3 py-1 whitespace-nowrap  bg-${captureConfig.activeChannels[channelNumber - 1] ? channelColors[channelNumber - 1] + "-300": "slate-200"}`} >Channel {channelNumber}</div>
-        <div className="       px-3 py-1 hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={toggleActive}>
+        <div className={`flex-1 px-1 py-[2px] whitespace-nowrap  bg-${captureConfig.activeChannels[channelNumber - 1] ? channelColors[channelNumber - 1] + "-300": "slate-200"}`} >Channel {channelNumber}</div>
+        <div className="       px-3  hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={toggleActive}>
         {captureConfig.activeChannels[channelNumber - 1] ? '-' : '+'}
         </div>
    
@@ -76,11 +76,11 @@ export default function ChannelControl({color, number, captureConfig, setCapture
     <div>{viewConfig.vertical[channelNumber - 1].zoom}&nbsp;x</div>
     </div>
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-0 bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
-        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+        <div className="flex-1 text-center   hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
           onClick={() => changeZoom('-')}>{"-"}</div>
-        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+        <div className="flex-1 text-center   hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
           onClick={() => changeZoom('0')}>{"0"}</div>
-        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
+        <div className="flex-1 text-center   hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
           onClick={() => changeZoom('+')}>{"+"}</div>
     </div>
 

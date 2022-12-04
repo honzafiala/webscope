@@ -14,6 +14,83 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
     setCursorConfig({...cursorConfig, channel: channel});
   }
 
+  return(
+    <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
+            <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
+                <div className="flex-1 px-3 py-[2px] bg-fuchsia-400">Cursors</div>
+                <div className="       px-3   hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100">+</div>
+            </div>
+
+
+            <div className="px-1 border-x border-slate-300">Channel</div>
+            <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-white bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-slate-300">{"1"}</div>
+                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">{"2"}</div>
+                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">{"3"}</div>
+            </div>
+
+            <div className="px-1 border-x border-slate-300">Axis</div>
+            <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-white bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-slate-300">X</div>
+                <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Y</div>
+            </div>
+
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>t<sub>1</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    0.875ms
+                </div>
+            </div>
+
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>t<sub>2</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    1.875ms
+                </div>
+            </div>
+
+            <div className="flex">
+                <div className="flex-1 px-3">
+                <i>V<sub>1</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    1.754V
+                </div>
+            </div>
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>V<sub>2</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    1.998V
+                </div>
+            </div>
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>Δ<sub>V</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    5.2mV
+                </div>
+            </div>
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>f</i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    5.446kHz
+                </div>
+            </div>
+
+
+        </div>
+
+  );
+
   return (
     <div className="ChannelControl">
       <div className="topBar" style={{backgroundColor: "#DB75FF"}}>

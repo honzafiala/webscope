@@ -84,23 +84,31 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
         ctx.fillText(String(time) + " ms", canvas.width / 10 * i + 5, 15);
       }
 
-    for (let i = 0; i < 3.3; i += 0.5) {
+    for (let i = 0; i < 7; i += 1) {
         ctx.beginPath();
-        ctx.moveTo(0, canvas.height / 3.3 * (3.3 - i));
-        ctx.lineTo(canvas.width, canvas.height / 3.3 * (3.3 - i));
+        ctx.moveTo(0, canvas.height / 7 * (7 - i));
+        ctx.lineTo(canvas.width, canvas.height / 7* (7 - i));
         ctx.stroke();
 
 
-        let str = Math.round(i * 10) / 10;
-        ctx.fillText(String(str + " V"), 5, canvas.height / 3.3 * (3.3 - i) - 5);
+        let str = Math.round(i * 5) / 10;
+        ctx.fillText(String(str + " V"), 3, canvas.height / 7 * (7 - i) - 3);
     }
+
     ctx.setLineDash([]);
+    // Draw line on top of plot
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(canvas.width,0);
+    ctx.stroke();
+
+
 
   }
 
 
     function uint8ToYPos(val, zoom, offset) {
-      return ((255 - val * zoom) * canvas.height / 255) - 0  * (0.5 / 3.3 * 255) - offset * 3.5 / 3.3 * canvas.height / 7 ;
+      return ((255 - val * zoom * 3.3 / 3.5) * (canvas.height) / 255) - offset  * canvas.height / 7 ;
     }
 
     // Calculate zoom
@@ -177,6 +185,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
   }, [data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig]);
 
 
-  return <canvas className="plot bg-slate-800 " ref={canvasRef}/>;
+  return (
+        <canvas className="bg-slate-800 flex-grow" ref={canvasRef}/>
+    );
 }
 export default CanvasPlot;

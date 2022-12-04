@@ -39,9 +39,9 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
 
 return (
-  <div className="my-2 bg-white rounded-md  shadow text-slate-700 text-xl">
+  <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-xl">
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-      <div className="flex-1 px-3 py-1 bg-cyan-300">Trigger</div>
+      <div className="flex-1 px-1 py-[2px] bg-cyan-300">Trigger</div>
   </div>
 
 
@@ -62,14 +62,14 @@ return (
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Fall</div>
   </div>
 
-  <div className="px-1 border-x border-slate-300">Threshold</div>
+  <div className="px-1 border-x border-slate-300">Thres.</div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
   </div>
 
-  <div className="px-1 border-x border-slate-300">Pretrigger</div>
+  <div className="px-1 border-x border-slate-300">Pretrig.</div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>

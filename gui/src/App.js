@@ -12,6 +12,7 @@ import MultiRangeSlider from './MultiRangeSlider';
 import SideMenu from './SideMenu';
 import SplashScreen from './SplashScreen';
 import ConnectDevice from './ConnectDevice';
+import CaptureMap from './CaptureMap';
 
 
 let defaultCaptureConfig = {
@@ -104,6 +105,21 @@ export default function App() {
           />
       </div>
       <div className="main">
+      <div className='bg-slate-100 px-1 border-l select-none w-[150px]'>
+            <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
+
+      </div>
+      <div className='flex flex-1 flex-col'>
+        <div className='flex'>
+      {true &&  <CaptureMap 
+          data={captureData} 
+          viewConfig={viewConfig} 
+          cursorConfig={cursorConfig} 
+          savedCaptureConfig={savedCaptureConfig}
+          captureConfig={captureConfig}
+        />}
+        <div className='absolute w-60 h-8 bg-slate-50 z-10 opacity-40'></div>
+        </div>
         <CanvasPlot 
           data={captureData} 
           viewConfig={viewConfig} 
@@ -111,10 +127,14 @@ export default function App() {
           savedCaptureConfig={savedCaptureConfig}
           captureConfig={captureConfig}
         />
+      </div>
+
+
+
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
-        <div className='bg-slate-100 px-1 border-l select-none w-[165px]'>
+        <div className='bg-slate-100 px-1 border-l select-none w-[155px]'>
           {appState.menu ?  
           <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
@@ -125,9 +145,9 @@ export default function App() {
             viewConfig={viewConfig} setViewConfig={setViewConfig}/>
             <ChannelControl number="3" color="#68E05D" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
             viewConfig={viewConfig} setViewConfig={setViewConfig}/>
-            {/* <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/> */}
-            <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
             <TriggerControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}/>
+            <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
+
           </div>
           }
         </div>
