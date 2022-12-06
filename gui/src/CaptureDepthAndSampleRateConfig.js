@@ -29,31 +29,31 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
 
     return(
         <div className='flex flex-row'>
-        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
           <div onClick={() => changeSampleRate('-')}
-            className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
+            className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
             -
           </div>
           <div 
-            className={`text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
+            className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
             Sampling&nbsp;{captureConfig.sampleRate/1000}&nbsp;kS/s
           </div>
           <div onClick={() => changeSampleRate('+')}
-            className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
+            className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
             +
           </div>
         </div>  
-        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-lg leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
           <div onClick={() => changeCaptureDepth('-')}
-            className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
+            className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
             -
           </div>
           <div 
-            className={`text-center py-1 px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
+            className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
             Depth&nbsp;{captureConfig.captureDepth/1000}&nbsp;kS
           </div>
           <div onClick={() => changeCaptureDepth('+')}
-            className={`text-center py-1 px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
+            className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
             +
           </div>
         </div>  
