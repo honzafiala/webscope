@@ -105,7 +105,7 @@ export default function App() {
           />
       </div>
       <div className="main overflow-hidden">
-      <div className='bg-slate-100 px-1 border-l select-none w-[150px]'>
+      <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
 
       </div>
@@ -134,7 +134,7 @@ export default function App() {
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
-        <div className='bg-slate-100 px-1 border-l select-none w-[155px]'>
+        <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
           {appState.menu ?  
           <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
