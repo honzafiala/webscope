@@ -104,21 +104,21 @@ export default function App() {
           setCaptureData={setCaptureData}
           />
       </div>
-      <div className="main">
+      <div className="main overflow-hidden">
       <div className='bg-slate-100 px-1 border-l select-none w-[150px]'>
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
 
       </div>
-      <div className='flex flex-1 flex-col'>
+      <div className='flex-1 overflow-hidden'>
         <div className='flex'>
-      {true &&  <CaptureMap 
+      {false &&  <CaptureMap 
           data={captureData} 
           viewConfig={viewConfig} 
           cursorConfig={cursorConfig} 
           savedCaptureConfig={savedCaptureConfig}
           captureConfig={captureConfig}
         />}
-        <div className='absolute w-60 h-8 bg-slate-50 z-10 opacity-40'></div>
+          <div className='absolute w-60 h-8 bg-slate-50 z-10 opacity-40'></div>
         </div>
         <CanvasPlot 
           data={captureData} 

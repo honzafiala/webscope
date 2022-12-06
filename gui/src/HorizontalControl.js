@@ -49,22 +49,13 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
       <div>{viewConfig.horizontal.zoom}&nbsp;x</div>
     </div>
 
-    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
         <div onClick={() => changeZoom("-")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
         <div onClick={() => changeZoom("0")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
         <div onClick={() => changeZoom("+")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
     </div>
 
-    <div className="flex px-1 border-x border-slate-300">
-      <div className="flex-1">Offset</div>
-      <div>?&nbsp;div</div>
-    </div>
 
-    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-        <div onClick={() => changeViewCenter("-")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
-        <div onClick={() => changeViewCenter("0")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
-        <div onClick={() => changeViewCenter("+")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
-    </div>
 </div>
 
   );

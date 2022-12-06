@@ -4,15 +4,21 @@ import {getNumActiveChannels, formatValue} from './Utils';
 
 const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig}) => {
   
-  const canvasRef = useRef(null)
-  const draw = (ctx, canvas, frameCount) => {
+  const canvasRef = useRef(null);
+
+  const draw = (ctx, canvas) => {
     if (canvasRef.current) {
-    canvas.width = canvasRef.current.clientWidth;
-    canvas.height = canvasRef.current.clientHeight;
+      // canvas.width = canvas.offsetWidth;
+      // canvas.height = canvas.offsetHeight;
     }
 
-    // Fill whole canvas with background color
 
+
+    
+
+
+    // Fill whole canvas with background color
+ 
 
     // Draw trigger level
     ctx.setLineDash([]);
@@ -168,25 +174,23 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
 
   useEffect(() => {
     let canvas = canvasRef.current;
-    //canvas.width = canvas.clientWidth;
-    //canvas.height = canvas.clientHeight;
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
     const context = canvas.getContext('2d');
-    let frameCount = 0;
-    let animationFrameId;
-    const render = () => {
-      frameCount++;
-      draw(context, canvas, frameCount);
-      animationFrameId = window.requestAnimationFrame(render);
-    };
-    render();
-    return () => {
-      window.cancelAnimationFrame(animationFrameId);
-    };
+      draw(context, canvas);
+
+    window.addEventListener('resize', () => {
+      canvas.width = canvas.parentElement.offsetWidth;
+      canvas.height = canvas.parentElement.offsetHeight;
+      draw(context, canvas);
+    });
+
   }, [data, viewConfig, captureConfig, savedCaptureConfig, cursorConfig]);
 
 
+
   return (
-        <canvas className="bg-slate-800 flex-grow" ref={canvasRef}/>
+        <canvas className="bg-slate-900"  ref={canvasRef}/>
     );
 }
 export default CanvasPlot;
