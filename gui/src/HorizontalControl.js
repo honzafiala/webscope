@@ -1,5 +1,5 @@
 import SettingControl from './SettingControl';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './ChannelControl.css';
 
 
@@ -32,8 +32,32 @@ export default function HorizontalControl({captureConfig, viewConfig, setViewCon
     console.log(newVal);
     setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, viewCenter: newVal}});
     
-    
   }
+
+  function handleKeyPress(event) {
+    console.log(event.key);
+    if (event.key == 'ArrowLeft') {
+      changeViewCenter('-');
+    }
+    else if (event.key == 'ArrowRight') {
+      changeViewCenter('+');
+    }
+    else if (event.key == 'ArrowUp') {
+      changeZoom('+');
+    } else if (event.key == 'ArrowDown') {
+      changeZoom('-');
+    }
+}
+
+useEffect(() => {
+
+    document.addEventListener("keydown", handleKeyPress, false);
+    
+    return () => {
+        document.removeEventListener('keydown', handleKeyPress);
+      };
+
+},[viewConfig]);
 
 
   return (

@@ -184,7 +184,7 @@ async function pollUSB(len) {
         </div>
         <div 
           onClick={abortCapture} 
-          className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+          className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
           ${captureState == "Stopped" ? "bg-red-600 text-slate-100" : "text-slate-700"}`}>
           {captureState == "Stopped" ? "Stopped" : "Stop"}
         </div>
@@ -200,7 +200,7 @@ async function pollUSB(len) {
      
       <div 
         onClick={() => setCaptureMode("Normal")} 
-        className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+        className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
         ${captureConfig.captureMode == "Normal" ? " bg-slate-300" : "text-slate-700"}`}>
         Normal
       </div>

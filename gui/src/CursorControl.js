@@ -18,7 +18,9 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
             <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
                 <div className="flex-1 px-3 py-[2px] bg-fuchsia-400">Cursors</div>
-                <div className="       px-3   hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100">+</div>
+                <div className="       px-3   hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" onClick={toggleActive}>
+                    {cursorConfig.visible ? '-' : '+'}
+                </div>
             </div>
 
 

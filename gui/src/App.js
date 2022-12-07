@@ -13,6 +13,7 @@ import SideMenu from './SideMenu';
 import SplashScreen from './SplashScreen';
 import ConnectDevice from './ConnectDevice';
 import CaptureMap from './CaptureMap';
+import HorizontalSlider from './HorizontalSlider';
 
 
 let defaultCaptureConfig = {
@@ -110,16 +111,7 @@ export default function App() {
 
       </div>
       <div className='flex-1 overflow-hidden'>
-        <div className='flex'>
-      {false &&  <CaptureMap 
-          data={captureData} 
-          viewConfig={viewConfig} 
-          cursorConfig={cursorConfig} 
-          savedCaptureConfig={savedCaptureConfig}
-          captureConfig={captureConfig}
-        />}
-          <div className='absolute w-60 h-8 bg-slate-50 z-10 opacity-40'></div>
-        </div>
+        <HorizontalSlider viewConfig={viewConfig}/>    
         <CanvasPlot 
           data={captureData} 
           viewConfig={viewConfig} 
@@ -128,9 +120,6 @@ export default function App() {
           captureConfig={captureConfig}
         />
       </div>
-
-
-
         {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
