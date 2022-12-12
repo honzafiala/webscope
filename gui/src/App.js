@@ -8,11 +8,10 @@ import TriggerControl from './TriggerControl';
 import CursorMeasurementBox from './CursorMeasurementBox';
 import CaptureDepthAndSampleRateConfig from './CaptureDepthAndSampleRateConfig';
 import Capture from './Capture';
-import MultiRangeSlider from './MultiRangeSlider';
+import CursorSliderOverlay from './CursorSliderOverlay';
 import SideMenu from './SideMenu';
 import SplashScreen from './SplashScreen';
 import ConnectDevice from './ConnectDevice';
-import CaptureMap from './CaptureMap';
 import HorizontalSlider from './HorizontalSlider';
 
 
@@ -79,7 +78,7 @@ export default function App() {
 
   return (
     <div className='root'>
-      {cursorConfig.visible && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
+      {false && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
       {false && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
     <div className="app">
       <div className="px-1 flex bg-slate-100 border-b border-slate-200 w-screen justify-end select-none">
@@ -110,8 +109,11 @@ export default function App() {
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
 
       </div>
-      <div className='flex-1 overflow-hidden'>
-        <HorizontalSlider viewConfig={viewConfig}/>    
+      <div className='relative flex-1 flex overflow-hidden'>
+
+        {<CursorSliderOverlay cursorConfig={cursorConfig} viewConfig={viewConfig} 
+        captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
+
         <CanvasPlot 
           data={captureData} 
           viewConfig={viewConfig} 
@@ -120,8 +122,7 @@ export default function App() {
           captureConfig={captureConfig}
         />
       </div>
-        {cursorConfig.visible && <MultiRangeSlider cursorConfig={cursorConfig} viewConfig={viewConfig} 
-        captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
+
 
         <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
           {appState.menu ?  

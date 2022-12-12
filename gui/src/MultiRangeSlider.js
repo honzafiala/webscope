@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import classnames from "classnames";
-import PropTypes from "prop-types";
 import "./MultiRangeSlider.css";
 
 const MultiRangeSlider = ({cursorConfig, setCursorConfig, captureConfig, viewConfig }) => {
@@ -60,7 +59,7 @@ const MultiRangeSlider = ({cursorConfig, setCursorConfig, captureConfig, viewCon
   }, [minVal, maxVal]);
 
   return (
-    <div className="container">
+    <div className="container bg-red-500">
       <input
         type="range"
         min={min}

@@ -167,21 +167,21 @@ async function pollUSB(len) {
 
     return (
       <div className='flex flex-row text-l'>
-      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
-        <div 
+      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+        <button 
           onClick={() => {setCaptureState("Run"); setCaptureData([[], [], []])}} 
           disabled={USBDevice == null}
-          className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+          className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 disabled:text-slate-400
           ${captureState == "Run" ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
           {captureState == "Run" ? "Running" : "Run"}
-        </div>
-        <div 
+        </button>
+        <button 
           onClick={() => {setCaptureState("Single"); setCaptureData([[], [], []])}} 
           disabled={USBDevice == null}
-          className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
+          className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 disabled:text-slate-400
           ${captureState == "Single" ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
           Single
-        </div>
+        </button>
         <div 
           onClick={abortCapture} 
           className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300

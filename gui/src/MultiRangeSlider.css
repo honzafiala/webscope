@@ -1,7 +1,7 @@
 .container {
     position: absolute;
-    flex: 1 1 auto;
-    top: 100px;
+    top: 60px;
+    height: 10px;
     left: 140px;
     width: calc(100vw - 280px);
     display: flex;
@@ -85,6 +85,7 @@
     cursor: pointer;
     height: 18px;
     width: 30px;
+    opacity: 60%;;
     margin-top: 4px;
     pointer-events: all;
     position: relative;
