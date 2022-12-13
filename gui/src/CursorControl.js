@@ -4,7 +4,7 @@ import './ChannelControl.css';
 import ChannelPicker from './ChannelPicker.css';
 
 
-export default function CursorControl({cursorConfig, captureConfig, setCursorConfig}) {
+export default function CursorControl({cursorConfig, captureConfig, setCursorConfig, captureData, viewConfig}) {
 
   function toggleActive(axis) {
     console.log(axis);
@@ -17,6 +17,21 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   function setCursorChannel(channel) {
     setCursorConfig({...cursorConfig, channel: channel});
   }
+
+  let zoomLen = captureConfig.captureDepth / viewConfig.horizontal.zoom;
+  let zoomStart = viewConfig.horizontal.viewCenter - zoomLen / 2;
+
+  let xMeasurements = {};
+  xMeasurements.t1 = (zoomStart + cursorConfig.x.start * zoomLen / 100) / captureConfig.sampleRate * 1000 - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * 1000;
+  xMeasurements.t2 = (zoomStart + cursorConfig.x.end * zoomLen / 100) / captureConfig.sampleRate * 1000 - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * 1000;
+  xMeasurements.v1 = captureData[0][Math.round((zoomStart + cursorConfig.x.start * zoomLen / 100))] * 3.3 / (255);
+  xMeasurements.v2 = captureData[0][Math.round((zoomStart + cursorConfig.x.end * zoomLen / 100))] * 3.3 / (255);
+  xMeasurements.deltaV = xMeasurements.v2 - xMeasurements.v1;
+  xMeasurements.frequency = 1000 / (xMeasurements.t2 - xMeasurements.t1);
+
+  let yMeasurements = {};
+  yMeasurements.v1 = (cursorConfig.y.start * 3.5 / 100 - 0.5 * viewConfig.vertical[0].offset) / viewConfig.vertical[0].zoom;
+
 
   return(
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
@@ -40,12 +55,16 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                 onClick={() => toggleActive('y')}>Y</div>
             </div>
 
+            <div className='px-1 py-0 my-0'>
+                X
+            </div>
+
             <div className="flex">
                 <div className="flex-1 px-3">
                     <i>t<sub>1</sub></i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    0.875ms
+                    {xMeasurements.t1}ms
                 </div>
             </div>
 
@@ -54,7 +73,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                     <i>t<sub>2</sub></i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    1.875ms
+                    {xMeasurements.t2}ms
                 </div>
             </div>
 
@@ -63,7 +82,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                 <i>V<sub>1</sub></i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    1.754V
+                    {xMeasurements.v1}V
                 </div>
             </div>
             <div className="flex">
@@ -71,7 +90,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                     <i>V<sub>2</sub></i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    1.998V
+                    {xMeasurements.v2}V
                 </div>
             </div>
             <div className="flex">
@@ -79,7 +98,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                     <i>Δ<sub>V</sub></i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    5.2mV
+                    {xMeasurements.deltaV}V
                 </div>
             </div>
             <div className="flex">
@@ -87,10 +106,23 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                     <i>f</i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    5.446kHz
+                    {xMeasurements.frequency}Hz
                 </div>
             </div>
 
+
+            <div className='px-1 py-0 my-0'>
+                Y
+            </div>
+
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>V<sub>1</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    {yMeasurements.v1}ms
+                </div>
+            </div>
 
         </div>
 

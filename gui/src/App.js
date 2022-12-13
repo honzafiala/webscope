@@ -114,7 +114,8 @@ export default function App() {
       </div>
       <div className="main overflow-hidden">
       <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
-            <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>
+            <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} 
+            setCursorConfig={setCursorConfig} captureData={captureData}/>
 
       </div>
       <div className='relative flex-1 flex overflow-hidden'>
