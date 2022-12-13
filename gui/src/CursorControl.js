@@ -18,19 +18,70 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
     setCursorConfig({...cursorConfig, channel: channel});
   }
 
-  let zoomLen = captureConfig.captureDepth / viewConfig.horizontal.zoom;
-  let zoomStart = viewConfig.horizontal.viewCenter - zoomLen / 2;
+  const zoomLen = captureConfig.captureDepth / viewConfig.horizontal.zoom;
+  const zoomStart = viewConfig.horizontal.viewCenter - zoomLen / 2;
 
-  let xMeasurements = {};
-  xMeasurements.t1 = (zoomStart + cursorConfig.x.start * zoomLen / 100) / captureConfig.sampleRate * 1000 - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * 1000;
-  xMeasurements.t2 = (zoomStart + cursorConfig.x.end * zoomLen / 100) / captureConfig.sampleRate * 1000 - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * 1000;
-  xMeasurements.v1 = captureData[0][Math.round((zoomStart + cursorConfig.x.start * zoomLen / 100))] * 3.3 / (255);
-  xMeasurements.v2 = captureData[0][Math.round((zoomStart + cursorConfig.x.end * zoomLen / 100))] * 3.3 / (255);
-  xMeasurements.deltaV = xMeasurements.v2 - xMeasurements.v1;
-  xMeasurements.frequency = 1000 / (xMeasurements.t2 - xMeasurements.t1);
+  function xCursorPosToTime(pos) {
+    return (zoomStart + pos * zoomLen / 100) / captureConfig.sampleRate * 1000 
+    - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * 1000;
+  }
+
+  function xCursorPosToVoltage(pos) {
+    return captureData[0][Math.round((zoomStart + pos * zoomLen / 100))] * 3.3 / (255);
+  }
+
+  let xMeasurements = [
+    {
+        val: xCursorPosToTime(cursorConfig.x.start),
+        unit: "s",
+        name: "t",
+        index: 1
+    },
+    {
+        val: xCursorPosToTime(cursorConfig.x.end),
+        unit: "s",
+        name: "t",
+        index: 2
+    },
+    {
+        val: xCursorPosToVoltage(cursorConfig.x.start),
+        unit: "V",
+        name: "V",
+        index: 1
+    },
+    {
+        val: xCursorPosToVoltage(cursorConfig.x.end),
+        unit: "V",
+        name: "V",
+        index: 2
+    },
+    {
+        val: xCursorPosToVoltage(cursorConfig.x.end) - xCursorPosToVoltage(cursorConfig.x.start),
+        unit: "V",
+        name: "ΔV",
+        index: ''
+    },
+    {
+        val: 1000 / (xCursorPosToTime(cursorConfig.x.end) - xCursorPosToTime(cursorConfig.x.start)),
+        unit: "Hz",
+        name: "f",
+        index: ''
+    },
+  ];
+
+  console.log(xMeasurements);
+
+
+//   xMeasurements.t2 = (zoomStart + cursorConfig.x.end * zoomLen / 100) / captureConfig.sampleRate * 1000 - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * 1000;
+//   xMeasurements.v1 = captureData[0][Math.round((zoomStart + cursorConfig.x.start * zoomLen / 100))] * 3.3 / (255);
+//   xMeasurements.v2 = captureData[0][Math.round((zoomStart + cursorConfig.x.end * zoomLen / 100))] * 3.3 / (255);
+//   xMeasurements.deltaV = xMeasurements.v2 - xMeasurements.v1;
+//   xMeasurements.frequency = 1000 / (xMeasurements.t2 - xMeasurements.t1);
 
   let yMeasurements = {};
   yMeasurements.v1 = (cursorConfig.y.start * 3.5 / 100 - 0.5 * viewConfig.vertical[0].offset) / viewConfig.vertical[0].zoom;
+  yMeasurements.v2 = (cursorConfig.y.end * 3.5 / 100 - 0.5 * viewConfig.vertical[0].offset) / viewConfig.vertical[0].zoom;
+  yMeasurements.deltaV = yMeasurements.v2 - yMeasurements.v1;
 
 
   return(
@@ -55,6 +106,19 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                 onClick={() => toggleActive('y')}>Y</div>
             </div>
 
+            {xMeasurements.map(measurement => 
+                <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>{measurement.name}<sub>{measurement.index}</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    {measurement.val}{measurement.unit}
+                </div>
+            </div>
+            )}
+
+
+{/* 
             <div className='px-1 py-0 my-0'>
                 X
             </div>
@@ -120,9 +184,27 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                     <i>V<sub>1</sub></i>
                 </div>
                 <div className="flex-1 text-right px-3">
-                    {yMeasurements.v1}ms
+                    {yMeasurements.v1}V
                 </div>
             </div>
+
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>V<sub>2</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    {yMeasurements.v2}V
+                </div>
+            </div>
+
+            <div className="flex">
+                <div className="flex-1 px-3">
+                    <i>Δ<sub>V</sub></i>
+                </div>
+                <div className="flex-1 text-right px-3">
+                    {yMeasurements.v2}V
+                </div>
+            </div> */}
 
         </div>
 
