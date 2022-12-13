@@ -35,12 +35,15 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
     ctx.lineTo(getCursorPos(captureConfig.preTrigger * savedCaptureConfig.captureDepth), canvas.height);
     ctx.stroke();
 
-    // Draw vertical cursor 1
+
     function getCursorPos(pos) {
       let zoomStart = viewConfig.horizontal.viewCenter - savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
       let zoomEnd = viewConfig.horizontal.viewCenter + savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
+
+      /*
+    // Draw vertical cursor 1
 
     if (cursorConfig.visible) {
     ctx.lineWidth = 2;
@@ -61,7 +64,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
 
     }
     ctx.setLineDash([]);
-
+    */
 
 
     // Draw grid

@@ -48,10 +48,18 @@ let defaultViewConfig = {
 }
 
 let defaultCursorConfig = {
-    visible: false,
-    start: 0,
-    end: defaultCaptureConfig.captureDepth,
-    channel: 0
+    x: {
+      visible: false,
+      start: 5.0,
+      end: 95.0,
+      channel: 0
+    },
+    y: {
+      visible: false,
+      start: 5.0,
+      end: 95.0,
+      channel: 0
+    }
 }
 
 
