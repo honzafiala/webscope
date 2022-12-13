@@ -89,24 +89,24 @@ const CursorSliderOverlay = ({cursorConfig, setCursorConfig, captureConfig, view
     >
       {
         cursorConfig.x.visible &&
-        <div className={`absolute border-l-2 border-fuchsia-500  h-full w-[20px] pointer-events-none`}
+        <div className={`absolute border-l border-fuchsia-500  h-full w-[20px] pointer-events-none`}
         style={{"left": cursorPosToXOffset(cursorConfig.x.start), "pointerEvents": "none"}}></div>
       } 
       {
         cursorConfig.x.visible &&
-        <div className={`absolute border-r-2 border-fuchsia-500  h-full w-[20px] pointer-events-none`}
+        <div className={`absolute border-r border-fuchsia-500  h-full w-[20px] pointer-events-none`}
         style={{"left": cursorPosToXOffset(cursorConfig.x.end) - 20}}></div> 
       } 
 
       {
         cursorConfig.y.visible &&
-        <div className={`absolute border-b-2 border-fuchsia-500  w-full h-[20px] pointer-events-none`}
+        <div className={`absolute border-b border-fuchsia-500  w-full h-[20px] pointer-events-none`}
         style={{"bottom": cursorPosToYOffset(cursorConfig.y.start), "pointerEvents": "none"}}></div>
       } 
 
       {
         cursorConfig.y.visible &&
-        <div className={`absolute border-t-2 border-fuchsia-500  w-full h-[20px] pointer-events-none`}
+        <div className={`absolute border-t border-fuchsia-500  w-full h-[20px] pointer-events-none`}
         style={{"bottom": cursorPosToYOffset(cursorConfig.y.end) - 20, "pointerEvents": "none"}}></div>
       } 
     
