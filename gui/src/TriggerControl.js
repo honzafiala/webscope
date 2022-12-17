@@ -5,7 +5,7 @@ import './ChannelControl.css';
 
 export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
-  function triggerChange(e) {
+  function triggerThresholdChange(e) {
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, threshold: e.target.value}});
   }
  
@@ -63,8 +63,8 @@ return (
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Fall</div>
   </div>
 
-  <div className="px-1 border-x border-slate-300">Thres.</div>
-  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+  <div className="px-1 border-x border-slate-300">Level</div>
+  <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
@@ -72,9 +72,9 @@ return (
 
   <div className="px-1 border-x border-slate-300">Pretrig.</div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => preTriggerChange('-')}>-</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => preTriggerChange('0')}>0</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => preTriggerChange('+')}>+</div>
   </div>
 
 </div>          
@@ -128,7 +128,7 @@ return (
             <div className='name'>Level</div>
             </div>
 
-<input type="range" min="1" max="254" value={captureConfig.trigger.threshold} onChange={triggerChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
+<input type="range" min="1" max="254" value={captureConfig.trigger.threshold} onChange={triggerThresholdChange} style={{width: "100%", margin: "0px", padding: "0px"}}/>
 
 
 <div className='data'>
