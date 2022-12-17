@@ -91,7 +91,7 @@ function captureConfigToByteArray(cfg) {
     for (let i = 0; i < cfg.activeChannels.length; i++) {
         if (cfg.activeChannels[i]) activeChannelsByte += 1 << i;
     }
-    let captureDepth_kb = cfg.captureDepth / 1000;
+    let captureDepth_kb = cfg.totalCaptureDepth / 1000;
 
     let pretriggerByte = cfg.preTrigger * 10;
 

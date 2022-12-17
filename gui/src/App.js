@@ -26,6 +26,7 @@ let defaultCaptureConfig = {
   preTrigger: 0.1,
   sampleRate: 500000,
   captureDepth: 10000,
+  totalCaptureDepth: 10000,
   captureMode: "Auto"
 };
 

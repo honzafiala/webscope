@@ -143,7 +143,7 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
         else capture_config.active_channels[i] = false;
     }
 
-    capture_config.capture_depth = config_bytes[3] * 1000;
+    capture_config.capture_depth = config_bytes[3] * 1000 / capture_config.num_active_channels;
 
 
     capture_config.auto_mode = config_bytes[5] ? true : false;

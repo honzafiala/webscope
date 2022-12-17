@@ -1,10 +1,11 @@
 import './CaptureDepthAndSampleRateConfig.css';
+import { getNumActiveChannels } from './Utils';
 
 
 export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptureConfig, viewConfig, setViewConfig, setCaptureData, defaultCaptureData}) {
 
     const sampleRateValues = [500, 250, 100, 50, 20, 10];
-    const captureDepthValues = [100, 50, 20, 10, 5, 2, 1];
+    const captureDepthValues = [200, 100, 50, 20, 10, 5, 2, 1];
 
     function changeSampleRate(dir) {
         let index = sampleRateValues.indexOf(captureConfig.sampleRate / 1000);
@@ -20,11 +21,12 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         if (dir == '+' && index > 0) index--;
         else if (dir == '-' && index < captureDepthValues.length - 1) index++;
 
-        let newVal = captureDepthValues[index] * 1000;
+        let newTotalCaptureDepth = captureDepthValues[index] * 1000;
+        let newCaptureDepth = Math.floor(newTotalCaptureDepth / getNumActiveChannels(captureConfig));
         console.log(index);
-        setCaptureConfig({...captureConfig, captureDepth: newVal});
+        setCaptureConfig({...captureConfig, captureDepth: newCaptureDepth, totalCaptureDepth: newTotalCaptureDepth});
         setCaptureData(defaultCaptureData);
-        setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1, viewCenter: newVal* 1000 / 2}});
+        setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1, viewCenter: newCaptureDepth* 1000 / 2}});
     }
 
     return(
@@ -50,7 +52,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
           </div>
           <div 
             className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
-            Depth&nbsp;{captureConfig.captureDepth/1000}&nbsp;kS
+            Depth&nbsp;{captureConfig.totalCaptureDepth/1000}&nbsp;kS
           </div>
           <div onClick={() => changeCaptureDepth('+')}
             className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>

@@ -55,8 +55,9 @@ export default function ChannelControl({color, number, captureConfig, setCapture
 
     let newActiveChannels = captureConfig.activeChannels;
     newActiveChannels[channelNumber - 1] = !newActiveChannels[channelNumber - 1];
-    setCaptureConfig({...captureConfig, activeChannels: newActiveChannels});
-
+    let newCaptureDepth = Math.floor(captureConfig.totalCaptureDepth / getNumActiveChannels(captureConfig));
+    setCaptureConfig({...captureConfig, activeChannels: newActiveChannels, captureDepth: newCaptureDepth});
+    setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1, viewCenter: newCaptureDepth / 2}});
     console.log("active channels: ", getNumActiveChannels(captureConfig));
   }
 
@@ -66,7 +67,7 @@ export default function ChannelControl({color, number, captureConfig, setCapture
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
         <div className={`flex-1 px-1 py-[2px] whitespace-nowrap  bg-${captureConfig.activeChannels[channelNumber - 1] ? channelColors[channelNumber - 1] + "-300": "slate-200"}`} >Channel {channelNumber}</div>
-        <div className="       px-3  hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={toggleActive}>
+        <div className="px-3  hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={toggleActive}>
         {captureConfig.activeChannels[channelNumber - 1] ? '-' : '+'}
         </div>
    

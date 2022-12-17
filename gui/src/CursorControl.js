@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { getNumActiveChannels } from './Utils';
 
 export default function CursorControl({cursorConfig, captureConfig, setCursorConfig, captureData, viewConfig}) {
 
@@ -17,8 +18,8 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   const zoomStart = viewConfig.horizontal.viewCenter - zoomLen / 2;
 
   function xCursorPosToTime(pos) {
-    return (zoomStart + pos * zoomLen / 100) / captureConfig.sampleRate 
-    - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate;
+    return (zoomStart + pos * zoomLen / 100) / captureConfig.sampleRate * getNumActiveChannels(captureConfig)
+    - captureConfig.preTrigger * captureConfig.captureDepth / captureConfig.sampleRate * getNumActiveChannels(captureConfig);
   }
 
   function xCursorPosToVoltage(pos) {
