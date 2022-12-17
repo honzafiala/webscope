@@ -85,7 +85,7 @@ useEffect(() => {
 
     <div className="flex px-1 border-x border-slate-300">
       <div className="flex-1 ">Offset</div>
-      <div>{getOffsetSamples(viewConfig.horizontal.viewCenter)}&nbsp;S</div>
+      <div>{Math.round(getOffsetSamples(viewConfig.horizontal.viewCenter))}&nbsp;S</div>
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">

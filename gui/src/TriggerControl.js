@@ -21,8 +21,9 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
   }
  
   function toggleTriggerChannel(channel) {
-    let newChannels = captureConfig.trigger.channels;
-    newChannels[channel] = !newChannels[channel];
+    if (captureConfig.trigger.channels[channel] == true) return;
+    let newChannels = new Array(captureConfig.trigger.channels.length).fill(false);
+    newChannels[channel] = true;
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, channels: newChannels}});
 
     console.log(captureConfig.trigger.channels);
