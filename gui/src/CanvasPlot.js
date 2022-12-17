@@ -25,8 +25,10 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
     ctx.strokeStyle = '#22d3ee';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
-    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[0].zoom, viewConfig.vertical[0].offset));
+    let triggerChannel = captureConfig.trigger.channels.indexOf(true);
+    console.log('trigger channel: ', triggerChannel);
+    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
+    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
 
     ctx.stroke();
 
