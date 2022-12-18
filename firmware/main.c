@@ -196,33 +196,10 @@ bool is_trigger_index(const capture_config_t capture_config, uint index) {
     return false;
 }
 
-int main(void)
-   {
-    multicore_launch_core1(core1_task);
+uint main_chan, ctrl_chan; // DMA channels for circular ADC capture 
 
-    pwm_configure();
-
-    const uint main_chan = dma_claim_unused_channel(true);
-    const uint ctrl_chan = dma_claim_unused_channel(true);
-
-    uint8_t rec_buf[100] = {0};
-
-
-    while (1) {
-    
-    while (1) {
-        uint ret = usb_rec(rec_buf, 10);
-        if (rec_buf[0] == 1) break;
-        else {
-            // Abort message was sent - wait for another config message
-            printf("Received abort, waiting for cfg...\n");
-        } 
-    }
-    
-
-    const capture_config_t capture_config = parse_capture_config(rec_buf);
-
-    uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
+void capture(capture_config_t capture_config) {
+        uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
     printf("\n");
     printf("Trigger threshold: %d\n", capture_config.trigger_threshold);
@@ -345,6 +322,34 @@ int main(void)
 
         }
     }
+}
+
+int main(void)
+   {
+    multicore_launch_core1(core1_task);
+
+    pwm_configure();
+
+    main_chan = dma_claim_unused_channel(true);
+    ctrl_chan = dma_claim_unused_channel(true);
+
+    uint8_t rec_buf[100] = {0};
+
+
+    while (1) {
+    
+    while (1) {
+        uint ret = usb_rec(rec_buf, 10);
+        if (rec_buf[0] == 1) break;
+        else {
+            // Abort message was sent - wait for another config message
+            printf("Received abort, waiting for cfg...\n");
+        } 
+    }
+    
+    const capture_config_t capture_config = parse_capture_config(rec_buf);
+    capture(capture_config);
+
     }
 
     return 0;
