@@ -195,153 +195,153 @@ bool is_trigger_index(const capture_config_t capture_config, uint index) {
     return false;
 }
 
+uint main_chan, ctrl_chan;
+
 int main(void)
   {
     multicore_launch_core1(core1_task);
 
     pwm_configure();
 
-    const uint main_chan = dma_claim_unused_channel(true);
-    const uint ctrl_chan = dma_claim_unused_channel(true);
+    main_chan = dma_claim_unused_channel(true);
+    ctrl_chan = dma_claim_unused_channel(true);
 
     uint8_t rec_buf[100] = {0};
 
     while (1) {
-    
-    while (1) {
-        uint ret = usb_rec(rec_buf, 9);
-        if (rec_buf[0] == 1) break;
-        else {
-            // Abort message was sent - wait for another config message
-            printf("Received abort, waiting for cfg...\n");
-        } 
-    }
-    
-
-    const capture_config_t capture_config = parse_capture_config(rec_buf);
-
-    uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
-
-    printf("\n");
-    printf("Capture depth: %d\n", capture_config.capture_depth);
-    printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
-
-    printf("Trigger channels: %d %d %d\n", capture_config.trigger_channels[0], capture_config.trigger_channels[1], capture_config.trigger_channels[2]);
-
-    printf("is_trigger_index: ");
-    for (int i = 0; i < 10; i++) {
-        printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
-    }
-    printf("\n");
-
-    adc_configure(capture_config);
-
-    analog_dma_configure(main_chan, ctrl_chan, capture_config);
-
-    //dma_channel_start(main_chan);
-    dma_channel_set_trans_count(main_chan, capture_config.capture_buffer_len, false);
-    dma_channel_start(main_chan);
-
-    sleep_ms(100);
-
-    adc_run(true);
-    int start = dma_channel_hw_addr(main_chan)->transfer_count;
-    printf("Started at %d\n", start);
-
-    uint capture_start_index;
-    bool triggered = false;
-    uint xfer_count_since_trigger = 0;
-    uint prev_xfer_count = 0;
-    uint32_t xfer_count_since_start = 0;
-    uint prev_xfer_count_since_start = 0;
-    uint trigger_index;
-
-    typedef enum {OK, ABORTED} capture_result_t;
-    capture_result_t capture_result;
-    while (1) {
-        // Check if abort message was received
-        if (usb_data_ready()) {
-            uint8_t msg;
-            usb_rec(&msg, 1);
-            printf("Received mesage: %d\n", msg);
-            adc_run(false);
-            capture_result = ABORTED;
-            break;
+        while (1) {
+            uint ret = usb_rec(rec_buf, 9);
+            if (rec_buf[0] == 1) break;
+            else {
+                // Abort message was sent - wait for another config message
+                printf("Received abort, waiting for cfg...\n");
+            } 
         }
 
-        // Calculate total xfer count and xfer count since last loop iteration
-        uint xfer_count = capture_config.capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
-        if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
-        else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
+        const capture_config_t capture_config = parse_capture_config(rec_buf);
 
+        uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
-        // Check trigger condition
-        if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 50) {
-            for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i ++) {
-                uint cur_val =  capture_buf[i % capture_config.capture_buffer_len];
-                uint prev_val = capture_buf[(i - capture_config.num_active_channels * 50) % capture_config.capture_buffer_len ];
+        printf("\n");
+        printf("Capture depth: %d\n", capture_config.capture_depth);
+        printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
 
-                if (!is_trigger_index(capture_config, i)) continue;
+        printf("Trigger channels: %d %d %d\n", capture_config.trigger_channels[0], capture_config.trigger_channels[1], capture_config.trigger_channels[2]);
 
-                uint threshold = capture_config.trigger_threshold;
-                trigger_edge_t edge = capture_config.trigger_edge;
+        printf("is_trigger_index: ");
+        for (int i = 0; i < 10; i++) {
+            printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
+        }
+        printf("\n");
 
-                if (((cur_val >= threshold && prev_val < threshold && (edge == EDGE_UP || edge == EDGE_BOTH)) ||
-                    (cur_val <= threshold && prev_val > threshold && (edge == EDGE_DOWN || edge == EDGE_BOTH))) &&
-                    i >= capture_config.pretrigger) {
-                    trigger_index = i - capture_config.pretrigger;
-                    printf("Found trigger at %d, %d since start\n", i, xfer_count_since_start);
-                    triggered = true;
-                    break;
-                }
+        adc_configure(capture_config);
+
+        analog_dma_configure(main_chan, ctrl_chan, capture_config);
+
+        //dma_channel_start(main_chan);
+        dma_channel_set_trans_count(main_chan, capture_config.capture_buffer_len, false);
+        dma_channel_start(main_chan);
+
+        sleep_ms(100);
+
+        adc_run(true);
+        int start = dma_channel_hw_addr(main_chan)->transfer_count;
+        printf("Started at %d\n", start);
+
+        uint capture_start_index;
+        bool triggered = false;
+        uint xfer_count_since_trigger = 0;
+        uint prev_xfer_count = 0;
+        uint32_t xfer_count_since_start = 0;
+        uint prev_xfer_count_since_start = 0;
+        uint trigger_index;
+
+        typedef enum {OK, ABORTED} capture_result_t;
+        capture_result_t capture_result;
+        while (1) {
+            // Check if abort message was received
+            if (usb_data_ready()) {
+                uint8_t msg;
+                usb_rec(&msg, 1);
+                printf("Received mesage: %d\n", msg);
+                adc_run(false);
+                capture_result = ABORTED;
+                break;
             }
 
-        // Check for timeout (in auto mode)
-        } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
-            trigger_index = 0;
-            printf("Timeout at %d S\n", xfer_count_since_start);
-            triggered = true;
-            capture_result = OK;
-            break;
-        // Check for capture stop
-        }  if (triggered && xfer_count_since_start - trigger_index >= capture_config.capture_buffer_len) {
-            adc_run(false);
-            printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
-            capture_result = OK;
-            break;
+            // Calculate total xfer count and xfer count since last loop iteration
+            uint xfer_count = capture_config.capture_buffer_len - dma_channel_hw_addr(main_chan)->transfer_count;
+            if (xfer_count > prev_xfer_count) xfer_count_since_start += xfer_count - prev_xfer_count;
+            else if (xfer_count < prev_xfer_count) xfer_count_since_start += capture_config.capture_buffer_len - prev_xfer_count + xfer_count;
+
+
+            // Check trigger condition
+            if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 50) {
+                for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i ++) {
+                    uint cur_val =  capture_buf[i % capture_config.capture_buffer_len];
+                    uint prev_val = capture_buf[(i - capture_config.num_active_channels * 50) % capture_config.capture_buffer_len ];
+
+                    if (!is_trigger_index(capture_config, i)) continue;
+
+                    uint threshold = capture_config.trigger_threshold;
+                    trigger_edge_t edge = capture_config.trigger_edge;
+
+                    if (((cur_val >= threshold && prev_val < threshold && (edge == EDGE_UP || edge == EDGE_BOTH)) ||
+                        (cur_val <= threshold && prev_val > threshold && (edge == EDGE_DOWN || edge == EDGE_BOTH))) &&
+                        i >= capture_config.pretrigger) {
+                        trigger_index = i - capture_config.pretrigger;
+                        printf("Found trigger at %d, %d since start\n", i, xfer_count_since_start);
+                        triggered = true;
+                        break;
+                    }
+                }
+
+            // Check for timeout (in auto mode)
+            } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
+                trigger_index = 0;
+                printf("Timeout at %d S\n", xfer_count_since_start);
+                triggered = true;
+                capture_result = OK;
+                break;
+            // Check for capture stop
+            }  if (triggered && xfer_count_since_start - trigger_index >= capture_config.capture_buffer_len) {
+                adc_run(false);
+                printf("Stopping at %d, %d after %d\n", xfer_count_since_start, (xfer_count_since_start - trigger_index), trigger_index);
+                capture_result = OK;
+                break;
+            }
+
+            prev_xfer_count = xfer_count;
+            prev_xfer_count_since_start = xfer_count_since_start;
         }
 
-        prev_xfer_count = xfer_count;
-        prev_xfer_count_since_start = xfer_count_since_start;
-    }
 
+        // Atomically abort both channels.
+        dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
+        if (dma_channel_is_busy(main_chan)) dma_channel_abort(main_chan);
+        if (dma_channel_is_busy(ctrl_chan)) dma_channel_abort(ctrl_chan);
 
-    // Atomically abort both channels.
-    dma_hw->abort = (1 << main_chan) | (1 << ctrl_chan);
-    if (dma_channel_is_busy(main_chan)) dma_channel_abort(main_chan);
-    if (dma_channel_is_busy(ctrl_chan)) dma_channel_abort(ctrl_chan);
+        // Send capture status message;
+        uint8_t status_msg = capture_result;
+        usb_send(&status_msg, 1);
+        printf("Status message sent: %d\n", status_msg);
 
-    // Send capture status message;
-    uint8_t status_msg = capture_result;
-    usb_send(&status_msg, 1);
-    printf("Status message sent: %d\n", status_msg);
+        if (capture_result == OK) {
+            printf("Sending captured data\n");
+            uint32_t trig_msg = trigger_index % capture_config.capture_buffer_len;
+            trig_msg -= trig_msg % 2;
+            usb_send(&trig_msg, 4);
 
-    if (capture_result == OK) {
-        printf("Sending captured data\n");
-        uint32_t trig_msg = trigger_index % capture_config.capture_buffer_len;
-        trig_msg -= trig_msg % 2;
-        usb_send(&trig_msg, 4);
+            const uint usb_packet_size = 32768; 
 
-        const uint usb_packet_size = 32768; 
+            uint8_t * capture_buf_bytes = (uint8_t *) capture_buf;
 
-        uint8_t * capture_buf_bytes = (uint8_t *) capture_buf;
+            for (int i = 0; i < capture_config.capture_buffer_len * 2; i += usb_packet_size) {
+                printf("sending %d\n", capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
+                usb_send(&capture_buf_bytes[i], capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
 
-        for (int i = 0; i < capture_config.capture_buffer_len * 2; i += usb_packet_size) {
-            printf("sending %d\n", capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
-            usb_send(&capture_buf_bytes[i], capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
-
+            }
         }
-    }
     }
 
     return 0;
