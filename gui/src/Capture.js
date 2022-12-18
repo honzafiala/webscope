@@ -42,7 +42,7 @@ async function readSingle() {
 
         let rawData = [];
         for (let i = 0; i < savedCaptureConfig.captureDepth * getNumActiveChannels(savedCaptureConfig) * 2; i+=2) 
-        rawData.push(result.data.getUint16(i, true) / 16);
+        rawData.push(result.data.getUint16(i, true));
 
         trigIndex -= trigIndex % getNumActiveChannels(savedCaptureConfig);
         

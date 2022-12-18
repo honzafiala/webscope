@@ -5,8 +5,15 @@ import './ChannelControl.css';
 
 export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
-  function triggerThresholdChange(e) {
-    setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, threshold: e.target.value}});
+  function triggerThresholdChange(dir) {
+    let newVal = 3.3 * captureConfig.trigger.threshold / 255;
+    if (dir == '+' && newVal < 3.3) newVal += 0.1;
+    else if (dir == '-' && newVal > 0) newVal -= 0.1;
+    else if (dir == '0') newVal = 1;
+    console.log(newVal);
+    newVal = Math.round(newVal / 3.3 * 255)
+    console.log(newVal);
+    setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, threshold: newVal}});
   }
  
 
@@ -65,9 +72,9 @@ return (
 
   <div className="px-1 border-x border-slate-300">Level</div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">0</div>
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => triggerThresholdChange('-')}>-</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => triggerThresholdChange('0')}>0</div>
+      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => triggerThresholdChange('+')}>+</div>
   </div>
 
   <div className="px-1 border-x border-slate-300">Pretrig.</div>

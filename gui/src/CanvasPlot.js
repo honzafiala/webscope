@@ -12,23 +12,14 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       // canvas.height = canvas.offsetHeight;
     }
 
-
-
-    
-
-
-    // Fill whole canvas with background color
- 
-
     // Draw trigger level
     ctx.setLineDash([]);
     ctx.strokeStyle = '#22d3ee';
     ctx.lineWidth = 1;
     ctx.beginPath();
     let triggerChannel = captureConfig.trigger.channels.indexOf(true);
-    console.log('trigger channel: ', triggerChannel);
-    ctx.moveTo(0, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
-    ctx.lineTo(canvas.width, uint8ToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
+    ctx.moveTo(0, uint12BitToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
+    ctx.lineTo(canvas.width, uint12BitToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
 
     ctx.stroke();
 
@@ -43,30 +34,6 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       let zoomEnd = viewConfig.horizontal.viewCenter + savedCaptureConfig.captureDepth / viewConfig.horizontal.zoom / 2;
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
-
-      /*
-    // Draw vertical cursor 1
-
-    if (cursorConfig.visible) {
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(getCursorPos(cursorConfig.start), 0);
-    ctx.lineTo(getCursorPos(cursorConfig.start), canvas.height);
-    ctx.strokeStyle = 'magenta';
-    ctx.stroke();
-    
-
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(getCursorPos(cursorConfig.end), 0);
-    ctx.lineTo(getCursorPos(cursorConfig.end), canvas.height);
-    ctx.strokeStyle = 'magenta';
-    ctx.stroke();
-
-
-    }
-    ctx.setLineDash([]);
-    */
 
 
     // Draw grid
@@ -118,8 +85,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
   }
 
 
-    function uint8ToYPos(val, zoom, offset) {
-      return ((255 - val * zoom * 3.3 / 3.5) * (canvas.height) / 255) - offset  * canvas.height / 7 ;
+    function uint12BitToYPos(val, zoom, offset) {
+      return ((4096 - val * zoom * 3.3 / 3.5) * (canvas.height) / 4096) - offset  * canvas.height / 7 ;
     }
 
     // Calculate zoom
@@ -137,7 +104,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
       if (zoomEnd - zoomStart >= canvas.width) {
       for (let i = 1; i < canvas.width; i++) { 
         let bufferPos = Math.round(zoomStart + i * (zoomEnd - zoomStart) / canvas.width);
-        ctx.lineTo(i, uint8ToYPos(data[channelIndex][bufferPos], viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
+        ctx.lineTo(i, uint12BitToYPos(data[channelIndex][bufferPos], viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
       }
       } else {
       // Zoomed in - draw individual lines between sample points
@@ -148,7 +115,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
           let captureIndex = i + zoomStart;
           let captureVal = data[channelIndex][captureIndex];          
 
-          ctx.lineTo(xPos, uint8ToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
+          ctx.lineTo(xPos, uint12BitToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset));
         }
       }
       ctx.strokeStyle = savedCaptureConfig.channelColors[channelIndex];
@@ -164,7 +131,7 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
         let captureVal = data[channelIndex][captureIndex];     
         
         ctx.beginPath();
-        ctx.arc(xPos, uint8ToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset),
+        ctx.arc(xPos, uint12BitToYPos(captureVal, viewConfig.vertical[channelIndex].zoom, viewConfig.vertical[channelIndex].offset),
          3, 0, 2 * Math.PI);
         ctx.stroke(); 
         ctx.fillStyle = savedCaptureConfig.channelColors[channelIndex];
