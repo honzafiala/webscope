@@ -337,18 +337,23 @@ int main(void)
 
 
     while (1) {
-    
-    while (1) {
-        uint ret = usb_rec(rec_buf, 10);
-        if (rec_buf[0] == 1) break;
-        else {
-            // Abort message was sent - wait for another config message
-            printf("Received abort, waiting for cfg...\n");
-        } 
-    }
-    
-    const capture_config_t capture_config = parse_capture_config(rec_buf);
-    capture(capture_config);
+        uint ret = usb_rec(rec_buf, 100);
+        capture_config_t capture_config;
+        // Check the type of the incoming message
+        switch(rec_buf[0]) {
+            case 1: // Capture config received
+                capture_config = parse_capture_config(rec_buf);
+                capture(capture_config);
+                break;
+            case 0: // Abort message received - ignore;
+                break;
+            case 2: // Generator config received
+                printf("GEN CONFIG RECEIVED!!!!!\n");
+                break;
+            default:
+                break;
+        }
+
 
     }
 
