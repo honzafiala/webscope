@@ -69,14 +69,20 @@ return (
       <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.edge == "Fall" ? "slate-300" : "slate-100"}`} onClick={() => setTriggerEdge('Fall')}>Fall</div>
   </div>
 
-  <div className="px-1 border-x border-slate-300">Level</div>
+  <div className="flex px-1 border-x border-slate-300">
+    <div className="flex-1 ">Level</div>
+    <div>{captureConfig.trigger.threshold}&nbsp;V</div>
+  </div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => triggerThresholdChange('-')}>-</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => triggerThresholdChange('0')}>0</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => triggerThresholdChange('+')}>+</div>
   </div>
 
-  <div className="px-1 border-x border-slate-300">Pretrig.</div>
+  <div className="flex px-1 border-x border-slate-300">
+    <div className="flex-1 ">Pretrig.</div>
+    <div>{captureConfig.preTrigger * 100}&nbsp;%</div>
+  </div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => preTriggerChange('-')}>-</div>
       <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300" onClick={() => preTriggerChange('0')}>0</div>
