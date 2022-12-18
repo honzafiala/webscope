@@ -44,6 +44,18 @@ typedef struct {
     trigger_edge_t trigger_edge;
 } capture_config_t;
 
+typedef struct {
+    uint frequency;
+    uint duty;
+} generator_config_t;
+
+generator_config_t parse_generator_config(uint8_t config_bytes[]) {
+    generator_config_t generator_config;
+    generator_config.frequency = (config_bytes[1] << 8) + config_bytes[2];
+    generator_config.duty = config_bytes[3];
+    return generator_config;
+}
+
 void debug_gpio_init() {
     gpio_init(DEBUG_PIN0);
     gpio_set_dir(DEBUG_PIN0, GPIO_OUT);
@@ -339,6 +351,7 @@ int main(void)
     while (1) {
         uint ret = usb_rec(rec_buf, 100);
         capture_config_t capture_config;
+        generator_config_t generator_config;
         // Check the type of the incoming message
         switch(rec_buf[0]) {
             case 1: // Capture config received
@@ -349,6 +362,9 @@ int main(void)
                 break;
             case 2: // Generator config received
                 printf("GEN CONFIG RECEIVED!!!!!\n");
+                generator_config = parse_generator_config(rec_buf);
+                printf("Freq: %d\n", generator_config.frequency);
+                printf("Duty: %d\n", generator_config.duty);
                 break;
             default:
                 break;

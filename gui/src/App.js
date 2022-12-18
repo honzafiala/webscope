@@ -12,7 +12,7 @@ import CursorSliderOverlay from './CursorSliderOverlay';
 import SideMenu from './SideMenu';
 import SplashScreen from './SplashScreen';
 import ConnectDevice from './ConnectDevice';
-import HorizontalSlider from './HorizontalSlider';
+import GeneratorControl from './GeneratorControl';
 
 
 let defaultCaptureConfig = {
@@ -62,13 +62,13 @@ let defaultCursorConfig = {
     }
 }
 
-
 let defaultCaptureState = "Stopped";
 
 let defaultAppState = {
   menu: false,
   splashScreen: true
 }
+
 
 
 export default function App() {
@@ -80,9 +80,7 @@ export default function App() {
   let [USBDevice, setUSBDevice] = useState(null);
   let [captureState, setCaptureState] = useState(defaultCaptureState);
   let [appState, setAppState] = useState(defaultAppState);
-
-
-
+  
 
   return (
     <div className='root'>
@@ -116,7 +114,8 @@ export default function App() {
       <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} 
             setCursorConfig={setCursorConfig} captureData={captureData}/>
-
+            <GeneratorControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}
+              USBDevice={USBDevice}/>
       </div>
       <div className='relative flex-1 flex overflow-hidden'>
 
