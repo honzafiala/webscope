@@ -18,8 +18,8 @@ const CanvasPlot =({data, viewConfig, captureConfig, savedCaptureConfig, cursorC
     ctx.lineWidth = 1;
     ctx.beginPath();
     let triggerChannel = captureConfig.trigger.channels.indexOf(true);
-    ctx.moveTo(0, uint12BitToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
-    ctx.lineTo(canvas.width, uint12BitToYPos(captureConfig.trigger.threshold, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
+    ctx.moveTo(0, uint12BitToYPos(captureConfig.trigger.threshold * 4096 / 3.3, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
+    ctx.lineTo(canvas.width, uint12BitToYPos(captureConfig.trigger.threshold * 4096 / 3.3, viewConfig.vertical[triggerChannel].zoom, viewConfig.vertical[triggerChannel].offset));
 
     ctx.stroke();
 

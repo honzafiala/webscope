@@ -23,7 +23,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   }
 
   function xCursorPosToVoltage(pos) {
-    return captureData[cursorConfig.channel - 1][Math.round((zoomStart + pos * zoomLen / 100))] * 3.3 / (255);
+    return captureData[cursorConfig.channel - 1][Math.round((zoomStart + pos * zoomLen / 100))] * 3.3 / 4096;
   }
 
   function formatValue(val) {
