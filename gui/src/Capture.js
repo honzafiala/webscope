@@ -14,16 +14,11 @@ async function readSingle() {
         setSavedCaptureConfig(savedCaptureConfig);
         console.log('Requesting capture:', JSON.stringify(savedCaptureConfig));
 
-
-
-
-
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(savedCaptureConfig);    
         console.log("encoded request:", captureConfigMessage);
 
         await USBDevice.transferOut(3, captureConfigMessage);
-    
 
         let result;
     

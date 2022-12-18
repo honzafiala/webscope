@@ -197,7 +197,7 @@ bool is_trigger_index(const capture_config_t capture_config, uint index) {
 }
 
 int main(void)
-  {
+   {
     multicore_launch_core1(core1_task);
 
     pwm_configure();
