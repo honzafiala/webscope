@@ -21,7 +21,7 @@ let defaultCaptureConfig = {
   trigger: {
     channels: [true, false, false], 
     threshold: 1,
-    edge: "UP"
+    edge: "Rise"
   },
   preTrigger: 0.1,
   sampleRate: 500000,

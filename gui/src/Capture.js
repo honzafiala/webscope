@@ -112,8 +112,8 @@ function captureConfigToByteArray(cfg) {
     }
 
     let triggerEdgeByte;
-    if (captureConfig.trigger.edge == "UP") triggerEdgeByte = 0;
-    else if (captureConfig.trigger.edge == "DOWN") triggerEdgeByte = 1;
+    if (captureConfig.trigger.edge == "Rise") triggerEdgeByte = 0;
+    else if (captureConfig.trigger.edge == "Fall") triggerEdgeByte = 1;
     else triggerEdgeByte = 2;
 
     let trigger12Bit =  Math.round(4096 * cfg.trigger.threshold / 3.3);

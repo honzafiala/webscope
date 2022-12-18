@@ -65,8 +65,8 @@ return (
 
   <div className="px-1 border-x border-slate-300">Edge</div>
   <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  leading-5 text-slate-700 border border-slate-300 shadow">
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-slate-300">Rise</div>
-      <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">Fall</div>
+      <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.edge == "Rise" ? "slate-300" : "slate-100"}`} onClick={() => setTriggerEdge('Rise')}>Rise</div>
+      <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 bg-${captureConfig.trigger.edge == "Fall" ? "slate-300" : "slate-100"}`} onClick={() => setTriggerEdge('Fall')}>Fall</div>
   </div>
 
   <div className="px-1 border-x border-slate-300">Level</div>
