@@ -4,6 +4,8 @@ import {getNumActiveChannels, formatValue} from './Utils';
 export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
 const [complete, setComplete] = useState(true);
 
+
+
 async function readSingle() {
   try {
         // Set the current captureConfig as savedCaptureConfig
@@ -12,12 +14,17 @@ async function readSingle() {
         setSavedCaptureConfig(savedCaptureConfig);
         console.log('Requesting capture:', JSON.stringify(savedCaptureConfig));
 
+
+
+
+
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(savedCaptureConfig);    
         console.log("encoded request:", captureConfigMessage);
 
         await USBDevice.transferOut(3, captureConfigMessage);
     
+
         let result;
     
         // Wait for capture status message from the device
@@ -109,10 +116,13 @@ function captureConfigToByteArray(cfg) {
     else if (captureConfig.trigger.edge == "DOWN") triggerEdgeByte = 1;
     else triggerEdgeByte = 2;
 
+    let trigger12Bit =  Math.round(4096 * cfg.trigger.threshold / 3.3);
+    let thresholdBytes = [trigger12Bit >> 8, trigger12Bit & 0xFF];
 
     return new Uint8Array([
         1, 
-        cfg.trigger.threshold, 
+        thresholdBytes[0],
+        thresholdBytes[1], 
         activeChannelsByte, 
         captureDepth_kb, 
         pretriggerByte, 
@@ -168,6 +178,8 @@ async function pollUSB(len) {
     return (
       <div className='flex flex-row text-l'>
       <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+       
+       
         <button 
           onClick={() => {setCaptureState("Run"); setCaptureData([[], [], []])}} 
           disabled={USBDevice == null}

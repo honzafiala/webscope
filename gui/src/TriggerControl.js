@@ -6,13 +6,12 @@ import './ChannelControl.css';
 export default function TriggerControl({captureConfig, setCaptureConfig}) {
 
   function triggerThresholdChange(dir) {
-    let newVal = 3.3 * captureConfig.trigger.threshold / 255;
+    let newVal = captureConfig.trigger.threshold;
     if (dir == '+' && newVal < 3.3) newVal += 0.1;
     else if (dir == '-' && newVal > 0) newVal -= 0.1;
     else if (dir == '0') newVal = 1;
-    console.log(newVal);
-    newVal = Math.round(newVal / 3.3 * 255)
-    console.log(newVal);
+    newVal = Math.round(newVal * 10) / 10;
+    console.log('new threshold:', newVal);
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, threshold: newVal}});
   }
  

@@ -131,10 +131,11 @@ void pwm_configure() {
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config_t capture_config;
 
-    capture_config.trigger_threshold = config_bytes[1] * 16;
+    capture_config.trigger_threshold = (config_bytes[1] << 8) + config_bytes[2];
+    printf("THRESHOLD: %x %x => %d\n", config_bytes[1], config_bytes[2], (config_bytes[1] << 8) + config_bytes[2]);
 
     capture_config.num_active_channels = 0;
-    uint8_t active_channels_byte = config_bytes[2];
+    uint8_t active_channels_byte = config_bytes[3];
     for (int i = 0; i < 3; i++) {
         if ((active_channels_byte >> i) & 1) {
             capture_config.active_channels[i] = true;
@@ -143,16 +144,16 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
         else capture_config.active_channels[i] = false;
     }
 
-    capture_config.capture_depth = config_bytes[3] * 1000 / capture_config.num_active_channels;
+    capture_config.capture_depth = config_bytes[4] * 1000 / capture_config.num_active_channels;
 
 
-    capture_config.auto_mode = config_bytes[5] ? true : false;
+    capture_config.auto_mode = config_bytes[6] ? true : false;
 
-    capture_config.sample_rate = config_bytes[6] * 10000;
+    capture_config.sample_rate = config_bytes[7] * 10000;
 
     capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
 
-    capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[4] / 10;
+    capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[5] / 10;
 
     for (int i = 0; i < 3; i++) {
         if (((config_bytes[7] >> i) & 1) && capture_config.active_channels[i]) {
@@ -161,8 +162,8 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
         else capture_config.trigger_channels[i] = false;
     }
 
-    if (config_bytes[8] == 2) capture_config.trigger_edge = EDGE_BOTH;
-    else if (config_bytes[8] == 1) capture_config.trigger_edge = EDGE_DOWN;
+    if (config_bytes[9] == 2) capture_config.trigger_edge = EDGE_BOTH;
+    else if (config_bytes[9] == 1) capture_config.trigger_edge = EDGE_DOWN;
     else capture_config.trigger_edge = EDGE_UP;
 
     return capture_config;
@@ -206,10 +207,11 @@ int main(void)
 
     uint8_t rec_buf[100] = {0};
 
+
     while (1) {
     
     while (1) {
-        uint ret = usb_rec(rec_buf, 9);
+        uint ret = usb_rec(rec_buf, 10);
         if (rec_buf[0] == 1) break;
         else {
             // Abort message was sent - wait for another config message
@@ -223,6 +225,7 @@ int main(void)
     uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
     printf("\n");
+    printf("Trigger threshold: %d\n", capture_config.trigger_threshold);
     printf("Capture depth: %d\n", capture_config.capture_depth);
     printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
 
