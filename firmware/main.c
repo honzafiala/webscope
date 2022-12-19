@@ -9,6 +9,11 @@
 #include "hardware/dma.h"
 #include "hardware/pwm.h"
 
+#include "hardware/pll.h"
+#include "hardware/clocks.h"
+#include "hardware/structs/pll.h"
+#include "hardware/structs/clocks.h"
+
 #include "pico/multicore.h"
 
 extern void core1_task();
@@ -45,14 +50,16 @@ typedef struct {
 } capture_config_t;
 
 typedef struct {
-    uint frequency;
-    uint duty;
+    uint wrap;
+    uint div;
+    uint high_count;
 } generator_config_t;
 
 generator_config_t parse_generator_config(uint8_t config_bytes[]) {
     generator_config_t generator_config;
-    generator_config.frequency = (config_bytes[1] << 8) + config_bytes[2];
-    generator_config.duty = config_bytes[3];
+    generator_config.wrap = (config_bytes[1] << 8) + config_bytes[2];
+    generator_config.div = (config_bytes[3] << 8) + config_bytes[4];
+    generator_config.high_count = generator_config.wrap / 2;
     return generator_config;
 }
 
@@ -125,7 +132,7 @@ void adc_configure(capture_config_t capture_config) {
     adc_set_clkdiv(96 * 500000 / capture_config.sample_rate);
 }
 
-void pwm_configure() {
+void pwm_configure(generator_config_t generator_config) {
     const int pwm_gpio_pin = 16;
     // Tell GPIO 0 and 1 they are allocated to the PWM
     gpio_set_function(pwm_gpio_pin, GPIO_FUNC_PWM);
@@ -135,9 +142,10 @@ void pwm_configure() {
 
 
     pwm_config config = pwm_get_default_config();
-    pwm_config_set_clkdiv(&config, 2.f);
+    pwm_config_set_clkdiv_int(&config, generator_config.div);
+    pwm_config_set_wrap(&config, generator_config.wrap);
     pwm_init(slice_num, &config, true);
-    pwm_set_gpio_level(pwm_gpio_pin, 32768); // 32768 out of 65535 = 50% duty cycle
+    pwm_set_gpio_level(pwm_gpio_pin, generator_config.high_count);
 }
 
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
@@ -336,11 +344,11 @@ void capture(capture_config_t capture_config) {
     }
 }
 
-int main(void)
-   {
+int main(void) {
     multicore_launch_core1(core1_task);
 
-    pwm_configure();
+    printf("clk_sys: %d\n", clock_get_hz(clk_sys));
+
 
     main_chan = dma_claim_unused_channel(true);
     ctrl_chan = dma_claim_unused_channel(true);
@@ -363,8 +371,9 @@ int main(void)
             case 2: // Generator config received
                 printf("GEN CONFIG RECEIVED!!!!!\n");
                 generator_config = parse_generator_config(rec_buf);
-                printf("Freq: %d\n", generator_config.frequency);
-                printf("Duty: %d\n", generator_config.duty);
+                printf("Wrap: %d\n", generator_config.wrap);
+                printf("Div: %d\n", generator_config.div);
+                pwm_configure(generator_config);
                 break;
             default:
                 break;

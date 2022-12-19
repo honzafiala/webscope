@@ -28,16 +28,16 @@ const CursorSliderOverlay = ({cursorConfig, setCursorConfig, captureConfig, view
     let mousePosX = event.nativeEvent.offsetX;
     let mousePosY = height - event.nativeEvent.offsetY;
     console.log(mousePosX, mousePosY, cursorPosToYOffset(cursorConfig.y.start));
-    if (mousePosX > cursorPosToXOffset(cursorConfig.x.start) && mousePosX < cursorPosToXOffset(cursorConfig.x.start) + 20) {
+    if (mousePosX > cursorPosToXOffset(cursorConfig.x.start) - 20 && mousePosX < cursorPosToXOffset(cursorConfig.x.start) + 20) {
       setSliderState('x_start');
       console.log('left...');
-    } else if (mousePosX > cursorPosToXOffset(cursorConfig.x.end) - 20 && mousePosX < cursorPosToXOffset(cursorConfig.x.end)) {
+    } else if (mousePosX > cursorPosToXOffset(cursorConfig.x.end) - 20 && mousePosX < cursorPosToXOffset(cursorConfig.x.end) + 20) {
       setSliderState('x_end');
       console.log('right...');
-    } else if (mousePosY > cursorPosToYOffset(cursorConfig.y.start) && mousePosY < cursorPosToYOffset(cursorConfig.y.start) + 20) {
+    } else if (mousePosY > cursorPosToYOffset(cursorConfig.y.start) - 20 && mousePosY < cursorPosToYOffset(cursorConfig.y.start) + 20) {
       setSliderState('y_start');
       console.log('bottom...');
-    } else if (mousePosY > cursorPosToYOffset(cursorConfig.y.end) - 20 && mousePosY < cursorPosToYOffset(cursorConfig.y.end)) {
+    } else if (mousePosY > cursorPosToYOffset(cursorConfig.y.end) - 20 && mousePosY < cursorPosToYOffset(cursorConfig.y.end) + 20) {
       setSliderState('y_end');
       console.log('top...');
     }
