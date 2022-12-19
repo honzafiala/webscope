@@ -1,5 +1,5 @@
-import SettingControl from './SettingControl';
 import React, {useState, useEffect} from 'react';
+import SideBarButton from './SideBarButton';
 
 let defaultGeneratorConfig = {
     active: false,
@@ -31,7 +31,7 @@ async function sendGeneratorConfig(generatorConfig, USBDevice) {
     console.log("Generator config message sent");
 }
 
-export default function GeneratorControl({USBDevice}) {
+export default function GeneratorControl({USBDevice, captureState}) {
     const [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
 
     function changeFrequency(dir) {
@@ -74,6 +74,8 @@ export default function GeneratorControl({USBDevice}) {
     }
 
 
+  console.log('capture state:', captureState);
+
   
 
   return (
@@ -81,18 +83,12 @@ export default function GeneratorControl({USBDevice}) {
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
         <div className={`flex-1 px-1 py-[2px] whitespace-nowrap ${generatorConfig.active ? "text-slate-700 bg-slate-200" : "text-slate-400 bg-slate-100"}`}>PWM gen.</div>
-        <div className="px-3  hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100"
-        onClick={toggleActive}>
-        {generatorConfig.active ? '-' : '+'}
-        </div>
+        
+        <SideBarButton onClick={toggleActive} enabled={USBDevice && captureState == "Stopped"} text={generatorConfig.active ? '-' : '+'}/>
+        
    
     </div>
 
-    {false && <div className="flex h-4 px-1 border-x border-slate-300">
-        <svg>
-            <line x1="5" y1="10" x2="110" y2="10" style={{"stroke": "rgb(100,100,100)", "strokeWidth": "2"}} />
-        </svg>
-    </div>}
 
     <div className="flex px-1 border-x border-slate-300">
       <div className="flex-1 ">Freq.</div>
@@ -100,8 +96,8 @@ export default function GeneratorControl({USBDevice}) {
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-        <div onClick={() => changeFrequency("-")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
-        <div onClick={() => changeFrequency("+")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="-" onClick={() => changeFrequency('-')}/>
+        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="+" onClick={() => changeFrequency('+')}/>
     </div>
 
     <div className="flex px-1 border-x border-slate-300">
@@ -110,8 +106,9 @@ export default function GeneratorControl({USBDevice}) {
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-        <div onClick={() => changeDuty("-")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">-</div>
-        <div onClick={() => changeDuty("+")} className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300">+</div>
+        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="-" onClick={() => changeDuty('-')}/>
+        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="+" onClick={() => changeDuty('+')}/>
+    
     </div>
 
     

@@ -115,7 +115,7 @@ export default function App() {
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} 
             setCursorConfig={setCursorConfig} captureData={captureData}/>
             <GeneratorControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}
-              USBDevice={USBDevice}/>
+              USBDevice={USBDevice} captureState={captureState}/>
       </div>
       <div className='relative flex-1 flex overflow-hidden'>
 

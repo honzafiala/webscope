@@ -1,7 +1,8 @@
-import ValueBox from './ValueBox';
-import React, {useState} from 'react';
-import './ChannelControl.css';
-import {getNumActiveChannels, formatValue} from './Utils'
+import React from 'react';
+import {getNumActiveChannels} from './Utils'
+import SideBarButton from './SideBarButton';
+import SideBarButtonBar from './SideBarButtonBar';
+
 
 export default function ChannelControl({color, number, captureConfig, setCaptureConfig, viewConfig, setViewConfig}) {
 
@@ -67,51 +68,28 @@ export default function ChannelControl({color, number, captureConfig, setCapture
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
         <div className={`flex-1 px-1 py-[2px] whitespace-nowrap  ${captureConfig.activeChannels[channelNumber - 1] ? "bg-" + channelColors[channelNumber - 1] + "-300": "bg-slate-100 text-slate-400"}`} >Channel {channelNumber}</div>
-        <div className="px-3  hover:bg-slate-300 hover:text-slate-900 active:bg-slate-400  bg-slate-100" active="true" onClick={toggleActive}>
-        {captureConfig.activeChannels[channelNumber - 1] ? '-' : '+'}
-        </div>
-   
+        <SideBarButton text={captureConfig.activeChannels[channelNumber - 1] ? '-' : '+'} enabled={true} onClick={toggleActive}/>
     </div>
     <div className='flex px-1 border-x border-slate-30'>
     <div className="flex-1">Scale</div>
     <div>{viewConfig.vertical[channelNumber - 1].zoom}&nbsp;x</div>
     </div>
-    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-0 bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
-        <div className="flex-1 text-center   hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
-          onClick={() => changeZoom('-')}>{"-"}</div>
-        <div className="flex-1 text-center   hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
-          onClick={() => changeZoom('0')}>{"0"}</div>
-        <div className="flex-1 text-center   hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
-          onClick={() => changeZoom('+')}>{"+"}</div>
-    </div>
+    <SideBarButtonBar>
+        <SideBarButton text='-' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeZoom('-')}/>
+        <SideBarButton text='0' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeZoom('0')}/>
+        <SideBarButton text='+' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeZoom('+')}/>
+    </SideBarButtonBar>
 
     <div className='flex px-1 border-x border-slate-30'>
     <div className="flex-1">Offset</div>
     <div>{viewConfig.vertical[channelNumber - 1].offset}&nbsp;div</div>
     </div>
-    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
-        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
-          onClick={() => changeOffset('-')}>{"-"}</div>
-        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
-          onClick={() => changeOffset('0')}>{"0"}</div>
-        <div className="flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300"
-          onClick={() => changeOffset('+')}>{"+"}</div>
-    </div>
+    <SideBarButtonBar>
+      <SideBarButton text='-' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('-')}/>
+      <SideBarButton text='0' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('0')}/>
+      <SideBarButton text='+' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('+')}/>
+    </SideBarButtonBar>
 
 </div>
   );
-
-  return (
-    <div className="ChannelControl">
-      <div className="topBar" style={{backgroundColor: color}}>
-        <div className='name'>Channel {number} </div>
-          <input className="checkBox"type = "checkbox" checked={captureConfig.activeChannels[channelNumber - 1]} onChange={toggleActive}>
-          </input>
-        </div>
-        <div className='content'>
-          <ValueBox name="Scale" unit=" x" data={viewConfig.vertical[channelNumber - 1].zoom} setData={changeZoom}/>
-          <ValueBox name="Offset" unit=" div" data={viewConfig.vertical[channelNumber - 1].offset} setData={changeOffset}/>
-        </div>
-    </div>
-    )
 }
