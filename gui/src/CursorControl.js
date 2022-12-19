@@ -129,10 +129,11 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
         <div className="px-1 border-x border-slate-300">Channel</div>
         <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden bg-slate-100 leading-5 text-slate-700 border border-slate-300 shadow">
             {
-                Array(1, 2, 3).map(channel => 
+                Array(1, 2, 3).map((channel, index) => 
                     <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
                     ${cursorConfig.channel == channel ? 'bg-slate-300' : ''}`}
-                    onClick={() => setCursorChannel(channel)}>
+                    onClick={() => setCursorChannel(channel)}
+                    key={index}>
                         {channel}
                     </div>
                 )
@@ -151,10 +152,10 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
             <div className='px-1 py-0 my-0'>
                 X
             </div>
-            {xMeasurements.map(measurement => 
-                <div className="flex">
+            {xMeasurements.map((measurement, index) => 
+                <div className="flex" key={measurement.index}>
                 <div className="flex-1 px-2">
-                    <i>{measurement.name}<sub>{measurement.index}</sub></i>
+                    <i>{measurement.name}<sub>{index}</sub></i>
                 </div>
                 <div className="flex-1 text-right px-2">
                     {formatValue(measurement.val)}{measurement.unit}
@@ -167,10 +168,10 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
             <div className='px-1 py-0 my-0'>
                 Y
             </div>
-            {yMeasurements.map(measurement => 
-                <div className="flex">
+            {yMeasurements.map((measurement, index) => 
+                <div className="flex" key={measurement.index}>
                 <div className="flex-1 px-2">
-                    <i>{measurement.name}<sub>{measurement.index}</sub></i>
+                    <i>{measurement.name}<sub>{index}</sub></i>
                 </div>
                 <div className="flex-1 text-right px-2">
                     {formatValue(measurement.val)}{measurement.unit}
