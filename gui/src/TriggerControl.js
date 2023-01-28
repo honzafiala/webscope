@@ -32,7 +32,7 @@ export default function TriggerControl({captureConfig, setCaptureConfig}) {
     newChannels[channel] = true;
     setCaptureConfig({...captureConfig, trigger: {...captureConfig.trigger, channels: newChannels}});
 
-    console.log(captureConfig.trigger.channels);
+    console.log("trigger channels:", newChannels);
   }
 
   function setTriggerEdge(edge) {

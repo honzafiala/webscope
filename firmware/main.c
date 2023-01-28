@@ -50,6 +50,7 @@ typedef struct {
 } capture_config_t;
 
 typedef struct {
+    bool active;
     uint wrap;
     uint div;
     uint high_count;
@@ -60,6 +61,7 @@ generator_config_t parse_generator_config(uint8_t config_bytes[]) {
     generator_config.wrap = (config_bytes[1] << 8) + config_bytes[2];
     generator_config.div = (config_bytes[3] << 8) + config_bytes[4];
     generator_config.high_count = config_bytes[5] * generator_config.wrap / 100;
+    generator_config.active = config_bytes[6];
     return generator_config;
 }
 
@@ -133,12 +135,23 @@ void adc_configure(capture_config_t capture_config) {
 }
 
 void pwm_configure(generator_config_t generator_config) {
+    if (!generator_config.active) {
+
+    }
     const int pwm_gpio_pin = 16;
-    // Tell GPIO 0 and 1 they are allocated to the PWM
-    gpio_set_function(pwm_gpio_pin, GPIO_FUNC_PWM);
+
 
     // Find out which PWM slice is connected to GPIO 0 (it's slice 0)
     uint slice_num = pwm_gpio_to_slice_num(pwm_gpio_pin);
+
+    if (!generator_config.active) {
+        pwm_set_enabled(slice_num, false);
+        gpio_set_function(pwm_gpio_pin, GPIO_FUNC_NULL);
+        return;    
+    }
+
+    // Tell GPIO 0 and 1 they are allocated to the PWM
+    gpio_set_function(pwm_gpio_pin, GPIO_FUNC_PWM);
 
 
     pwm_config config = pwm_get_default_config();
@@ -175,8 +188,9 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[5] / 10;
 
+    printf("TRIGGER CHANNELS: %d\n", config_bytes[8]);
     for (int i = 0; i < 3; i++) {
-        if (((config_bytes[7] >> i) & 1) && capture_config.active_channels[i]) {
+        if (((config_bytes[8] >> i) & 1) && capture_config.active_channels[i]) {
             capture_config.trigger_channels[i] = true;
         }
         else capture_config.trigger_channels[i] = false;
@@ -374,6 +388,7 @@ int main(void) {
                 printf("Wrap: %d\n", generator_config.wrap);
                 printf("Div: %d\n", generator_config.div);
                 printf("High count: %d\n", generator_config.high_count);
+                printf("Active: %d\n", (int) generator_config.active);
                 pwm_configure(generator_config);
                 break;
             default:

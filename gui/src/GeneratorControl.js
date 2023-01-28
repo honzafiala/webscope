@@ -21,7 +21,8 @@ function generatorConfigToByteArray(generatorConfig) {
         wrapBytes[1],
         divBytes[0],
         divBytes[1],
-        generatorConfig.duty
+        generatorConfig.duty,
+        generatorConfig.active
     ]);
 }
 
