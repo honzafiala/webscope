@@ -1,6 +1,8 @@
 export default function ConnectDevice({USBDevice, setUSBDevice, setCaptureState}) {
     async function connect() {
-        let device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0xcafe }] });
+        let device = await navigator.usb.requestDevice({
+          filters: [{ vendorId: 0xcafe }] 
+        });
         await device.open();
         await device.selectConfiguration(1);
         await device.claimInterface(2);
@@ -13,6 +15,7 @@ export default function ConnectDevice({USBDevice, setUSBDevice, setCaptureState}
     
         // "Dummy" IN transfer
         let result = await device.transferIn(3, 4);
+        
     
         // Out transfer - abort capture
         let abortMessage = new Uint8Array([0]);

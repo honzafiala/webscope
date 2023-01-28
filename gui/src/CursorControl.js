@@ -120,6 +120,8 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   }
   ];
 
+  console.log(xMeasurements);
+
   return(
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
         <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
@@ -153,9 +155,9 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                 X
             </div>
             {xMeasurements.map((measurement, index) => 
-                <div className="flex" key={measurement.index}>
+                <div className="flex" key={index}>
                 <div className="flex-1 px-2">
-                    <i>{measurement.name}<sub>{index}</sub></i>
+                    <i>{measurement.name}<sub>{measurement.index}</sub></i>
                 </div>
                 <div className="flex-1 text-right px-2">
                     {formatValue(measurement.val)}{measurement.unit}
@@ -169,9 +171,9 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
                 Y
             </div>
             {yMeasurements.map((measurement, index) => 
-                <div className="flex" key={measurement.index}>
+                <div className="flex" key={index}>
                 <div className="flex-1 px-2">
-                    <i>{measurement.name}<sub>{index}</sub></i>
+                    <i>{measurement.name}<sub>{measurement.index}</sub></i>
                 </div>
                 <div className="flex-1 text-right px-2">
                     {formatValue(measurement.val)}{measurement.unit}

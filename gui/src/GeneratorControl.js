@@ -20,7 +20,8 @@ function generatorConfigToByteArray(generatorConfig) {
         wrapBytes[0],
         wrapBytes[1],
         divBytes[0],
-        divBytes[1]
+        divBytes[1],
+        generatorConfig.duty
     ]);
 }
 
@@ -71,6 +72,7 @@ export default function GeneratorControl({USBDevice, captureState}) {
 
     function toggleActive() {
         setGeneratorConfig({...generatorConfig, active: !generatorConfig.active});
+        sendGeneratorConfig({...generatorConfig, active: !generatorConfig.active}, USBDevice);
     }
 
 
