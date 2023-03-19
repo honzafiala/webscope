@@ -88,7 +88,20 @@ async function readSingle() {
         return true;
 }
 
+function toUintBytes(num, bytes) {
+  let byteArray = []
+  for (let i = bytes - 1; i >= 0; i--) {
+    byteArray.push((num >> (8 * i)) & 0xFF);
+  }
+  return byteArray;
+}
+
+
 function captureConfigToByteArray(cfg) {
+
+  console.log('converted:', toUintBytes(0x010203FF, 4));
+
+
   let activeChannelsByte = 0;
     for (let i = 0; i < cfg.activeChannels.length; i++) {
         if (cfg.activeChannels[i]) activeChannelsByte += 1 << i;
@@ -99,7 +112,7 @@ function captureConfigToByteArray(cfg) {
 
     let captureModeByte = cfg.captureMode == "Auto" ? 1 : 0;
 
-    let sampleRateByte = cfg.sampleRate / 10000;
+    let sampleRateBytes = toUintBytes(cfg.sampleRate, 4);
 
     let triggerChannelsByte = 0;
     for (let i = 0; i < cfg.trigger.channels.length; i++) {
@@ -122,7 +135,10 @@ function captureConfigToByteArray(cfg) {
         captureDepth_kb, 
         pretriggerByte, 
         captureModeByte, 
-        sampleRateByte,
+        sampleRateBytes[0],
+        sampleRateBytes[1],
+        sampleRateBytes[2],
+        sampleRateBytes[3],
         triggerChannelsByte,
         triggerEdgeByte
     ]);

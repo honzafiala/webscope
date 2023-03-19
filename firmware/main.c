@@ -131,13 +131,11 @@ void adc_configure(capture_config_t capture_config) {
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(96 * 500000 / capture_config.sample_rate);
+    adc_set_clkdiv(95 * 500000 / capture_config.sample_rate);
 }
 
 void pwm_configure(generator_config_t generator_config) {
-    if (!generator_config.active) {
 
-    }
     const int pwm_gpio_pin = 16;
 
 
@@ -161,6 +159,14 @@ void pwm_configure(generator_config_t generator_config) {
     pwm_set_gpio_level(pwm_gpio_pin, generator_config.high_count);
 }
 
+uint bytes_to_uint(uint8_t * bytes, int num_bytes) {
+    uint ret = 0;
+    for (int i = 0; i < num_bytes; i++) {
+        ret += bytes[i] << (8 * (num_bytes - i - 1)); 
+    }
+    return ret;
+}
+
 capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config_t capture_config;
 
@@ -182,22 +188,24 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     capture_config.auto_mode = config_bytes[6] ? true : false;
 
-    capture_config.sample_rate = config_bytes[7] * 10000;
+    capture_config.sample_rate = bytes_to_uint(&config_bytes[7], 4);
+    printf("sample rate: %d\n", capture_config.sample_rate);
+
 
     capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
 
     capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[5] / 10;
 
-    printf("TRIGGER CHANNELS: %d\n", config_bytes[8]);
+    printf("TRIGGER CHANNELS: %d\n", config_bytes[11]);
     for (int i = 0; i < 3; i++) {
-        if (((config_bytes[8] >> i) & 1) && capture_config.active_channels[i]) {
+        if (((config_bytes[11] >> i) & 1) && capture_config.active_channels[i]) {
             capture_config.trigger_channels[i] = true;
         }
         else capture_config.trigger_channels[i] = false;
     }
 
-    if (config_bytes[9] == 2) capture_config.trigger_edge = EDGE_BOTH;
-    else if (config_bytes[9] == 1) capture_config.trigger_edge = EDGE_DOWN;
+    if (config_bytes[12] == 2) capture_config.trigger_edge = EDGE_BOTH;
+    else if (config_bytes[12] == 1) capture_config.trigger_edge = EDGE_DOWN;
     else capture_config.trigger_edge = EDGE_UP;
 
     return capture_config;
@@ -236,6 +244,7 @@ void capture(capture_config_t capture_config) {
         uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
     printf("\n");
+    printf("Sample rate: %d\n", capture_config.sample_rate);
     printf("Trigger threshold: %d\n", capture_config.trigger_threshold);
     printf("Capture depth: %d\n", capture_config.capture_depth);
     printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
@@ -363,12 +372,10 @@ int main(void) {
 
     printf("clk_sys: %d\n", clock_get_hz(clk_sys));
 
-
     main_chan = dma_claim_unused_channel(true);
     ctrl_chan = dma_claim_unused_channel(true);
 
     uint8_t rec_buf[100] = {0};
-
 
     while (1) {
         uint ret = usb_rec(rec_buf, 100);
