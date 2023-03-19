@@ -5,8 +5,8 @@ let defaultGeneratorConfig = {
     active: false,
     frequency: 1000,
     duty: 50,
-    wrap: 12500,
-    div: 10,
+    wrap: 1250,
+    div: 0,
     sysClk: 125000000
 }
 
@@ -35,34 +35,12 @@ async function sendGeneratorConfig(generatorConfig, USBDevice) {
 
 export default function GeneratorControl({USBDevice, captureState}) {
     const [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
-    const [frequencyInput, setFrequencyInput] = useState(generatorConfig.frequency.toString());
-
-    function onFrequencyInputChange(e) {
-        console.log(e.target.value);
-        setFrequencyInput(e.target.value);
-
-        generatorConfig.frequency = e.target.value;
-
-        const maxWrap = Math.pow(2, 16);
-        let div = Math.ceil(generatorConfig.sysClk / generatorConfig.frequency / maxWrap);
-        let wrap = Math.round(generatorConfig.sysClk / generatorConfig.frequency / div);
-        console.log('div', div);
-        console.log('wrap', wrap);
-        let f = generatorConfig.sysClk / div / wrap;
-        console.log('fPWM:', f);
-
-        generatorConfig.div = div;
-        generatorConfig.wrap = wrap;
-        setGeneratorConfig({...generatorConfig, frequency: e.target.value, div: div, wrap: wrap});
-        sendGeneratorConfig(generatorConfig, USBDevice);
-
-    }
 
     function changeFrequency(dir) {
         let newVal = generatorConfig.frequency;
         if (dir == '-' && newVal > 0) {
             newVal -= 100;
-        } else if (dir == '+') {
+        } else {
             newVal += 100;
         }
         generatorConfig.frequency = newVal;
@@ -116,17 +94,8 @@ export default function GeneratorControl({USBDevice, captureState}) {
 
 
     <div className="flex px-1 border-x border-slate-300">
-      <div className="flex-1 "><i>f</i></div>
-      <div>
-        <input 
-            type="text"     
-            value={generatorConfig.frequency} 
-            onChange={e => onFrequencyInputChange(e)} 
-            size="1"
-            className="bg-transparent"
-        />
-        &nbsp;Hz
-    </div>
+      <div className="flex-1 ">Freq.</div>
+      <div>{generatorConfig.frequency}&nbsp;Hz</div>
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
