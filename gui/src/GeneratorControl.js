@@ -4,9 +4,9 @@ import SideBarButton from './SideBarButton';
 let defaultGeneratorConfig = {
     active: false,
     frequency: 1000,
-    duty: 50,
+    duty: 50, 
     wrap: 1250,
-    div: 0,
+    div: 100,
     sysClk: 125000000
 }
 
