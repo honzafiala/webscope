@@ -132,6 +132,7 @@ void adc_configure(capture_config_t capture_config) {
 
     // Set the ADC sampling
     float clkdiv = 95 * 500000 / capture_config.sample_rate;
+    if (clkdiv < 96) clkdiv = 96;
     adc_set_clkdiv(clkdiv);
 }
 
