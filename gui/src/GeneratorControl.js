@@ -13,7 +13,7 @@ let defaultGeneratorConfig = {
 
 
 function generatorConfigToByteArray(generatorConfig) {
-    let wrapBytes = [generatorConfig.wrap >> 8, generatorConfig.wrap & 0xFF];
+    let wrapBytes = [(generatorConfig.wrap - 1) >> 8, (generatorConfig.wrap - 1) & 0xFF];
     let divBytes = [generatorConfig.div >> 8, generatorConfig.div & 0xFF];
     return new Uint8Array([
         2, // Id of generator config message

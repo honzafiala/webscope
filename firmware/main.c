@@ -131,7 +131,8 @@ void adc_configure(capture_config_t capture_config) {
     );
 
     // Set the ADC sampling
-    adc_set_clkdiv(95 * 500000 / capture_config.sample_rate);
+    float clkdiv = 95 * 500000 / capture_config.sample_rate;
+    adc_set_clkdiv(clkdiv);
 }
 
 void pwm_configure(generator_config_t generator_config) {
