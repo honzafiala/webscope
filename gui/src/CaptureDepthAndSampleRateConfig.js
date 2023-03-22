@@ -25,8 +25,10 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         let newCaptureDepth = Math.floor(newTotalCaptureDepth / getNumActiveChannels(captureConfig));
         console.log(index);
         setCaptureConfig({...captureConfig, captureDepth: newCaptureDepth, totalCaptureDepth: newTotalCaptureDepth});
+
+        setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, viewCenter: newCaptureDepth / 2}});
+
         setCaptureData(defaultCaptureData);
-        setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1, viewCenter: newCaptureDepth* 1000 / 2}});
     }
 
     return(
@@ -38,7 +40,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
           </div>
           <div 
             className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
-            Sampling&nbsp;{captureConfig.sampleRate/1000}&nbsp;kS/s
+            Total sample rate&nbsp;{captureConfig.sampleRate/1000}&nbsp;kS/s
           </div>
           <div onClick={() => changeSampleRate('+')}
             className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
@@ -52,7 +54,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
           </div>
           <div 
             className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
-            Depth&nbsp;{captureConfig.totalCaptureDepth/1000}&nbsp;kS
+            Total capture depth&nbsp;{captureConfig.totalCaptureDepth/1000}&nbsp;kS
           </div>
           <div onClick={() => changeCaptureDepth('+')}
             className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
