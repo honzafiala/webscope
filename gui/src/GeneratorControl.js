@@ -107,9 +107,9 @@ export default function GeneratorControl({USBDevice, captureState}) {
 
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-        <div className={`flex-1 px-1 py-[2px] whitespace-nowrap ${generatorConfig.active ? "text-slate-700 bg-slate-200" : "text-slate-400 bg-slate-100"}`}>PWM gen.</div>
+        <div className={`flex-1 px-3 py-[2px]  ${generatorConfig.active ? "text-slate-700 bg-slate-200" : "text-slate-400 bg-slate-100"}`}>Gen.&nbsp;</div>
         
-        <SideBarButton onClick={toggleActive} enabled={USBDevice && captureState == "Stopped"} text={generatorConfig.active ? '-' : '+'}/>
+        <SideBarButton onClick={toggleActive} enabled={USBDevice && captureState == "Stopped"} text={generatorConfig.active ? 'ON' : 'OFF'}/>
         
    
     </div>
