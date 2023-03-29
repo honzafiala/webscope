@@ -106,32 +106,25 @@ export default function GeneratorControl({USBDevice, captureState}) {
   return (
 
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
-{false &&
-    <div className='absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2  z-50'>
-    <div className='my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l'>
-         <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
-        <div className=" px-3 py-[2px]  text-slate-700 bg-slate-200">Generator frequency settings</div>
-    
-        <SideBarButton onClick={toggleActive} enabled="true" text="X"/>
-        
+    {false &&
+        <div className='absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2  z-50'>
+        <div className='my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l'>
+            <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
+            <div className=" px-3 py-[2px]  text-slate-700 bg-slate-200">Generator frequency settings</div>
+            <SideBarButton onClick={toggleActive} enabled="true" text="X"/>
+        </div>
+        <div className="flex px-1 border-x border-slate-300">
+        <div className="flex-1 ">Set frequency</div>
+        <div>{Math.round(generatorConfig.duty)}&nbsp;%</div>
+        </div>
 
-
-   
-    </div>
-
-    <div className="flex px-1 border-x border-slate-300">
-      <div className="flex-1 ">Set frequency</div>
-      <div>{Math.round(generatorConfig.duty)}&nbsp;%</div>
-    </div>
-
-    <div className="flex px-1 border-x border-b border-slate-300 rounded-b-md">
-      <div className="flex-1 ">Real frequency</div>
-      <div>{Math.round(generatorConfig.duty)}&nbsp;%</div>
-    </div>
-
-    </div>
-    </div>
-}
+        <div className="flex px-1 border-x border-b border-slate-300 rounded-b-md">
+        <div className="flex-1 ">Real frequency</div>
+        <div>{Math.round(generatorConfig.duty)}&nbsp;%</div>
+        </div>
+        </div>
+        </div>
+    }
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
         <div className={`flex-1 px-3 py-[2px]  ${generatorConfig.active ? "text-slate-700 bg-slate-200" : "text-slate-400 bg-slate-100"}`}>Gen.&nbsp;</div>
@@ -142,16 +135,19 @@ export default function GeneratorControl({USBDevice, captureState}) {
     </div>
 
 
-    <div className="flex px-1 border-x border-slate-300">
-      <div className="flex-1 "><i>f</i></div>
+    <div className="flex border-x border-slate-300">
+      <div className="px-0 flex-1"><i>&nbsp;f</i></div>
+      <div className="m-0 p-0  flex-1 flex border-b border-l border-slate-300">
+        <SideBarButton enabled={USBDevice && captureState == "Stopped"} text="Edit"></SideBarButton>
+      </div>
+      
+
+
+    </div>
+
+    <div className="px-1 border-x text-right border-slate-300">
       <div>
-        <input 
-            type="text"     
-            value={generatorConfig.frequency} 
-            onChange={e => onFrequencyInputChange(e)} 
-            size="1"
-            className="bg-transparent"
-        />
+{generatorConfig.frequency}
         &nbsp;Hz
     </div>
     </div>
