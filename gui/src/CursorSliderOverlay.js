@@ -85,7 +85,7 @@ const CursorSliderOverlay = ({cursorConfig, setCursorConfig, captureConfig, view
       onMouseUp={() => {setSliderState(0)}} 
       onMouseLeave={() => setSliderState(0)}
       onMouseMove={(event) => handleDrag(event)} 
-      className="absolute z-50 h-full w-full"
+      className="absolute z-40 h-full w-full"
     >
       {
         cursorConfig.x.visible &&
