@@ -4,14 +4,13 @@ import PopUpWindow from './PopUpWindow';
 
 let defaultGeneratorConfig = {
     active: false,
-    frequency: 1000,
+    realFrequency: 1000,
+    setFrequency: 1000,
     duty: 50,
     wrap: 12500,
     div: 10,
     sysClk: 125000000
 }
-
-
 
 function generatorConfigToByteArray(generatorConfig) {
     let wrapBytes = [(generatorConfig.wrap - 1) >> 8, (generatorConfig.wrap - 1) & 0xFF];
@@ -36,52 +35,28 @@ async function sendGeneratorConfig(generatorConfig, USBDevice) {
 
 export default function GeneratorControl({USBDevice, captureState}) {
     const [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
-    const [frequencyInput, setFrequencyInput] = useState(generatorConfig.frequency.toString());
 
     const [frequencyPopUpActive, setFrequencyPopUpActive] = useState(false);
 
-    function onFrequencyInputChange(e) {
-        console.log(e.target.value);
-        setFrequencyInput(e.target.value);
 
-        generatorConfig.frequency = e.target.value;
-
-        const maxWrap = Math.pow(2, 16);
-        let div = Math.ceil(generatorConfig.sysClk / generatorConfig.frequency / maxWrap);
-        let wrap = Math.round(generatorConfig.sysClk / generatorConfig.frequency / div);
-        console.log('div', div);
-        console.log('wrap', wrap);
-        let f = generatorConfig.sysClk / div / wrap;
-        console.log('fPWM:', f);
-
-        generatorConfig.div = div;
-        generatorConfig.wrap = wrap;
-        setGeneratorConfig({...generatorConfig, frequency: e.target.value, div: div, wrap: wrap});
+    function increaseFrequency() {
+        updateFrequency(generatorConfig.setFrequency + 100);
         sendGeneratorConfig(generatorConfig, USBDevice);
-
     }
 
-    function changeFrequency(dir) {
-        let newVal = generatorConfig.frequency;
-        if (dir == '-' && newVal > 0) {
-            newVal -= 100;
-        } else if (dir == '+') {
-            newVal += 100;
-        }
-        generatorConfig.frequency = newVal;
-
-        const maxWrap = Math.pow(2, 16);
-        let div = Math.ceil(generatorConfig.sysClk / generatorConfig.frequency / maxWrap);
-        let wrap = Math.round(generatorConfig.sysClk / generatorConfig.frequency / div);
-        console.log('div', div);
-        console.log('wrap', wrap);
-        let f = generatorConfig.sysClk / div / wrap;
-        console.log('fPWM:', f);
-
-        generatorConfig.div = div;
-        generatorConfig.wrap = wrap;
-        setGeneratorConfig({...generatorConfig, frequency: newVal, div: div, wrap: wrap});
+    function decreaseFrequency() {
+        updateFrequency(generatorConfig.setFrequency - 100);
         sendGeneratorConfig(generatorConfig, USBDevice);
+    }
+
+    function updateFrequency(setFrequency) {
+        const maxWrap = Math.pow(2, 16);
+        let div = Math.ceil(generatorConfig.sysClk / setFrequency / maxWrap);
+        let wrap = Math.round(generatorConfig.sysClk / setFrequency / div);
+        let realFrequency = generatorConfig.sysClk / div / wrap;
+
+        setGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap});
+        sendGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap}, USBDevice);
     }
 
     function changeDuty(dir) {
@@ -111,9 +86,28 @@ export default function GeneratorControl({USBDevice, captureState}) {
 
     <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
 
-<PopUpWindow active={frequencyPopUpActive} setActive={setFrequencyPopUpActive} title="Generator frequency settings">
-    Kokos
-</PopUpWindow>
+    <PopUpWindow active={frequencyPopUpActive} setActive={setFrequencyPopUpActive} title="Generator frequency settings">
+        <div>
+            Set frequency
+            <input 
+                autoFocus 
+                className='m-1 text-right appearance-none' 
+                style={{"caretShape" : "block", "WebkitAppearance" : "none"}} 
+                type="number" 
+                onChange={(e) => updateFrequency(e.target.value)}
+                value={generatorConfig.setFrequency}
+                size="1">
+            </input>
+            &nbsp;Hz
+        </div>
+        <div className='flex'>
+            <div className='flex-1'>Real frequency</div>
+            <div className='flex-1 text-right'>{generatorConfig.realFrequency.toFixed(4)} &nbsp; Hz</div>
+        </div>
+        <div className='text-slate-400 text-center'>
+            Div:{generatorConfig.div} Wrap:{generatorConfig.wrap}
+        </div>
+    </PopUpWindow>
 
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
@@ -128,15 +122,15 @@ export default function GeneratorControl({USBDevice, captureState}) {
     <div className="flex px-1 border-x border-slate-300">
       <div className="flex-1 "><i>f</i></div>
       <div>
-     {generatorConfig.frequency}
+     {generatorConfig.setFrequency}
         &nbsp;Hz
     </div>
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="-" onClick={() => changeFrequency('-')}/>
+        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="-" onClick={decreaseFrequency}/>
         <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="Edit" onClick={() => setFrequencyPopUpActive(true)}/>
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="+" onClick={() => changeFrequency('+')}/>
+        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="+" onClick={increaseFrequency}/>
     </div>
 
     <div className="flex px-1 border-x border-slate-300">
