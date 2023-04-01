@@ -65,7 +65,7 @@ export default function ChannelControl({color, number, captureConfig, setCapture
   let channelColors = ['yellow', 'red', 'green'];
 
   return (
-    <div className="my-1 mx-1 bg-white rounded-md  shadow  text-slate-700 text-l">
+    <div className="mb-2 mt-1 mx-1 bg-white rounded-md  shadow border-[1px] border-slate-400  text-slate-700 text-l">
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
         <div className={`flex-1 px-1 py-[2px] whitespace-nowrap  ${captureConfig.activeChannels[channelNumber - 1] ? "bg-" + channelColors[channelNumber - 1] + "-300": "bg-" + channelColors[channelNumber - 1] + "-300 opacity-50"}`} >Chan. {channelNumber}</div>
         <SideBarButton text={captureConfig.activeChannels[channelNumber - 1] ? 'ON' : 'OFF'} enabled={true} onClick={toggleActive}/>

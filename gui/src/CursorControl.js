@@ -123,7 +123,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   console.log(xMeasurements);
 
   return(
-    <div className="my-1 mx-1 bg-white rounded-md  shadow text-slate-700 text-l">
+    <div className="mb-2 mt-1 mx-1 bg-white rounded-md border border-slate-400  shadow text-slate-700 text-l">
         <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
             <div className="flex-1 px-3 py-[2px] bg-fuchsia-400">Cursors</div>
         </div>
