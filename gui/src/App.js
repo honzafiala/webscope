@@ -87,7 +87,7 @@ export default function App() {
       {false && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
       {false && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
     <div className="app">
-      <div className="px-1 flex bg-slate-100 border-b border-slate-200 w-screen justify-end select-none">
+      <div className="px-1 flex bg-slate-50 border-b border-slate-200 w-screen justify-end select-none">
 
       <CaptureDepthAndSampleRateConfig 
           captureConfig={captureConfig} 
@@ -111,7 +111,7 @@ export default function App() {
           />
       </div>
       <div className="main overflow-hidden">
-      <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
+      <div className='bg-slate-50 px-1 border-l select-none w-[140px]'>
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} 
             setCursorConfig={setCursorConfig} captureData={captureData}/>
             <GeneratorControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}
@@ -132,7 +132,7 @@ export default function App() {
       </div>
 
 
-        <div className='bg-slate-100 px-1 border-l select-none w-[140px]'>
+        <div className='bg-slate-50 px-1 border-l select-none w-[140px]'>
           {appState.menu ?  
           <SideMenu captureData={captureData} captureConfig={captureConfig}/>
           :
