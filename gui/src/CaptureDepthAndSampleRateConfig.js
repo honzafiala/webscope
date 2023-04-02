@@ -45,7 +45,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         </PopUpWindow>  
 
 
-        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400 overflow-hidden  bg-slate-100 rounded-md border text-l leading-5 text-slate-700  border-slate-400 shadow">
 
           <div 
             className={`text-center py-[2px] px-1 bg-slate-200`}>
@@ -64,7 +64,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
             +
           </div>
         </div>  
-        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-400 shadow">
          
           <div 
             className={`text-center py-[2px] px-1 bg-slate-200`}>

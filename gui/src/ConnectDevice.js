@@ -24,7 +24,7 @@ export default function ConnectDevice({USBDevice, setUSBDevice, setCaptureState}
       }
 
       return (
-        <div className="float-right mx-1 my-1 pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="float-right mx-1 my-1 pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-400 shadow">
             <div onClick={connect} 
             className={`flex-1 text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
             ${USBDevice ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>{USBDevice ? "Connected" : "Connect device"}</div>

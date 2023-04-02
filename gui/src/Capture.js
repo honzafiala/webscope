@@ -172,7 +172,7 @@ async function pollUSB(len) {
 
     return (
       <div className='flex flex-row text-l'>
-      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400 overflow-hidden rounded-md text-l leading-5 text-slate-700 border border-slate-400 shadow">
        
        
         <button 
@@ -196,7 +196,7 @@ async function pollUSB(len) {
           {captureState == "Stopped" ? "Stopped" : "Stop"}
         </div>
       </div>  
-      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-300 shadow">
+      <div className="mx-1 my-1 pointer-events-auto flex flex-row divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-400 shadow">
       <div 
         onClick={() => {setCaptureMode("Auto")}} 
         disabled={USBDevice == null}

@@ -74,21 +74,21 @@ export default function ChannelControl({color, number, captureConfig, setCapture
     <div className="flex-1">Scale</div>
     <div>{viewConfig.vertical[channelNumber - 1].zoom}&nbsp;x</div>
     </div>
-    <SideBarButtonBar>
+    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
         <SideBarButton text='-' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeZoom('-')}/>
         <SideBarButton text='0' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeZoom('0')}/>
         <SideBarButton text='+' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeZoom('+')}/>
-    </SideBarButtonBar>
+      </div>
 
     <div className='flex px-1 border-x border-slate-30'>
     <div className="flex-1">Offset</div>
     <div>{viewConfig.vertical[channelNumber - 1].offset}&nbsp;div</div>
     </div>
-    <SideBarButtonBar>
+    <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100  leading-5 text-slate-700 border border-slate-300 shadow">
       <SideBarButton text='-' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('-')}/>
       <SideBarButton text='0' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('0')}/>
       <SideBarButton text='+' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('+')}/>
-    </SideBarButtonBar>
+      </div>
 
 </div>
   );
