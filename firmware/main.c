@@ -41,6 +41,7 @@ typedef struct {
     uint num_active_channels;
     uint capture_depth;
     uint sample_rate;
+    uint adc_div;
     bool auto_mode;
     uint trigger_threshold;
     uint pretrigger;
@@ -131,7 +132,8 @@ void adc_configure(capture_config_t capture_config) {
     );
 
     // Set the ADC sampling
-    uint clkdiv = (96 * 500000 / capture_config.sample_rate - 1);
+   // uint clkdiv = (96 * 500000 / capture_config.sample_rate - 1);
+    uint clkdiv = (capture_config.adc_div - 1);
     if (clkdiv < 96) clkdiv = 0;
     //adc_set_clkdiv(clkdiv);
     adc_hw->div = clkdiv << 8;
@@ -185,22 +187,25 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     capture_config.auto_mode = config_bytes[6] ? true : false;
 
-    capture_config.sample_rate = config_bytes[7] * 10000;
+    //capture_config.sample_rate = config_bytes[7] * 10000;
+    capture_config.adc_div = (config_bytes[7] << 8) + config_bytes[8];
+    printf("Div: %d, SR %fkS/s\n", capture_config.adc_div, (float) 48000000 / capture_config.adc_div / 1000 );
+
 
     capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
 
     capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[5] / 10;
 
-    printf("TRIGGER CHANNELS: %d\n", config_bytes[8]);
+    printf("TRIGGER CHANNELS: %d\n", config_bytes[9]);
     for (int i = 0; i < 3; i++) {
-        if (((config_bytes[8] >> i) & 1) && capture_config.active_channels[i]) {
+        if (((config_bytes[9] >> i) & 1) && capture_config.active_channels[i]) {
             capture_config.trigger_channels[i] = true;
         }
         else capture_config.trigger_channels[i] = false;
     }
 
-    if (config_bytes[9] == 2) capture_config.trigger_edge = EDGE_BOTH;
-    else if (config_bytes[9] == 1) capture_config.trigger_edge = EDGE_DOWN;
+    if (config_bytes[10] == 2) capture_config.trigger_edge = EDGE_BOTH;
+    else if (config_bytes[10] == 1) capture_config.trigger_edge = EDGE_DOWN;
     else capture_config.trigger_edge = EDGE_UP;
 
     return capture_config;

@@ -101,6 +101,9 @@ function captureConfigToByteArray(cfg) {
 
     let sampleRateByte = cfg.sampleRate / 10000;
 
+    let divBytes = [cfg.sampleRatediv >> 8, cfg.sampleRateDiv & 0xFF];
+
+
     let triggerChannelsByte = 0;
     for (let i = 0; i < cfg.trigger.channels.length; i++) {
         if (cfg.trigger.channels[i]) triggerChannelsByte += 1 << i;
@@ -122,7 +125,8 @@ function captureConfigToByteArray(cfg) {
         captureDepth_kb, 
         pretriggerByte, 
         captureModeByte, 
-        sampleRateByte,
+        divBytes[0],
+        divBytes[1],
         triggerChannelsByte,
         triggerEdgeByte
     ]);
