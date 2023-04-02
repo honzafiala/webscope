@@ -1,4 +1,3 @@
-import './CaptureDepthAndSampleRateConfig.css';
 import { getNumActiveChannels } from './Utils';
 import PopUpWindow from './PopUpWindow';
 import React, {useState, useEffect} from 'react';
@@ -18,8 +17,9 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         if (dir == '+' && index > 0) index--;
         else if (dir == '-' && index < sampleRateValues.length - 1) index++;
 
-        let newVal = sampleRateValues[index] * 1000;
-        setCaptureConfig({...captureConfig, sampleRate: newVal});
+        let newSampleRate = sampleRateValues[index] * 1000;
+        let newSampleRateDiv = Math.round(48000000 / newSampleRate);
+        setCaptureConfig({...captureConfig, sampleRate: newSampleRate, sampleRateDiv: newSampleRateDiv});
     }
 
     function changeCaptureDepth(dir) {
@@ -41,7 +41,25 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         <div className='flex flex-row'>
 
         <PopUpWindow active={sampleRatePopUpOpen} setActive={setSampleRatePopUpOpen} title="Sample rate settings">
-          kokos
+        <div>
+            Set sample rate
+            <input 
+                autoFocus 
+                className='m-1 text-right appearance-none' 
+                style={{"caretShape" : "block", "WebkitAppearance" : "none"}} 
+                type="number" 
+                onChange={(e) => alert(e)}
+                value={captureConfig.sampleRate}
+                size="1">
+            </input>
+            &nbsp;S/s
+        </div>
+        <div className='flex'>
+            <div className='flex-1'>Real sample</div>
+            <div className='flex-1 text-right'>{captureConfig.sampleRateDiv} &nbsp; S/s</div>
+        </div>
+        <div className='text-slate-400 text-center'>
+        </div>
         </PopUpWindow>  
 
 

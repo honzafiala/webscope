@@ -129,7 +129,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
         </div>
 
         <div className="px-1 border-x border-slate-300">Channel</div>
-        <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden bg-slate-100 leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100 leading-5 text-slate-700 border border-slate-300 shadow">
             {
                 Array(1, 2, 3).map((channel, index) => 
                     <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
@@ -143,7 +143,7 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
         </div>
 
         <div className="px-1 border-x border-slate-300">Axis</div>
-        <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
+        <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
             <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 ${cursorConfig.x.visible ? "bg-slate-300" : ''}`}
             onClick={() => toggleActive('x')}>X</div>
             <div className={`flex-1 text-center  px-3 hover:bg-slate-200 hover:text-slate-900 ${cursorConfig.y.visible ? "bg-slate-300" : ''}`}
