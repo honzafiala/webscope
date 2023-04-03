@@ -105,8 +105,21 @@ export default function GeneratorControl({USBDevice, captureState}) {
             <div className='flex-1 text-right'>{generatorConfig.realFrequency.toFixed(4)} &nbsp; Hz</div>
         </div>
         <div className='text-slate-400 text-center'>
-            Div:{generatorConfig.div} Wrap:{generatorConfig.wrap}
+            Divx:{generatorConfig.div} Wrap:{generatorConfig.wrap}
         </div>
+        <button 
+            onClick={() => alert(0)}
+            className={`
+                flex-1 
+                text-center  
+                px-3 
+                hover:bg-slate-200 
+                hover:text-slate-900 
+                ${true ? "text-slate-700 bg-slate-100" : "text-slate-400 bg-slate-100"}
+                `}
+        >
+            Set
+        </button>
     </PopUpWindow>
 
 

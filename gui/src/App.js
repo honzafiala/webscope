@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import ChannelControl from './ChannelControl';
 import HorizontalControl from './HorizontalControl';
-import CanvasPlot from './CanvasPlot';
+import Plot from './Plot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
 import CaptureDepthAndSampleRateConfig from './CaptureDepthAndSampleRateConfig';
@@ -36,7 +36,6 @@ let defaultCaptureData = [[], [], []];
 
 
 let defaultViewConfig = {
-  visibleChannels: [true, true, false],
   vertical: [
     {offset: 0, zoom: 1}, 
     {offset: 0, zoom: 1},
@@ -173,7 +172,7 @@ export default function App() {
         {<CursorSliderOverlay cursorConfig={cursorConfig} viewConfig={viewConfig} 
         captureConfig={captureConfig} setCursorConfig={setCursorConfig}/>}
 
-        <CanvasPlot 
+        <Plot 
           data={captureData} 
           viewConfig={viewConfig} 
           cursorConfig={cursorConfig} 
