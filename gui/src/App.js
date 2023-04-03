@@ -5,14 +5,15 @@ import HorizontalControl from './HorizontalControl';
 import CanvasPlot from './CanvasPlot';
 import CursorControl from './CursorControl';
 import TriggerControl from './TriggerControl';
-import CursorMeasurementBox from './CursorMeasurementBox';
 import CaptureDepthAndSampleRateConfig from './CaptureDepthAndSampleRateConfig';
 import Capture from './Capture';
 import CursorSliderOverlay from './CursorSliderOverlay';
-import SideMenu from './SideMenu';
-import SplashScreen from './SplashScreen';
 import ConnectDevice from './ConnectDevice';
 import GeneratorControl from './GeneratorControl';
+import PopUpWindow from './PopUpWindow';
+
+import logo from './symbol_cvut_konturova_verze_cb.svg';
+import AppMenu from './AppMenu';
 
 
 let defaultCaptureConfig = {
@@ -81,15 +82,60 @@ export default function App() {
   let [USBDevice, setUSBDevice] = useState(null);
   let [captureState, setCaptureState] = useState(defaultCaptureState);
   let [appState, setAppState] = useState(defaultAppState);
+  let [welcomeWindowActive, setWelcomeWindowActive] = useState(true);
+
+
+  async function connect() {
+    let device = await navigator.usb.requestDevice({
+      filters: [{ vendorId: 0xcafe }] 
+    });
+    await device.open();
+    await device.selectConfiguration(1);
+    await device.claimInterface(2);
+    setUSBDevice(device);
+
+    navigator.usb.addEventListener('disconnect', event => {
+      setUSBDevice(null);
+      setCaptureState("Stopped");
+    });
+
+    // "Dummy" IN transfer
+    let result = await device.transferIn(3, 4);
+    
+
+    // Out transfer - abort capture
+    let abortMessage = new Uint8Array([0]);
+    device.transferOut(3, abortMessage);
+
+  }
   
 
   return (
     <div className='root'>
-      {false && <CursorMeasurementBox captureConfig={captureConfig} captureData={captureData} cursorConfig={cursorConfig}/>}
-      {false && <SplashScreen close={() => setAppState({...appState, splashScreen: false})}/>}
-    <div className="app">
-      <div className="px-1 flex bg-slate-50 border-b border-slate-200 w-screen justify-end select-none">
+      
+      <PopUpWindow active={welcomeWindowActive && !USBDevice} setActive={setWelcomeWindowActive} title="Build 2.4.2023">
+        <div className='flex p-3'>
+          <div className=''>
+            <div className='text-2xl mt-2'>WebScope</div>
+            <div className=''>Czech Technical University in Prague</div>
+            <div className=''>Department of Measurement</div>
+            <button className='border rounded-md border-slate-400 p-1 mb-1 text-xl bg-blue-600 text-slate-100 shadow-md'
+            onClick={connect}>Connect device</button>
+            <br/>
+            <a className="underline pr-2 text-slate-500" href="https://www.seznam.cz">About/Manual</a>
+            <a className="underline text-slate-500">Firmware</a>
+          </div>
+          <div className='align-middle'>
+          <img src={logo} className="mt-[-8px] mr-[-5px] align-bottom"></img>
+          </div>
+        </div>
+      </PopUpWindow>
 
+    <div className="app">
+      <div className="px-1 flex bg-slate-50 border-b border-slate-200 w-screen select-none">
+
+      <AppMenu ></AppMenu>
+      <div className='flex'>
       <CaptureDepthAndSampleRateConfig 
           captureConfig={captureConfig} 
           setCaptureConfig={setCaptureConfig} 
@@ -110,7 +156,11 @@ export default function App() {
           USBDevice={USBDevice} 
           setCaptureData={setCaptureData}
           />
+        </div>
       </div>
+
+
+
       <div className="main overflow-hidden">
       <div className='bg-slate-50 px-1 border-l select-none w-[140px]'>
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} 
@@ -134,9 +184,7 @@ export default function App() {
 
 
         <div className='bg-slate-50 px-1 border-l select-none w-[140px]'>
-          {appState.menu ?  
-          <SideMenu captureData={captureData} captureConfig={captureConfig}/>
-          :
+         
           <div>
             <ChannelControl number="1" color="#FFF735" captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}
             viewConfig={viewConfig} setViewConfig={setViewConfig}/>
@@ -148,7 +196,6 @@ export default function App() {
             <HorizontalControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}/>
 
           </div>
-          }
         </div>
       </div>
       </div>

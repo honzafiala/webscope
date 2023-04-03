@@ -22,6 +22,10 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         setCaptureConfig({...captureConfig, sampleRate: newSampleRate, sampleRateDiv: newSampleRateDiv});
     }
 
+    function setSampleRate(newSampleRate) {
+      setCaptureConfig({...captureConfig, sampleRate: newSampleRate, sampleRateDiv: Math.round(48000000 / newSampleRate)});
+    }
+
     function changeCaptureDepth(dir) {
         let index = captureDepthValues.indexOf(captureConfig.captureDepth / 1000);
         if (dir == '+' && index > 0) index--;
@@ -48,7 +52,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
                 className='m-1 text-right appearance-none' 
                 style={{"caretShape" : "block", "WebkitAppearance" : "none"}} 
                 type="number" 
-                onChange={(e) => alert(e)}
+                onChange={(e) => setSampleRate(e.target.value)}
                 value={captureConfig.sampleRate}
                 size="1">
             </input>

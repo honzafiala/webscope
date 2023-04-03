@@ -89,7 +89,6 @@ export default function ChannelControl({color, number, captureConfig, setCapture
       <SideBarButton text='0' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('0')}/>
       <SideBarButton text='+' enabled={captureConfig.activeChannels[channelNumber - 1]} onClick={() => changeOffset('+')}/>
       </div>
-
 </div>
   );
 }
