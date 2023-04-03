@@ -35,9 +35,8 @@ async function sendGeneratorConfig(generatorConfig, USBDevice) {
 
 export default function GeneratorControl({USBDevice, captureState}) {
     const [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
-
     const [frequencyPopUpActive, setFrequencyPopUpActive] = useState(false);
-
+    const [frequencyPopUpInputValue, setFrequencyPopUpInputValue] = useState(defaultGeneratorConfig.setFrequency);
 
     function increaseFrequency() {
         updateFrequency(generatorConfig.setFrequency + 100);
@@ -57,6 +56,29 @@ export default function GeneratorControl({USBDevice, captureState}) {
 
         setGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap});
         sendGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap}, USBDevice);
+    }
+
+    function isFrequencyValid(frequency) {
+        return frequency >= 100 && frequency <= 100000000;
+    }
+
+    function getRealFrequency(setFrequency) {
+        const maxWrap = Math.pow(2, 16);
+        let div = Math.ceil(generatorConfig.sysClk / setFrequency / maxWrap);
+        let wrap = Math.round(generatorConfig.sysClk / setFrequency / div);
+        return generatorConfig.sysClk / div / wrap;
+    }
+
+    function formatFrequency(frequency) {
+        if (frequency >= 1000000) {
+            frequency /= 1000000;
+            return String(frequency.toFixed(3)) + " MHz";
+        } else if (frequency >= 1000) {
+            frequency /= 1000;
+            return String(frequency.toFixed(3)) + " kHz";
+        } else {
+            return String(frequency.toFixed(3)) + " Hz";
+        }
     }
 
     function changeDuty(dir) {
@@ -91,24 +113,24 @@ export default function GeneratorControl({USBDevice, captureState}) {
             Set frequency
             <input 
                 autoFocus 
-                className='m-1 text-right appearance-none' 
+                className={`m-1 text-right appearance-none ${!isFrequencyValid(frequencyPopUpInputValue) && "bg-red-200"}`}
                 style={{"caretShape" : "block", "WebkitAppearance" : "none"}} 
                 type="number" 
-                onChange={(e) => updateFrequency(e.target.value)}
-                value={generatorConfig.setFrequency}
+                onChange={(e) => setFrequencyPopUpInputValue(e.target.value)}
+                value={frequencyPopUpInputValue}
                 size="1">
             </input>
             &nbsp;Hz
         </div>
         <div className='flex'>
             <div className='flex-1'>Real frequency</div>
-            <div className='flex-1 text-right'>{generatorConfig.realFrequency.toFixed(4)} &nbsp; Hz</div>
+            <div className='flex-1 text-right'>{isFrequencyValid(frequencyPopUpInputValue) ? getRealFrequency(frequencyPopUpInputValue).toFixed(4) : "-"} &nbsp; Hz</div>
         </div>
 
         <div className="flex flex-col items-center">
         <button 
-            onClick={() => alert(10)}
-            disabled={false}
+            onClick={() => {updateFrequency(frequencyPopUpInputValue);}}
+            disabled={!isFrequencyValid(frequencyPopUpInputValue)}
             className={`
                 flex-1 
                 text-center  
@@ -120,7 +142,7 @@ export default function GeneratorControl({USBDevice, captureState}) {
                 border
                 hover:bg-slate-200 
                 hover:text-slate-900 
-                ${true ? "text-slate-700 bg-slate-100" : "text-slate-400 bg-slate-100"}
+                ${isFrequencyValid(frequencyPopUpInputValue) ? "text-slate-700 bg-slate-100" : "text-slate-400 bg-slate-100"}
                 `}
         >
             Set
@@ -141,8 +163,8 @@ export default function GeneratorControl({USBDevice, captureState}) {
     <div className="flex px-1 border-x border-slate-300">
       <div className="flex-1 "><i>f</i></div>
       <div>
-     {generatorConfig.setFrequency}
-        &nbsp;Hz
+     {formatFrequency(generatorConfig.realFrequency)}
+      
     </div>
     </div>
 
