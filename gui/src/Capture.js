@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {getNumActiveChannels, formatValue} from './Utils';
 
-export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
+export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice, generatorConfig}) {
 const [complete, setComplete] = useState(true);
 
 
@@ -14,11 +14,18 @@ async function readSingle() {
         setSavedCaptureConfig(savedCaptureConfig);
         console.log('Requesting capture:', JSON.stringify(savedCaptureConfig));
 
+        // Send PWM configuration to the device
+        console.log("PWM setup:", generatorConfig);
+        let generatorConfigMessage = generatorConfigToByteArray(generatorConfig);
+        await USBDevice.transferOut(3, generatorConfigMessage);
+
+
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(savedCaptureConfig);    
         console.log("encoded request:", captureConfigMessage);
 
         await USBDevice.transferOut(3, captureConfigMessage);
+
 
         let result;
     
@@ -130,6 +137,20 @@ function captureConfigToByteArray(cfg) {
         triggerChannelsByte,
         triggerEdgeByte
     ]);
+}
+
+function generatorConfigToByteArray(generatorConfig) {
+  let wrapBytes = [(generatorConfig.wrap - 1) >> 8, (generatorConfig.wrap - 1) & 0xFF];
+  let divBytes = [generatorConfig.div >> 8, generatorConfig.div & 0xFF];
+  return new Uint8Array([
+      2, // Id of generator config message
+      wrapBytes[0],
+      wrapBytes[1],
+      divBytes[0],
+      divBytes[1],
+      generatorConfig.duty,
+      generatorConfig.active
+  ]);
 }
 
 function abortCapture() {

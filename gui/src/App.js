@@ -64,12 +64,21 @@ let defaultCursorConfig = {
     }
 }
 
+
+let defaultGeneratorConfig = {
+  active: false,
+  realFrequency: 1000,
+  setFrequency: 1000,
+  duty: 50,
+  wrap: 12500,
+  div: 10,
+  sysClk: 125000000
+}
+
+
+
 let defaultCaptureState = "Stopped";
 
-let defaultAppState = {
-  menu: false,
-  splashScreen: true
-}
 
 
 
@@ -77,11 +86,12 @@ export default function App() {
   let [captureConfig, setCaptureConfig] = useState(defaultCaptureConfig);
   let [savedCaptureConfig, setSavedCaptureConfig] = useState(defaultCaptureConfig);
   let [viewConfig, setViewConfig] = useState(defaultViewConfig);
+  let [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
+
   let [captureData, setCaptureData] = useState(defaultCaptureData);
   let [cursorConfig, setCursorConfig] = useState(defaultCursorConfig);
   let [USBDevice, setUSBDevice] = useState(null);
   let [captureState, setCaptureState] = useState(defaultCaptureState);
-  let [appState, setAppState] = useState(defaultAppState);
   let [welcomeWindowActive, setWelcomeWindowActive] = useState(true);
 
 
@@ -148,7 +158,8 @@ export default function App() {
         <ConnectDevice USBDevice={USBDevice} setUSBDevice={setUSBDevice} setCaptureState={setCaptureState}/>
        
         <Capture 
-          captureConfig={captureConfig} 
+          captureConfig={captureConfig}
+          generatorConfig={generatorConfig}
           setCaptureConfig={setCaptureConfig}
           setSavedCaptureConfig={setSavedCaptureConfig}
           captureState={captureState} 
@@ -166,7 +177,8 @@ export default function App() {
             <CursorControl cursorConfig={cursorConfig} viewConfig={viewConfig} captureConfig={captureConfig} 
             setCursorConfig={setCursorConfig} captureData={captureData}/>
             <GeneratorControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}
-              USBDevice={USBDevice} captureState={captureState}/>
+             generatorConfig={generatorConfig} setGeneratorConfig={setGeneratorConfig} USBDevice={USBDevice} 
+             captureState={captureState}/>
       </div>
       <div className='relative flex-1 flex overflow-hidden'>
 

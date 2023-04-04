@@ -2,15 +2,6 @@ import React, {useState, useEffect} from 'react';
 import SideBarButton from './SideBarButton';
 import PopUpWindow from './PopUpWindow';
 
-let defaultGeneratorConfig = {
-    active: false,
-    realFrequency: 1000,
-    setFrequency: 1000,
-    duty: 50,
-    wrap: 12500,
-    div: 10,
-    sysClk: 125000000
-}
 
 function generatorConfigToByteArray(generatorConfig) {
     let wrapBytes = [(generatorConfig.wrap - 1) >> 8, (generatorConfig.wrap - 1) & 0xFF];
@@ -33,19 +24,19 @@ async function sendGeneratorConfig(generatorConfig, USBDevice) {
     console.log("Generator config message sent");
 }
 
-export default function GeneratorControl({USBDevice, captureState}) {
-    const [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
+export default function GeneratorControl({USBDevice, captureState, generatorConfig, setGeneratorConfig}) {
+    //const [generatorConfig, setGeneratorConfig] = useState(defaultGeneratorConfig);
     const [frequencyPopUpActive, setFrequencyPopUpActive] = useState(false);
-    const [frequencyPopUpInputValue, setFrequencyPopUpInputValue] = useState(defaultGeneratorConfig.setFrequency);
+    const [frequencyPopUpInputValue, setFrequencyPopUpInputValue] = useState(generatorConfig.setFrequency);
 
     function increaseFrequency() {
         updateFrequency(generatorConfig.setFrequency + 100);
-        sendGeneratorConfig(generatorConfig, USBDevice);
+        //sendGeneratorConfig(generatorConfig, USBDevice);
     }
 
     function decreaseFrequency() {
         updateFrequency(generatorConfig.setFrequency - 100);
-        sendGeneratorConfig(generatorConfig, USBDevice);
+        //sendGeneratorConfig(generatorConfig, USBDevice);
     }
 
     function updateFrequency(setFrequency) {
@@ -55,7 +46,7 @@ export default function GeneratorControl({USBDevice, captureState}) {
         let realFrequency = generatorConfig.sysClk / div / wrap;
 
         setGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap});
-        sendGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap}, USBDevice);
+        //sendGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap}, USBDevice);
     }
 
     function isFrequencyValid(frequency) {
@@ -90,12 +81,12 @@ export default function GeneratorControl({USBDevice, captureState}) {
         }
         setGeneratorConfig({...generatorConfig, duty: newVal});
         generatorConfig.duty = newVal;
-        sendGeneratorConfig(generatorConfig, USBDevice);
+        //sendGeneratorConfig(generatorConfig, USBDevice);
     }
 
     function toggleActive() {
         setGeneratorConfig({...generatorConfig, active: !generatorConfig.active});
-        sendGeneratorConfig({...generatorConfig, active: !generatorConfig.active}, USBDevice);
+        //sendGeneratorConfig({...generatorConfig, active: !generatorConfig.active}, USBDevice);
     }
 
 
