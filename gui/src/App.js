@@ -122,7 +122,7 @@ export default function App() {
   return (
     <div className='root'>
       
-      <PopUpWindow active={welcomeWindowActive && !USBDevice} setActive={setWelcomeWindowActive} title="Build 2.4.2023">
+      <PopUpWindow active={welcomeWindowActive && !USBDevice} setActive={setWelcomeWindowActive} title="">
         <div className='flex p-3'>
           <div className=''>
             <div className='text-2xl mt-2'>WebScope</div>
