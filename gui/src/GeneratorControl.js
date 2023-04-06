@@ -89,14 +89,7 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
         //sendGeneratorConfig({...generatorConfig, active: !generatorConfig.active}, USBDevice);
     }
 
-
-  console.log('capture state:', captureState);
-
-  
-
   return (
-
-
     <div className="my-1 mx-1 bg-white rounded-md border border-slate-400  shadow text-slate-700 text-l">
 
     <PopUpWindow active={frequencyPopUpActive} setActive={setFrequencyPopUpActive} title="Generator frequency settings">
@@ -129,7 +122,7 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
                 px-3
                 rounded-md
                 shadow
-                border-slate-400
+                border-slate-400 
                 border
                 hover:bg-slate-200 
                 hover:text-slate-900 
