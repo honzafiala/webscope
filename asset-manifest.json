@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/webscope/static/css/main.35dd3fe5.css",
-    "main.js": "/webscope/static/js/main.533ae29e.js",
+    "main.css": "/webscope/static/css/main.86c14558.css",
+    "main.js": "/webscope/static/js/main.11a8a48a.js",
     "static/js/787.ad33413d.chunk.js": "/webscope/static/js/787.ad33413d.chunk.js",
     "static/media/symbol_cvut_konturova_verze_cb.svg": "/webscope/static/media/symbol_cvut_konturova_verze_cb.501503d6016fe5faa52eeb3d7d9a053b.svg",
     "index.html": "/webscope/index.html",
-    "main.35dd3fe5.css.map": "/webscope/static/css/main.35dd3fe5.css.map",
-    "main.533ae29e.js.map": "/webscope/static/js/main.533ae29e.js.map",
+    "main.86c14558.css.map": "/webscope/static/css/main.86c14558.css.map",
+    "main.11a8a48a.js.map": "/webscope/static/js/main.11a8a48a.js.map",
     "787.ad33413d.chunk.js.map": "/webscope/static/js/787.ad33413d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.35dd3fe5.css",
-    "static/js/main.533ae29e.js"
+    "static/css/main.86c14558.css",
+    "static/js/main.11a8a48a.js"
   ]
 }
