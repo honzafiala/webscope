@@ -45,7 +45,6 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
     let afterDecimal = String(Math.round((val % 1) * 1000));
     while (afterDecimal.length < 3) afterDecimal = '0' + afterDecimal;
     let str = (isNegative ? '-' : '') + beforeDecimal + '.' + afterDecimal;
-    console.log(str.slice(0, 5) + prefixes[prefixIndex]);
     return str.slice(0, 5) + prefixes[prefixIndex];
 }
 
@@ -120,7 +119,6 @@ export default function CursorControl({cursorConfig, captureConfig, setCursorCon
   }
   ];
 
-  console.log(xMeasurements);
 
   return(
     <div className="mb-2 mt-1 mx-1 bg-white rounded-md border border-slate-400  shadow text-slate-700 text-l">

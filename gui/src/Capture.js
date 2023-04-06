@@ -1,8 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {getNumActiveChannels, formatValue} from './Utils';
+import isEqual from "lodash/isEqual";
 
-export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice}) {
+export default function Capture({captureConfig, setCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice, generatorConfig}) {
 const [complete, setComplete] = useState(true);
+const [savedGeneratorConfig, setSavedGeneratorConfig] = useState(generatorConfig);
+
+
+if (isEqual(generatorConfig, savedGeneratorConfig)) {
+  console.log("PWM config changed!");
+}
 
 
 
@@ -14,11 +21,18 @@ async function readSingle() {
         setSavedCaptureConfig(savedCaptureConfig);
         console.log('Requesting capture:', JSON.stringify(savedCaptureConfig));
 
+        // Send PWM configuration to the device
+        console.log("PWM setup:", generatorConfig);
+        let generatorConfigMessage = generatorConfigToByteArray(generatorConfig);
+        await USBDevice.transferOut(3, generatorConfigMessage);
+
+
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(savedCaptureConfig);    
         console.log("encoded request:", captureConfigMessage);
 
         await USBDevice.transferOut(3, captureConfigMessage);
+
 
         let result;
     
@@ -132,11 +146,23 @@ function captureConfigToByteArray(cfg) {
     ]);
 }
 
+function generatorConfigToByteArray(generatorConfig) {
+  let wrapBytes = [(generatorConfig.wrap - 1) >> 8, (generatorConfig.wrap - 1) & 0xFF];
+  let divBytes = [generatorConfig.div >> 8, generatorConfig.div & 0xFF];
+  return new Uint8Array([
+      2, // Id of generator config message
+      wrapBytes[0],
+      wrapBytes[1],
+      divBytes[0],
+      divBytes[1],
+      generatorConfig.duty,
+      generatorConfig.active
+  ]);
+}
+
 function abortCapture() {
     let abortMessage = new Uint8Array([0]);
     USBDevice.transferOut(3, abortMessage);
-
-    setCaptureState("Stopped");
   }
 
   useEffect(() => {
@@ -154,11 +180,6 @@ function abortCapture() {
   }
   capture();
   }, [complete, captureState]);
-
-function toggleCaptureMode() {
-    let newCaptureMode = captureConfig.captureMode == "Auto" ? "Normal" : "Auto";
-    setCaptureConfig({...captureConfig, captureMode: newCaptureMode});
-  }
 
 function setCaptureMode(mode) {
     setCaptureConfig({...captureConfig, captureMode: mode});
@@ -194,7 +215,7 @@ async function pollUSB(len) {
           Single
         </button>
         <div 
-          onClick={abortCapture} 
+          onClick={() => {abortCapture(); setCaptureState("Stopped");}} 
           className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
           ${captureState == "Stopped" ? "bg-red-600 text-slate-100" : "text-slate-700"}`}>
           {captureState == "Stopped" ? "Stopped" : "Stop"}
@@ -217,32 +238,5 @@ async function pollUSB(len) {
       </div>
       </div>  
 </div>  
-
-
-      
-    );
-
-
-    return (
-        <div>
-        <button 
-          onClick={() => {setCaptureState("Run"); setCaptureData([[], [], []])}} 
-          disabled={USBDevice == null}
-          style={captureState == "Run" ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}
-        >
-        {captureState == "Run" ? "Running" : "Run"}</button>
-
-
-        <button onClick={() => {setCaptureState("Single"); setCaptureData([[], [], []])}} disabled={USBDevice == null}
-        style={captureState == "Single" ? {backgroundColor: "#0076fa", color: 'lightgray', boxShadow: "0px 0px 5px #0076fa"} : {}}
-        >Single</button>
-        
-        <button 
-          onClick={abortCapture} 
-          style={captureState == "Stopped" ? {backgroundColor: "#e10f00", color: 'lightgray', boxShadow: "0px 0px 5px #e10f00"} : {}}
-        >{captureState == "Stopped" ? "Stopped" : "Stop"}</button>
-
-        <button onClick={toggleCaptureMode}>{captureConfig.captureMode}</button>
-      </div>
     );
 }

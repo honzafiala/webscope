@@ -1,6 +1,7 @@
 import { getNumActiveChannels } from './Utils';
 import PopUpWindow from './PopUpWindow';
 import React, {useState, useEffect} from 'react';
+import { sample } from 'lodash';
 
 
 
@@ -10,6 +11,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
     const captureDepthValues = [100, 50, 20, 10, 5, 2, 1];
 
     const [sampleRatePopUpOpen, setSampleRatePopUpOpen] = useState(false);
+    const [sampleRatePopUpInputValue, setSampleRatePopUpInputValue] = useState(captureConfig.sampleRate);
 
 
     function changeSampleRate(dir) {
@@ -24,6 +26,11 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
 
     function setSampleRate(newSampleRate) {
       setCaptureConfig({...captureConfig, sampleRate: newSampleRate, sampleRateDiv: Math.round(48000000 / newSampleRate)});
+    }
+
+    function getRealSampleRate(setSampleRate) {
+      let div = Math.round(48000000 / setSampleRate);
+      return 48000000 / div;
     }
 
     function changeCaptureDepth(dir) {
@@ -41,6 +48,10 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
         setCaptureData(defaultCaptureData);
     }
 
+    function isSampleRateValid(sampleRate) {
+      return sampleRate <= 500000 && sampleRate >= 735;
+    }
+
     return(
         <div className='flex flex-row'>
 
@@ -49,21 +60,45 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
             Set sample rate
             <input 
                 autoFocus 
-                className='m-1 text-right appearance-none' 
-                style={{"caretShape" : "block", "WebkitAppearance" : "none"}} 
+                className={`m-1 text-right appearance-none ${!isSampleRateValid(sampleRatePopUpInputValue) && "bg-red-200"}`}
                 type="number" 
-                onChange={(e) => setSampleRate(e.target.value)}
-                value={captureConfig.sampleRate}
+                onChange={(e) => setSampleRatePopUpInputValue(e.target.value)}
+                value={sampleRatePopUpInputValue}
                 size="1">
             </input>
             &nbsp;S/s
         </div>
         <div className='flex'>
-            <div className='flex-1'>Real sample</div>
-            <div className='flex-1 text-right'>{captureConfig.sampleRateDiv} &nbsp; S/s</div>
+            <div className='flex-1'>Real sample rate</div>
+            <div className='flex-1 text-right'>
+              {isSampleRateValid(sampleRatePopUpInputValue) ? 
+              getRealSampleRate(sampleRatePopUpInputValue).toFixed(4) : "-"}
+               &nbsp; S/s
+            </div>
+
         </div>
-        <div className='text-slate-400 text-center'>
+        <div className="flex flex-col items-center">
+        <button 
+            onClick={(e) => {setSampleRate(sampleRatePopUpInputValue)}}
+            disabled={!isSampleRateValid(sampleRatePopUpInputValue)}
+            className={`
+                flex-1 
+                text-center  
+                m-1
+                px-3
+                rounded-md
+                shadow
+                border-slate-400
+                border
+                hover:bg-slate-200 
+                hover:text-slate-900 
+                ${isSampleRateValid(sampleRatePopUpInputValue) ? "text-slate-700 bg-slate-100" : "text-slate-400 bg-slate-100"}
+                `}
+        >
+            Set
+        </button>
         </div>
+
         </PopUpWindow>  
 
 
