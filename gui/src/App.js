@@ -161,6 +161,7 @@ export default function App() {
           generatorConfig={generatorConfig}
           setCaptureConfig={setCaptureConfig}
           setSavedCaptureConfig={setSavedCaptureConfig}
+          savedCaptureConfig={savedCaptureConfig}
           captureState={captureState} 
           setCaptureState={setCaptureState}  
           USBDevice={USBDevice} 

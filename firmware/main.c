@@ -118,10 +118,10 @@ void adc_configure(capture_config_t capture_config) {
     for (int i = 0; i < 3; i++) {
         if (capture_config.active_channels[i]) {
             active_channels_byte += 1 << i;
-            printf("Channel %d active\n", i);
+           // printf("Channel %d active\n", i);
         }
     }
-    printf("Round robin setting: %d\n", active_channels_byte);
+    //printf("Round robin setting: %d\n", active_channels_byte);
     adc_set_round_robin(active_channels_byte);
     adc_fifo_setup(
         true,    // Write each completed conversion to the sample FIFO
@@ -170,7 +170,7 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     capture_config_t capture_config;
 
     capture_config.trigger_threshold = (config_bytes[1] << 8) + config_bytes[2];
-    printf("THRESHOLD: %x %x => %d\n", config_bytes[1], config_bytes[2], (config_bytes[1] << 8) + config_bytes[2]);
+   // printf("THRESHOLD: %x %x => %d\n", config_bytes[1], config_bytes[2], (config_bytes[1] << 8) + config_bytes[2]);
 
     capture_config.num_active_channels = 0;
     uint8_t active_channels_byte = config_bytes[3];
@@ -189,14 +189,14 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
 
     //capture_config.sample_rate = config_bytes[7] * 10000;
     capture_config.adc_div = (config_bytes[7] << 8) + config_bytes[8];
-    printf("Div: %d, SR %fkS/s\n", capture_config.adc_div, (float) 48000000 / capture_config.adc_div / 1000 );
+   // printf("Div: %d, SR %fkS/s\n", capture_config.adc_div, (float) 48000000 / capture_config.adc_div / 1000 );
 
 
     capture_config.capture_buffer_len = capture_config.capture_depth * capture_config.num_active_channels;
 
     capture_config.pretrigger = capture_config.capture_buffer_len * config_bytes[5] / 10;
 
-    printf("TRIGGER CHANNELS: %d\n", config_bytes[9]);
+   // printf("TRIGGER CHANNELS: %d\n", config_bytes[9]);
     for (int i = 0; i < 3; i++) {
         if (((config_bytes[9] >> i) & 1) && capture_config.active_channels[i]) {
             capture_config.trigger_channels[i] = true;
@@ -243,18 +243,17 @@ uint main_chan, ctrl_chan; // DMA channels for circular ADC capture
 void capture(capture_config_t capture_config) {
         uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
 
-    printf("\n");
-    printf("Trigger threshold: %d\n", capture_config.trigger_threshold);
-    printf("Capture depth: %d\n", capture_config.capture_depth);
-    printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
+    //printf("\n");
+    //printf("Trigger threshold: %d\n", capture_config.trigger_threshold);
+    //printf("Capture depth: %d\n", capture_config.capture_depth);
+    //printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
+    //printf("Trigger channels: %d %d %d\n", capture_config.trigger_channels[0], capture_config.trigger_channels[1], capture_config.trigger_channels[2]);
 
-    printf("Trigger channels: %d %d %d\n", capture_config.trigger_channels[0], capture_config.trigger_channels[1], capture_config.trigger_channels[2]);
-
-    printf("is_trigger_index: ");
+    //printf("is_trigger_index: ");
     for (int i = 0; i < 10; i++) {
-        printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
+      //  printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
     }
-    printf("\n");
+    //printf("\n");
 
     adc_configure(capture_config);
 
@@ -268,7 +267,7 @@ void capture(capture_config_t capture_config) {
 
     adc_run(true);
     int start = dma_channel_hw_addr(main_chan)->transfer_count;
-    printf("Started at %d\n", start);
+    //printf("Started at %d\n", start);
 
     uint capture_start_index;
     bool triggered = false;
@@ -283,9 +282,7 @@ void capture(capture_config_t capture_config) {
     while (1) {
         // Check if abort message was received
         if (usb_data_ready()) {
-            uint8_t msg;
-            usb_rec(&msg, 1);
-            printf("Received mesage: %d\n", msg);
+            printf("Received mesage, aborting capture\n");
             adc_run(false);
             capture_result = ABORTED;
             break;
@@ -361,15 +358,14 @@ void capture(capture_config_t capture_config) {
         for (int i = 0; i < capture_config.capture_buffer_len * 2; i += usb_packet_size) {
             printf("sending %d\n", capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
             usb_send(&capture_buf_bytes[i], capture_config.capture_buffer_len * 2 - i > usb_packet_size ? usb_packet_size : capture_config.capture_buffer_len * 2 - i);
-
         }
     }
+    printf("\n");
 }
 
 int main(void) {
     multicore_launch_core1(core1_task);
 
-    printf("clk_sys: %d\n", clock_get_hz(clk_sys));
 
 
     main_chan = dma_claim_unused_channel(true);
@@ -385,18 +381,21 @@ int main(void) {
         // Check the type of the incoming message
         switch(rec_buf[0]) {
             case 1: // Capture config received
+                printf("Capture config received\n");
                 capture_config = parse_capture_config(rec_buf);
                 capture(capture_config);
                 break;
             case 0: // Abort message received - ignore;
+                printf("Abort message received\n");
+
                 break;
             case 2: // Generator config received
-                printf("GEN CONFIG RECEIVED!!!!!\n");
+                printf("Gen config received\n");
                 generator_config = parse_generator_config(rec_buf);
-                printf("Wrap: %d\n", generator_config.wrap);
-                printf("Div: %d\n", generator_config.div);
-                printf("High count: %d\n", generator_config.high_count);
-                printf("Active: %d\n", (int) generator_config.active);
+                //printf("Wrap: %d\n", generator_config.wrap);
+                //printf("Div: %d\n", generator_config.div);
+                //printf("High count: %d\n", generator_config.high_count);
+                //printf("Active: %d\n", (int) generator_config.active);
                 pwm_configure(generator_config);
                 break;
             default:

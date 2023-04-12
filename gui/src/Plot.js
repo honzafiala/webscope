@@ -35,8 +35,6 @@ function Plot({ data, viewConfig, captureConfig, savedCaptureConfig, cursorConfi
       return canvas.width * (pos - zoomStart) / (zoomEnd - zoomStart);
     }
 
-    console.log("plot capture cfg", savedCaptureConfig);
-    console.log("plot view cfg", viewConfig);
 
     // Draw grid
     if (viewConfig.grid) {

@@ -40,7 +40,6 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
 
         let newTotalCaptureDepth = captureDepthValues[index] * 1000;
         let newCaptureDepth = Math.floor(newTotalCaptureDepth / getNumActiveChannels(captureConfig));
-        console.log(index);
         setCaptureConfig({...captureConfig, captureDepth: newCaptureDepth, totalCaptureDepth: newTotalCaptureDepth});
 
         setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, viewCenter: newCaptureDepth / 2}});

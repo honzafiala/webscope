@@ -59,7 +59,6 @@ export default function ChannelControl({color, number, captureConfig, setCapture
     let newCaptureDepth = Math.floor(captureConfig.totalCaptureDepth / getNumActiveChannels(captureConfig));
     setCaptureConfig({...captureConfig, activeChannels: newActiveChannels, captureDepth: newCaptureDepth});
     setViewConfig({...viewConfig, horizontal: {...viewConfig.horizontal, zoom: 1, viewCenter: newCaptureDepth / 2}});
-    console.log("active channels: ", getNumActiveChannels(captureConfig));
   }
 
   let channelColorsOn = ['bg-yellow-400', 'bg-red-400', 'bg-green-400'];
