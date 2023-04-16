@@ -349,7 +349,7 @@ void capture(capture_config_t capture_config) {
         printf("Sending captured data\n");
         uint32_t trig_msg = trigger_index % capture_config.capture_buffer_len;
         trig_msg -= trig_msg % 2;
-        usb_send(&trig_msg, 4);
+        usb_send((uint8_t *) &trig_msg, 4);
 
         const uint usb_packet_size = 32768; 
 
@@ -383,6 +383,7 @@ int main(void) {
             case 1: // Capture config received
                 printf("Capture config received\n");
                 capture_config = parse_capture_config(rec_buf);
+                printf("Sample rate: %f (div = %d)\n", (float) 48000000 / capture_config.adc_div, capture_config.adc_div);
                 capture(capture_config);
                 break;
             case 0: // Abort message received - ignore;

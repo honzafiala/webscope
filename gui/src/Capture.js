@@ -4,12 +4,10 @@ import isEqual from "lodash/isEqual";
 import cloneDeep from "lodash/cloneDeep";
 
 export default function Capture({captureConfig, setCaptureConfig, savedCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice, generatorConfig}) {
-console.log("CAPTURE.....................");
-
   const [complete, setComplete] = useState(true);
-const [savedGeneratorConfig, setSavedGeneratorConfig] = useState(generatorConfig);
-let [abortedByConfigChange, setAbortedByConfigChange] = useState(false);
-let [singleCaptureStopped, setSingleCaptureStopped] = useState(false);
+  const [savedGeneratorConfig, setSavedGeneratorConfig] = useState(generatorConfig);
+  let [abortedByConfigChange, setAbortedByConfigChange] = useState(false);
+  let [singleCaptureStopped, setSingleCaptureStopped] = useState(false);
 
 async function readSingle() {
   try {
@@ -20,8 +18,6 @@ async function readSingle() {
         setSavedGeneratorConfig(JSON.parse(JSON.stringify(generatorConfig)));
         console.log('readSingle: Requesting capture');
         console.log(cloneDeep(captureConfig));
-        console.log("Expecting", localSavedConfig.captureDepth, "*", getNumActiveChannels(localSavedConfig), localSavedConfig.activeChannels);
-
 
         // Send PWM configuration to the device
         let generatorConfigMessage = generatorConfigToByteArray(generatorConfig);
@@ -30,6 +26,8 @@ async function readSingle() {
 
         // Send capture configuration to the device
         let captureConfigMessage = captureConfigToByteArray(localSavedConfig);    
+
+        console.log(captureConfigMessage[7], captureConfigMessage[8], captureConfig.sampleRateDiv);
 
         await USBDevice.transferOut(3, captureConfigMessage);
 
@@ -54,7 +52,6 @@ async function readSingle() {
         console.log('reply:', result);
 
         let rawData = [];
-        console.log("Expecting", localSavedConfig.captureDepth, "*", getNumActiveChannels(localSavedConfig), localSavedConfig.activeChannels);
         for (let i = 0; i < localSavedConfig.captureDepth * getNumActiveChannels(localSavedConfig) * 2; i+=2) 
         rawData.push(result.data.getUint16(i, true));
 
@@ -110,7 +107,7 @@ function captureConfigToByteArray(cfg) {
 
     let captureModeByte = cfg.captureMode == "Auto" ? 1 : 0;
 
-    let divBytes = [cfg.sampleRatediv >> 8, cfg.sampleRateDiv & 0xFF];
+    let divBytes = [cfg.sampleRateDiv >> 8, cfg.sampleRateDiv & 0xFF];
 
     let triggerChannelsByte = 0;
     for (let i = 0; i < cfg.trigger.channels.length; i++) {
