@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {getNumActiveChannels, formatValue} from './Utils';
 import isEqual from "lodash/isEqual";
+import cloneDeep from "lodash/cloneDeep";
 
 export default function Capture({captureConfig, setCaptureConfig, savedCaptureConfig, setSavedCaptureConfig, captureState, setCaptureState, setCaptureData, USBDevice, generatorConfig}) {
-const [complete, setComplete] = useState(true);
+console.log("CAPTURE.....................");
+
+  const [complete, setComplete] = useState(true);
 const [savedGeneratorConfig, setSavedGeneratorConfig] = useState(generatorConfig);
 let [abortedByConfigChange, setAbortedByConfigChange] = useState(false);
 let [singleCaptureStopped, setSingleCaptureStopped] = useState(false);
@@ -13,7 +16,12 @@ async function readSingle() {
         // Set the current captureConfig as savedCaptureConfig
         // A deep copy needs to be created
         setSavedCaptureConfig(JSON.parse(JSON.stringify(captureConfig)));
+        let localSavedConfig = cloneDeep(captureConfig);
+        setSavedGeneratorConfig(JSON.parse(JSON.stringify(generatorConfig)));
         console.log('readSingle: Requesting capture');
+        console.log(cloneDeep(captureConfig));
+        console.log("Expecting", localSavedConfig.captureDepth, "*", getNumActiveChannels(localSavedConfig), localSavedConfig.activeChannels);
+
 
         // Send PWM configuration to the device
         let generatorConfigMessage = generatorConfigToByteArray(generatorConfig);
@@ -21,7 +29,7 @@ async function readSingle() {
 
 
         // Send capture configuration to the device
-        let captureConfigMessage = captureConfigToByteArray(captureConfig);    
+        let captureConfigMessage = captureConfigToByteArray(localSavedConfig);    
 
         await USBDevice.transferOut(3, captureConfigMessage);
 
@@ -42,14 +50,15 @@ async function readSingle() {
         result = await pollUSB(1);
         let trigIndex = result.data.getUint32(0, true);
         
-        result = await USBDevice.transferIn(3, captureConfig.captureDepth * getNumActiveChannels(captureConfig) * 2);
+        result = await USBDevice.transferIn(3, localSavedConfig.captureDepth * getNumActiveChannels(localSavedConfig) * 2);
         console.log('reply:', result);
 
         let rawData = [];
-        for (let i = 0; i < captureConfig.captureDepth * getNumActiveChannels(captureConfig) * 2; i+=2) 
+        console.log("Expecting", localSavedConfig.captureDepth, "*", getNumActiveChannels(localSavedConfig), localSavedConfig.activeChannels);
+        for (let i = 0; i < localSavedConfig.captureDepth * getNumActiveChannels(localSavedConfig) * 2; i+=2) 
         rawData.push(result.data.getUint16(i, true));
 
-        trigIndex -= trigIndex % getNumActiveChannels(captureConfig);
+        trigIndex -= trigIndex % getNumActiveChannels(localSavedConfig);
         
         //let rawShiftedData = rawData;
         let rawShiftedData = rawData.slice(trigIndex).concat(rawData.slice(0, trigIndex));
@@ -58,28 +67,27 @@ async function readSingle() {
         let i = 0;
 
         // This solves the issue with channel order being swapped in the capture buffer when activeChannels = [0, 1, 1]
-        if (!captureConfig.activeChannels[0] && captureConfig.activeChannels[1] && captureConfig.activeChannels[2])
-          while (i < captureConfig.captureDepth * getNumActiveChannels(captureConfig)) {
+        if (!localSavedConfig.activeChannels[0] && localSavedConfig.activeChannels[1] && localSavedConfig.activeChannels[2])
+          while (i < localSavedConfig.captureDepth * getNumActiveChannels(localSavedConfig)) {
             parsedData[2].push(rawShiftedData[i++]);
             parsedData[1].push(rawShiftedData[i++]);
           }
         else 
-          while (i < captureConfig.captureDepth * getNumActiveChannels(captureConfig)) {
-            if (captureConfig.activeChannels[0]) {
+          while (i < localSavedConfig.captureDepth * getNumActiveChannels(localSavedConfig)) {
+            if (localSavedConfig.activeChannels[0]) {
               parsedData[0].push(rawShiftedData[i]);
               i++;
             }
-            if (captureConfig.activeChannels[1]) {
+            if (localSavedConfig.activeChannels[1]) {
               parsedData[1].push(rawShiftedData[i]);
               i++;
             }
-            if (captureConfig.activeChannels[2]) {
+            if (localSavedConfig.activeChannels[2]) {
               parsedData[2].push(rawShiftedData[i]);
               i++;
             }
           }
 
-        console.log(parsedData);
         setCaptureData(parsedData);
 
       } catch (error) {
@@ -154,10 +162,9 @@ function abortCapture() {
   useEffect(() => {
     const capture = async () => {
 
-      if (!complete && !abortedByConfigChange &&
-          !isEqual(savedCaptureConfig, captureConfig) 
-         // (captureState == "Single") && 
-         // savedCaptureConfig.captureMode == "Normal"
+      if (!complete && !abortedByConfigChange
+          && (!isEqual(savedCaptureConfig, captureConfig) || !isEqual(savedGeneratorConfig, generatorConfig)) 
+          && savedCaptureConfig.captureMode == "Normal"
         ) {
         console.log("useEffect: Capture config changed. Aborting.");
         await abortCapture();
@@ -173,7 +180,6 @@ function abortCapture() {
           abortedByConfigChange = false;
         }
          else if (complete && singleCaptureStopped) {
-          console.log("Stop?", !abortedByConfigChange);
           if (!abortedByConfigChange) setCaptureState("Stopped");
           setAbortedByConfigChange(false);
           abortedByConfigChange = false;
@@ -185,7 +191,6 @@ function abortCapture() {
           setComplete(false);
           await readSingle();
 
-          console.log("Setting singleCaptureStopped to true");
           singleCaptureStopped = true;
           setSingleCaptureStopped(true);
 
@@ -193,7 +198,7 @@ function abortCapture() {
     }
   }
   capture();
-  }, [complete, captureState, captureConfig, savedCaptureConfig, abortedByConfigChange, singleCaptureStopped]);
+  }, [complete, captureState, captureConfig, savedCaptureConfig, generatorConfig, savedGeneratorConfig, abortedByConfigChange, singleCaptureStopped]);
 
 function setCaptureMode(mode) {
     setCaptureConfig({...captureConfig, captureMode: mode});

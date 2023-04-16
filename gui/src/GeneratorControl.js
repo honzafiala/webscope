@@ -138,7 +138,7 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-t-md bg-white leading-5 text-slate-700  border border-slate-300 shadow">
         <div className={`flex-1 px-3 py-[2px]  ${generatorConfig.active ? "text-slate-700 bg-slate-200" : "text-slate-400 bg-slate-100"}`}>Gen.&nbsp;</div>
         
-        <SideBarButton onClick={toggleActive} enabled={USBDevice && captureState == "Stopped"} text={generatorConfig.active ? 'ON' : 'OFF'}/>
+        <SideBarButton onClick={toggleActive} enabled={USBDevice} text={generatorConfig.active ? 'ON' : 'OFF'}/>
         
    
     </div>
@@ -153,9 +153,9 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="-" onClick={decreaseFrequency}/>
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="Edit" onClick={() => setFrequencyPopUpActive(true)}/>
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="+" onClick={increaseFrequency}/>
+        <SideBarButton enabled={true} text="-" onClick={decreaseFrequency}/>
+        <SideBarButton enabled={true} text="Edit" onClick={() => setFrequencyPopUpActive(true)}/>
+        <SideBarButton enabled={true} text="+" onClick={increaseFrequency}/>
     </div>
 
     <div className="flex px-1 border-x border-slate-300">
@@ -164,8 +164,8 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
     </div>
 
     <div className="pointer-events-auto flex divide-x divide-slate-400/20 overflow-hidden rounded-b-md  bg-slate-100   leading-5 text-slate-700 border border-slate-300 shadow">
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="-" onClick={() => changeDuty('-')}/>
-        <SideBarButton enabled={captureState == "Stopped" && generatorConfig.active} text="+" onClick={() => changeDuty('+')}/>
+        <SideBarButton enabled={true} text="-" onClick={() => changeDuty('-')}/>
+        <SideBarButton enabled={true} text="+" onClick={() => changeDuty('+')}/>
     
     </div>
 
