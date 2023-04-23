@@ -7,7 +7,7 @@ import { sample } from 'lodash';
 
 
 export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptureConfig, viewConfig, setViewConfig, setCaptureData, defaultCaptureData}) {
-    const sampleRateValues = [500, 250, 100, 50, 20, 10];
+    const sampleRateValues = [500, 200, 100, 50, 20, 10, 5, 2, 1];
     const captureDepthValues = [100, 50, 20, 10, 5, 2, 1];
 
     const [sampleRatePopUpOpen, setSampleRatePopUpOpen] = useState(false);

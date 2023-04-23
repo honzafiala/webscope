@@ -241,7 +241,7 @@ bool is_trigger_index(const capture_config_t capture_config, uint index) {
 uint main_chan, ctrl_chan; // DMA channels for circular ADC capture 
 
 void capture(capture_config_t capture_config) {
-        uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 10;    
+        uint auto_mode_timeout_samples = capture_config.capture_buffer_len * 3;    
 
     //printf("\n");
     //printf("Trigger threshold: %d\n", capture_config.trigger_threshold);
