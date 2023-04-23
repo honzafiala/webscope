@@ -34,7 +34,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
     }
 
     function changeCaptureDepth(dir) {
-        let index = captureDepthValues.indexOf(captureConfig.captureDepth / 1000);
+        let index = captureDepthValues.indexOf(captureConfig.totalCaptureDepth / 1000);
         if (dir == '+' && index > 0) index--;
         else if (dir == '-' && index < captureDepthValues.length - 1) index++;
 
@@ -105,7 +105,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
 
           <div 
             className={`text-center py-[2px] px-1 bg-slate-200`}>
-            Sample rate&nbsp;{captureConfig.sampleRate/1000}&nbsp;kS/s
+            Sample rate&nbsp;{(getRealSampleRate(captureConfig.sampleRate)/1000).toFixed(3)}&nbsp;kS/s
           </div>
           <div onClick={() => changeSampleRate('-')}
             className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300`}>
