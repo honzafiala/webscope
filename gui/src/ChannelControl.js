@@ -17,7 +17,12 @@ export default function ChannelControl({color, number, captureConfig, setCapture
       }
       else if (dir == '+' && oldVal == 0.5) {
         newVal = 1;
-      } else {
+      } else if (dir == '-' && oldVal == 0.5) {
+        newVal = 0.25;
+      } else if (dir == '+' && oldVal == 0.25) {
+        newVal = 0.5;
+      } 
+      else {
         let d = String(oldVal)[0];
         if (d == 1)
           if (dir == '-' ) newVal /= 2;
