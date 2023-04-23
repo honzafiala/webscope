@@ -298,7 +298,7 @@ void capture(capture_config_t capture_config) {
         if (!triggered && xfer_count_since_start >= capture_config.pretrigger && xfer_count_since_start > capture_config.num_active_channels * 50) {
             for (int i = prev_xfer_count_since_start; i < xfer_count_since_start; i ++) {
                 uint cur_val =  capture_buf[i % capture_config.capture_buffer_len];
-                uint prev_val = capture_buf[(i - capture_config.num_active_channels * 50) % capture_config.capture_buffer_len ];
+                uint prev_val = capture_buf[(i - capture_config.num_active_channels) % capture_config.capture_buffer_len ];
 
                 if (!is_trigger_index(capture_config, i)) continue;
 
