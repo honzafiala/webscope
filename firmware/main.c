@@ -36,6 +36,9 @@ volatile uint16_t capture_buf[100000] = {0};
 
 
 typedef enum {EDGE_UP, EDGE_DOWN, EDGE_BOTH} trigger_edge_t;
+
+
+
 typedef struct {
     bool active_channels[3];
     uint num_active_channels;
@@ -249,11 +252,11 @@ void capture(capture_config_t capture_config) {
     //printf("Capture buffer len: %d\n", capture_config.capture_buffer_len);
     //printf("Trigger channels: %d %d %d\n", capture_config.trigger_channels[0], capture_config.trigger_channels[1], capture_config.trigger_channels[2]);
 
-    //printf("is_trigger_index: ");
+    printf("is_trigger_index: ");
     for (int i = 0; i < 10; i++) {
-      //  printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
+        printf("%d ", is_trigger_index(capture_config, i) ? 1 : 0);
     }
-    //printf("\n");
+    printf("\n");
 
     adc_configure(capture_config);
 
@@ -318,6 +321,7 @@ void capture(capture_config_t capture_config) {
         // Check for timeout (in auto mode)
         } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
             trigger_index = 0;
+            adc_run(false);
             printf("Timeout at %d S\n", xfer_count_since_start);
             triggered = true;
             capture_result = OK;

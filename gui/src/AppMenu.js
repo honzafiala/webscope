@@ -1,8 +1,43 @@
 import React, {useState, useEffect} from 'react';
 import PopUpWindow from './PopUpWindow';
 
-export default function AppMenu(props) {
+export default function AppMenu(captureData, captureConfig) {
     const [appMenuActive, setAppMenuActive] = useState(false);
+
+    function saveCsv({captureData, captureConfig}) {
+
+    
+        let csv = [];
+        for (let i = 0; i < captureConfig.captureDepth; i++) {
+            for (let channel = 0; channel < 3; channel++) {
+                if (captureConfig.activeChannels[channel]) {
+                    csv.push(String(captureData[channel][i]));
+                    csv.push(",");
+                }
+    
+            }
+            csv.push("\n");
+        }
+    
+        // Remove trailing comma
+        csv.pop();
+        csv.pop();
+        csv.push("\n");
+    
+        // file object
+         const file = new Blob(csv, {type: 'text/plain'});
+     
+    
+         
+        // anchor link
+         const element = document.createElement("a");
+         element.href = URL.createObjectURL(file);
+         element.download = "capture.csv";
+     
+         // simulate link click
+         document.body.appendChild(element); // Required for this to work in FireFox
+         element.click();
+    }
 
     return(
         <div className="flex-grow flex-1">
@@ -17,8 +52,8 @@ export default function AppMenu(props) {
                     <li>Get offline version</li>
                     <li>Reset view</li>
                     <li>Reset all settings</li>
-                    <li>Download capture (csv)</li>
                 </ul>
+                <button onClick={() => saveCsv(captureData, captureConfig)}>Download capture (csv)</button>
             </PopUpWindow>
         </div>
     );

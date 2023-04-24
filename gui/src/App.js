@@ -10,6 +10,7 @@ import Capture from './Capture';
 import CursorSliderOverlay from './CursorSliderOverlay';
 import ConnectDevice from './ConnectDevice';
 import GeneratorControl from './GeneratorControl';
+import PowerSupplyControl from './PowerSupplyControl';
 import PopUpWindow from './PopUpWindow';
 
 import logo from './symbol_cvut_konturova_verze_cb.svg';
@@ -29,7 +30,8 @@ let defaultCaptureConfig = {
   sampleRateDiv: 96,
   captureDepth: 10000,
   totalCaptureDepth: 10000,
-  captureMode: "Auto"
+  captureMode: "Auto",
+  powerSupplyMode: 'PWM'
 };
 
 let defaultCaptureData = [[], [], []];
@@ -143,7 +145,7 @@ export default function App() {
     <div className="app">
       <div className="px-1 flex bg-slate-50 border-b border-slate-200 w-screen select-none">
 
-      <AppMenu ></AppMenu>
+      <AppMenu captureData={captureData} captureConfig={savedCaptureConfig}></AppMenu>
       <div className='flex'>
       <CaptureDepthAndSampleRateConfig 
           captureConfig={captureConfig} 
@@ -179,6 +181,8 @@ export default function App() {
             <GeneratorControl captureConfig={captureConfig} viewConfig={viewConfig} setViewConfig={setViewConfig}
              generatorConfig={generatorConfig} setGeneratorConfig={setGeneratorConfig} USBDevice={USBDevice} 
              captureState={captureState}/>
+             <PowerSupplyControl captureConfig={captureConfig} setCaptureConfig={setCaptureConfig}></PowerSupplyControl>
+
       </div>
       <div className='relative flex-1 flex overflow-hidden'>
 
