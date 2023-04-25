@@ -31,7 +31,8 @@ let defaultCaptureConfig = {
   captureDepth: 10000,
   totalCaptureDepth: 10000,
   captureMode: "Auto",
-  powerSupplyMode: 'PWM'
+  powerSupplyMode: 'PWM',
+  forceTrigger: false
 };
 
 let defaultCaptureData = [[], [], []];

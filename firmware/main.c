@@ -37,7 +37,7 @@ volatile uint16_t capture_buf[100000] = {0};
 
 typedef enum {EDGE_UP, EDGE_DOWN, EDGE_BOTH} trigger_edge_t;
 
-
+typedef enum {PWM, PFM} smps_mode_t;
 
 typedef struct {
     bool active_channels[3];
@@ -46,11 +46,13 @@ typedef struct {
     uint sample_rate;
     uint adc_div;
     bool auto_mode;
+    bool force_trigger;
     uint trigger_threshold;
     uint pretrigger;
     uint capture_buffer_len;
     bool trigger_channels[3];
     trigger_edge_t trigger_edge;
+    smps_mode_t smps_mode;
 } capture_config_t;
 
 typedef struct {
@@ -76,6 +78,13 @@ void debug_gpio_init() {
     gpio_set_dir(DEBUG_PIN1, GPIO_OUT);
     gpio_init(DEBUG_PIN2);
     gpio_set_dir(DEBUG_PIN2, GPIO_OUT);
+}
+
+void smps_set_mode(smps_mode_t mode) {
+    gpio_init(35);
+    gpio_set_dir(35, GPIO_OUT);
+    gpio_put(35, mode == PWM ? 1 : 0);
+    printf("GPIO 23 set to %d\n", mode == PWM ? 1 : 0);
 }
 
 void analog_dma_configure(const uint main_chan, const uint ctrl_chan, capture_config_t capture_config) {
@@ -211,6 +220,12 @@ capture_config_t parse_capture_config(uint8_t config_bytes[]) {
     else if (config_bytes[10] == 1) capture_config.trigger_edge = EDGE_DOWN;
     else capture_config.trigger_edge = EDGE_UP;
 
+    capture_config.smps_mode = config_bytes[11] ? PFM : PWM;
+    printf("SMPS mode: %s\n", capture_config.smps_mode == PFM ? "PFM" : "PWM");
+
+    capture_config.force_trigger = config_bytes[12];
+    printf("Force trigger: %d\n", capture_config.force_trigger);
+
     return capture_config;
 }
 
@@ -282,6 +297,14 @@ void capture(capture_config_t capture_config) {
 
     typedef enum {OK, ABORTED} capture_result_t;
     capture_result_t capture_result;
+
+
+    // If forced trigger is ON, trigger immediately
+    if (capture_config.force_trigger) {
+        triggered = true;
+        trigger_index = 0;
+    }
+
     while (1) {
         // Check if abort message was received
         if (usb_data_ready()) {
@@ -318,7 +341,10 @@ void capture(capture_config_t capture_config) {
                 }
             }
 
-        // Check for timeout (in auto mode)
+
+
+
+        // Check for timeout (in auto mode or with forced trigger)
         } if (!triggered && capture_config.auto_mode && xfer_count_since_start >= auto_mode_timeout_samples) {
             trigger_index = 0;
             adc_run(false);
@@ -388,6 +414,7 @@ int main(void) {
                 printf("Capture config received\n");
                 capture_config = parse_capture_config(rec_buf);
                 printf("Sample rate: %f (div = %d)\n", (float) 48000000 / capture_config.adc_div, capture_config.adc_div);
+                smps_set_mode(capture_config.smps_mode);
                 capture(capture_config);
                 break;
             case 0: // Abort message received - ignore;

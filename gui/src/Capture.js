@@ -122,6 +122,8 @@ function captureConfigToByteArray(cfg) {
     let trigger12Bit =  Math.round(4096 * cfg.trigger.threshold / 3.3);
     let thresholdBytes = [trigger12Bit >> 8, trigger12Bit & 0xFF];
 
+    let powerSupplyModeByte = captureConfig.powerSupplyMode == "PWM" ? 0 : 1;
+
     return new Uint8Array([
         1, 
         thresholdBytes[0],
@@ -133,7 +135,9 @@ function captureConfigToByteArray(cfg) {
         divBytes[0],
         divBytes[1],
         triggerChannelsByte,
-        triggerEdgeByte
+        triggerEdgeByte,
+        powerSupplyModeByte,
+        captureConfig.forceTrigger
     ]);
 }
 
@@ -181,6 +185,8 @@ function abortCapture() {
           setAbortedByConfigChange(false);
           abortedByConfigChange = false;
 
+          setCaptureConfig({...captureConfig, forceTrigger: false});
+
           singleCaptureStopped = false;
           setSingleCaptureStopped(false);
 
@@ -189,6 +195,7 @@ function abortCapture() {
           await readSingle();
 
           singleCaptureStopped = true;
+          setCaptureConfig({...captureConfig, forceTrigger: false});
           setSingleCaptureStopped(true);
 
         }
@@ -226,9 +233,17 @@ async function pollUSB(len) {
           onClick={() => {setCaptureState("Single"); setCaptureData([[], [], []])}} 
           disabled={USBDevice == null}
           className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 disabled:text-slate-400
-          ${captureState == "Single" ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
+          ${(captureState == "Single" && !captureConfig.forceTrigger) ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
           Single
         </button>
+        <button 
+          onClick={() => {setCaptureConfig({...captureConfig, forceTrigger: true}); setCaptureState("Single"); setCaptureData([[], [], []])}} 
+          disabled={USBDevice == null}
+          className={`text-center py-[2px] px-3 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300 disabled:text-slate-400
+          ${(captureState == "Single" && captureConfig.forceTrigger) ? "bg-blue-600 text-slate-100" : "text-slate-700"}`}>
+          Force
+        </button>
+
         <div 
           onClick={() => {abortCapture(); setCaptureState("Stopped");}} 
           className={`text-center py-[2px] px-1 hover:bg-slate-200 hover:text-slate-900 active:bg-slate-300
