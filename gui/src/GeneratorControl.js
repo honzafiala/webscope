@@ -30,13 +30,17 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
     const [frequencyPopUpInputValue, setFrequencyPopUpInputValue] = useState(generatorConfig.setFrequency);
 
     function increaseFrequency() {
-        updateFrequency(parseInt(generatorConfig.setFrequency) + 100);
+        let newFrequency;
+        if (generatorConfig.setFrequency < 100) newFrequency = 100
+        else newFrequency = Math.round(generatorConfig.setFrequency / 100) * 100 + 100; 
+        updateFrequency(newFrequency);
         //sendGeneratorConfig(generatorConfig, USBDevice);
     }
 
     function decreaseFrequency() {
-        if (parseInt(generatorConfig.setFrequency) - 100 > 0)
+        if (parseInt(generatorConfig.setFrequency) - 100 >= 7.5)
             updateFrequency(parseInt(generatorConfig.setFrequency) - 100);
+        else updateFrequency(7.5)
         //sendGeneratorConfig(generatorConfig, USBDevice);
     }
 
@@ -48,13 +52,14 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
         let realFrequency = generatorConfig.sysClk / div / wrap;
         console.log("updating freq", setFrequency, "real:", realFrequency);
 
+        setFrequencyPopUpInputValue(setFrequency);
 
         setGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap});
         //sendGeneratorConfig({...generatorConfig, realFrequency: realFrequency, setFrequency: setFrequency, div: div, wrap: wrap}, USBDevice);
     }
 
     function isFrequencyValid(frequency) {
-        return frequency >= 100 && frequency <= 100000000;
+        return frequency >= 7.5 && frequency <= 100000000;
     }
 
     function getRealFrequency(setFrequency) {

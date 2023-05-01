@@ -69,7 +69,7 @@ generator_config_t parse_generator_config(uint8_t config_bytes[]) {
     generator_config.high_count = config_bytes[5] * generator_config.wrap / 100;
     generator_config.active = config_bytes[6];
 
-    printf("Div: %d\n", generator_config.div);
+    printf("PWM Div: %d, Wrap %d\n", generator_config.div, generator_config.wrap);
     return generator_config;
 }
 
@@ -405,6 +405,7 @@ int main(void) {
 
     uint8_t rec_buf[100] = {0};
 
+    generator_config_t prev_generator_config;
 
     while (1) {
         uint ret = usb_rec(rec_buf, 100);
@@ -425,12 +426,13 @@ int main(void) {
                 break;
             case 2: // Generator config received
                 printf("Gen config received\n");
+
                 generator_config = parse_generator_config(rec_buf);
-                //printf("Wrap: %d\n", generator_config.wrap);
-                //printf("Div: %d\n", generator_config.div);
-                //printf("High count: %d\n", generator_config.high_count);
-                //printf("Active: %d\n", (int) generator_config.active);
-                pwm_configure(generator_config);
+                if (memcmp((void *) &prev_generator_config, (void *) &generator_config, sizeof(generator_config)) != 0) {
+                    printf("Generator config changed, configuring peripheral.\n");
+                    pwm_configure(generator_config);
+                }
+                prev_generator_config = generator_config;
                 break;
             default:
                 break;
