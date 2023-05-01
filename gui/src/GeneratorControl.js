@@ -38,9 +38,9 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
     }
 
     function decreaseFrequency() {
-        if (parseInt(generatorConfig.setFrequency) - 100 >= 7.5)
-            updateFrequency(parseInt(generatorConfig.setFrequency) - 100);
-        else updateFrequency(7.5)
+        let newFrequency = Math.round(generatorConfig.setFrequency / 100) * 100 - 100;
+       if (newFrequency < 10) newFrequency = 10;
+        updateFrequency(newFrequency);
         //sendGeneratorConfig(generatorConfig, USBDevice);
     }
 
