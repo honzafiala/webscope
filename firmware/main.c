@@ -67,6 +67,7 @@ generator_config_t parse_generator_config(uint8_t config_bytes[]) {
     generator_config.wrap = (config_bytes[1] << 8) + config_bytes[2];
     generator_config.div = (config_bytes[3] << 8) + config_bytes[4];
     generator_config.high_count = config_bytes[5] * generator_config.wrap / 100;
+    if (generator_config.high_count < 1) generator_config.high_count = 1;
     generator_config.active = config_bytes[6];
 
     printf("PWM Div: %d, Wrap %d\n", generator_config.div, generator_config.wrap);

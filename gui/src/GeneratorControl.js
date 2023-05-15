@@ -83,10 +83,16 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
 
     function changeDuty(dir) {
         let newVal = generatorConfig.duty;
-        if (dir == '-' && newVal > 10) {
-            newVal -= 10;
-        } else if (dir == '+' && newVal < 100){
-            newVal += 10;
+        if (dir == '-') {
+            if (newVal > 10) newVal -= 10;
+            else if (newVal == 10) newVal = 5;
+            else if (newVal == 5) newVal = 2;
+            else if (newVal == 2) newVal = 1;
+        } else if (dir == '+'){
+            if (newVal == 1) newVal = 2;
+            else if (newVal == 2) newVal = 5;
+            else if (newVal == 5) newVal = 10;
+            else if (newVal < 100) newVal += 10;
         }
         setGeneratorConfig({...generatorConfig, duty: newVal});
         generatorConfig.duty = newVal;
