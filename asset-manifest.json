@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/webscope/static/css/main.f6a67758.css",
-    "main.js": "/webscope/static/js/main.351d14e7.js",
-    "static/js/787.ad33413d.chunk.js": "/webscope/static/js/787.ad33413d.chunk.js",
-    "static/media/symbol_cvut_konturova_verze_cb.svg": "/webscope/static/media/symbol_cvut_konturova_verze_cb.501503d6016fe5faa52eeb3d7d9a053b.svg",
-    "index.html": "/webscope/index.html",
-    "main.f6a67758.css.map": "/webscope/static/css/main.f6a67758.css.map",
-    "main.351d14e7.js.map": "/webscope/static/js/main.351d14e7.js.map",
-    "787.ad33413d.chunk.js.map": "/webscope/static/js/787.ad33413d.chunk.js.map"
+    "main.css": "./static/css/main.f6a67758.css",
+    "main.js": "./static/js/main.ddb1723c.js",
+    "static/js/787.ad33413d.chunk.js": "./static/js/787.ad33413d.chunk.js",
+    "static/media/symbol_cvut_konturova_verze_cb.svg": "./static/media/symbol_cvut_konturova_verze_cb.501503d6016fe5faa52eeb3d7d9a053b.svg",
+    "index.html": "./index.html",
+    "main.f6a67758.css.map": "./static/css/main.f6a67758.css.map",
+    "main.ddb1723c.js.map": "./static/js/main.ddb1723c.js.map",
+    "787.ad33413d.chunk.js.map": "./static/js/787.ad33413d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f6a67758.css",
-    "static/js/main.351d14e7.js"
+    "static/js/main.ddb1723c.js"
   ]
 }
