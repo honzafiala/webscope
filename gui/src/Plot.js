@@ -95,7 +95,7 @@ function Plot({ data, viewConfig, captureConfig, savedCaptureConfig, cursorConfi
 
 
     // Draw channels
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 1.5;
     for (let channelIndex = 0; channelIndex < savedCaptureConfig.activeChannels.length; channelIndex++) {
       if (!savedCaptureConfig.activeChannels[channelIndex])
         continue;
