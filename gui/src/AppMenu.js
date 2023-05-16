@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import PopUpWindow from './PopUpWindow';
+import { getNumActiveChannels } from './Utils';
 
 export default function AppMenu(captureData, captureConfig) {
     const [appMenuActive, setAppMenuActive] = useState(false);
@@ -11,16 +12,15 @@ export default function AppMenu(captureData, captureConfig) {
         for (let i = 0; i < captureConfig.captureDepth; i++) {
             for (let channel = 0; channel < 3; channel++) {
                 if (captureConfig.activeChannels[channel]) {
-                    csv.push(String(captureData[channel][i]));
-                    csv.push(",");
+                    csv.push((captureData[channel][i] * 3.3 / 4095).toFixed(4));
+                    csv.push(", ");
                 }
-    
             }
-            csv.push("\n");
+            csv.push((1000 * i / (captureConfig.sampleRate / getNumActiveChannels(captureConfig))).toFixed(3));
+            csv.push(",\n");
         }
     
         // Remove trailing comma
-        csv.pop();
         csv.pop();
         csv.push("\n");
     

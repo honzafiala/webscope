@@ -84,10 +84,10 @@ void debug_gpio_init() {
 }
 
 void smps_set_mode(smps_mode_t mode) {
-    gpio_init(35);
-    gpio_set_dir(35, GPIO_OUT);
-    gpio_put(35, mode == PWM ? 1 : 0);
-    printf("GPIO 23 set to %d\n", mode == PWM ? 1 : 0);
+    gpio_init(24);
+    gpio_set_dir(24, GPIO_OUT);
+    gpio_put(24, mode == PWM ? 1 : 0);
+    printf("GPIO 24 set to %d\n", mode == PWM ? 1 : 0);
 }
 
 void analog_dma_configure(const uint main_chan, const uint ctrl_chan, capture_config_t capture_config) {

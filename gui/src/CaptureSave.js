@@ -7,8 +7,8 @@
     for (let i = 0; i < captureConfig.captureDepth; i++) {
         for (let channel = 0; channel < 3; channel++) {
             if (captureConfig.activeChannels[channel]) {
-                csv.push(String(captureData[channel][i]));
-                csv.push(",");
+                csv.push(String(captureData[channel][i] * 3.3 / 4095));
+                csv.push(",**");
             }
 
         }
