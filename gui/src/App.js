@@ -131,11 +131,12 @@ export default function App() {
             <div className='text-2xl mt-2'>WebScope</div>
             <div className=''>Czech Technical University in Prague</div>
             <div className=''>Department of Measurement</div>
+            <div className=''>Developed by Jan Fiala</div>
             <button className='border rounded-md border-slate-400 p-1 mb-1 text-xl bg-blue-600 text-slate-100 shadow-md'
             onClick={connect}>Connect device</button>
             <br/>
-            <a className="underline pr-2 text-slate-500" href="https://www.seznam.cz">About/Manual</a>
-            <a className="underline text-slate-500">Firmware</a>
+            {/* <a className="underline pr-2 text-slate-500" href="https://www.seznam.cz">About/Manual</a>
+            <a className="underline text-slate-500">Firmware</a> */}
           </div>
           <div className='align-middle'>
           <img src={logo} className="mt-[-8px] mr-[-5px] align-bottom"></img>

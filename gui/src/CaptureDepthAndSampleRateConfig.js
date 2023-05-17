@@ -54,7 +54,7 @@ export default function CaptureDepthAndSampleRateConfig({captureConfig, setCaptu
     return(
         <div className='flex flex-row'>
 
-        <PopUpWindow active={sampleRatePopUpOpen} setActive={setSampleRatePopUpOpen} title="Sample rate settings">
+        <PopUpWindow active={sampleRatePopUpOpen} setActive={setSampleRatePopUpOpen} title="Sample rate settings" topOffset="top-[190px]">
         <div>
             Set sample rate
             <input 

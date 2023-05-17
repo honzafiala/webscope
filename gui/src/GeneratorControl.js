@@ -107,7 +107,7 @@ export default function GeneratorControl({USBDevice, captureState, generatorConf
   return (
     <div className="my-1 mx-1 bg-white rounded-md border border-slate-400  shadow text-slate-700 text-l">
 
-    <PopUpWindow active={frequencyPopUpActive} setActive={setFrequencyPopUpActive} title="Generator frequency settings">
+    <PopUpWindow active={frequencyPopUpActive} setActive={setFrequencyPopUpActive} title="Generator frequency settings" topOffset="top-[60px]">
         <div>
             Set frequency
             <input 
