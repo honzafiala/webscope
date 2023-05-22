@@ -399,8 +399,6 @@ void capture(capture_config_t capture_config) {
 int main(void) {
     multicore_launch_core1(core1_task);
 
-
-
     main_chan = dma_claim_unused_channel(true);
     ctrl_chan = dma_claim_unused_channel(true);
 
