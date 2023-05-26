@@ -45,14 +45,6 @@ export default function AppMenu(captureData, captureConfig) {
             <button className="mx-1 my-1 py-[1px] pointer-events-auto w-[124px]  bg-slate-100 rounded-md text-l leading-5 text-slate-700 border border-slate-400 shadow" onClick={() => setAppMenuActive(true)}>Menu</button>
 
             <PopUpWindow active={appMenuActive} setActive={setAppMenuActive} >
-                <ul className='list-disc px-5'>
-                    <li>About</li>
-                    <li>User manual</li>
-                    <li>Download firmware</li>
-                    <li>Get offline version</li>
-                    <li>Reset view</li>
-                    <li>Reset all settings</li>
-                </ul>
                 <button onClick={() => saveCsv(captureData, captureConfig)}>Download capture (csv)</button>
             </PopUpWindow>
         </div>

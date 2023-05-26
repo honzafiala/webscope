@@ -101,15 +101,4 @@ useEffect(() => {
 
   );
 
-  return (
-    <div className="ChannelControl">
-      <div className="topBar" style={{backgroundColor: "#ACACAC"}}>
-        <div className='name'>Horizontal</div> 
-        </div>
-        <div className='content'>
-          <SettingControl name="Zoom" unit=" x" data={viewConfig.horizontal.zoom} callback={changeZoom}/>
-          <SettingControl name="Offset" unit=" div" data={viewConfig.horizontal.offset} callback={changeViewCenter}/>
-        </div>
-    </div>
-    )
 }
